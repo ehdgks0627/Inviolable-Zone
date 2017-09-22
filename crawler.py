@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import requests
 import os
-import string
 import sys
 import progressbar
 from bs4 import BeautifulSoup
@@ -15,7 +14,7 @@ def download_file(url, t):
         os.makedirs("sample/{}".format(t))
     with open("sample/{}/".format(t) + local_filename, 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024):
-            if chunk: # filter out keep-alive new chunks
+            if chunk:
                 f.write(chunk)
     try:
         if os.path.getsize("sample/{}/".format(t) + local_filename) < 1000:
