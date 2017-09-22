@@ -15,6 +15,11 @@ def download_file(url, t):
         for chunk in r.iter_content(chunk_size=1024):
             if chunk: # filter out keep-alive new chunks
                 f.write(chunk)
+    try:
+        if os.path.getsize("sample/{}/".format(t) + local_filename) < 1000:
+            os.remove("sample/{}/".format(t))
+    except:
+        pass
     return local_filename
 
 def machine(count_start, count_end, t):
