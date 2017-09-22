@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 def download_file(url, t):
     local_filename = url.split('/')[-1]
     r = requests.get(url, stream=True)
+    if not os.path.exists("sample"):
+        os.makedirs("sample")
     if not os.path.exists("sample/{}".format(t)):
         os.makedirs("sample/{}".format(t))
     with open("sample/{}/".format(t) + local_filename, 'wb') as f:
