@@ -19,7 +19,7 @@ def download_file(url, t):
                 f.write(chunk)
     try:
         if os.path.getsize("sample/{}/".format(t) + local_filename) < 1000:
-            os.remove("sample/{}/".format(t))
+            os.remove("sample/{}/".format(t) + local_filename)
     except:
         pass
     return local_filename
