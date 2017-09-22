@@ -1,6 +1,8 @@
+#!/usr/bin/python3
 import requests
 import os
 import string
+import sys
 from bs4 import BeautifulSoup
 
 def download_file(url, t):
@@ -23,7 +25,7 @@ def machine(count_start, count_end, t):
                    'Cache-Control': 'max-age=0',
                    'Reffer': 'https://www.google.co.kr/'}
 
-        print(url)
+        print("[+]" + url)
         response = requests.get(url, headers=headers)
         html = response.text
         root = BeautifulSoup(html, 'html.parser')
@@ -37,7 +39,12 @@ def machine(count_start, count_end, t):
                 continue
 
 def main() :
-    machine(0, 100, "docx")
+    if len(sys.argv) < 2:
+        print("[*] python3 Usage {} docx".format(sys.argv[0]))
+        print("[*] python3 Usage {} hwp".format(sys.argv[0]))
+        sys.exit()
+    else:
+        machine(0, 1000, sys.argv[1])
 
 if __name__ == '__main__':
     main()
