@@ -14,9 +14,9 @@ def download_file(url, t):
                 f.write(chunk)
     return local_filename
 
-def machine(count, t):
-    for num in range(0,count/10) :
-        url = "https://www.google.co.kr/search?q=example filetype:{}&star={}".format(t, num*10)
+def machine(count_start, count_end, t):
+    for num in range(int(count_start/10), int(count_end/10)):
+        url = "https://www.google.co.kr/search?q=example filetype:{}&start={}".format(t, num*10)
         headers = {'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'
                    'Host': 'www.google.co.kr',
                    'Connection': 'keep-alive',
@@ -37,7 +37,7 @@ def machine(count, t):
                 continue
 
 def main() :
-    machine(1000, "docx")
+    machine(0, 100, "docx")
 
 if __name__ == '__main__':
     main()
