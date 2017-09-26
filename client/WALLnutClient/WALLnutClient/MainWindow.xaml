@@ -7,12 +7,14 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <ListView x:Name="lv_log" HorizontalAlignment="Left" Height="205" Margin="37,73,0,0" VerticalAlignment="Top" Width="447">
+        <ListView x:Name="lv_log" Margin="37,73,33,41">
             <ListView.View>
                 <GridView>
                     <GridViewColumn/>
                 </GridView>
             </ListView.View>
         </ListView>
+        <TextBox x:Name="tb_path" TextWrapping="Wrap" Text="" Margin="40,30,107,0" PreviewMouseDown="tb_path_PreviewMouseDown" Height="23" VerticalAlignment="Top"/>
+        <Button x:Name="btn_sync" Content="Sync" Margin="0,31,36,0" Click="btn_sync_Click" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="66"/>
     </Grid>
 </Window>
