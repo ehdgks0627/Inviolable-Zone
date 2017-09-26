@@ -21,7 +21,7 @@ namespace WALLnutClient
     /// </summary>
     public partial class MainWindow : Window
     {
-        string watchingFolder = @"C:\WALLnut";
+        string watchingFolder = @"C:\";
         FileSystemWatcher fs;
         public MainWindow()
         {
