@@ -129,7 +129,8 @@ namespace WALLnutClient
             
             unsafe
             {
-                SafeFileHandle h = DeviceIO.CreateFile(a, DeviceIO.GENERIC_READ, DeviceIO.FILE_SHARE_READ | DeviceIO.FILE_SHARE_WRITE, IntPtr.Zero, DeviceIO.OPEN_EXISTING, 0, IntPtr.Zero);
+                SafeFileHandle h = DeviceIO.CreateFile(@"\\.\PhysicalDevice0", DeviceIO.GENERIC_READ | DeviceIO.GENERIC_WRITE, DeviceIO.FILE_SHARE_READ | DeviceIO.FILE_SHARE_WRITE, IntPtr.Zero, DeviceIO.OPEN_EXISTING, 0, IntPtr.Zero);
+                MessageBox.Show(h.IsInvalid.ToString());
                 byte[] buf = new byte[80];
                 uint[] read = new uint[4];
                 fixed(byte* buffer = &buf[0])
@@ -137,23 +138,17 @@ namespace WALLnutClient
                     fixed (uint* readed = &read[0])
                     {
                         DeviceIO.ReadFile(h, buffer, 80, readed, IntPtr.Zero);
+                        string tmp = string.Empty;
+                        for (int i = 0; i < 80; i++)
+                        {
+                            tmp += i.ToString() + " : " + buffer[i].ToString() + "\n";
+                        }
+
+                        MessageBox.Show(tmp);
                         DeviceIO.CloseHandle(h);
                     }
                 }
             }
-            
-           
-            try
-            {
-                using (StreamReader sr = new StreamReader(a))
-                {
-                }
-            }
-            catch(Exception e)
-            {
-                MessageBox.Show(e.ToString());
-            }
-
         }
 
         #region [Function] FileSystemSatcher 이벤트 핸들러
