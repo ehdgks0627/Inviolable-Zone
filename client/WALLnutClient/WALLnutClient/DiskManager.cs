@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WALLnutClient
 {
-    class FIleManager
+    class DiskManager
     {
         
     }
