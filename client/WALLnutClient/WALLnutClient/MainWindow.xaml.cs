@@ -20,11 +20,27 @@ namespace WALLnutClient
     public partial class MainWindow : Window
     {
         FileSystemWatcher fs;
+        List<string> BlackListExtensions = new List<string>();
         public MainWindow()
         {
             InitializeComponent();
 
             tb_path.Text = System.AppDomain.CurrentDomain.BaseDirectory;
+
+            #region [Code] 블랙리스트 파일을 읽어와서 리스트에 저장
+            using (StreamReader sr = new StreamReader(@"..\..\ext.data"))
+            {
+                while(true)
+                {
+                    String line = sr.ReadLine();
+                    if ( line == null)
+                    {
+                        break;
+                    }
+                    BlackListExtensions.Add(line);
+                }
+            }
+            #endregion
         }
 
         #region [Function] FileSystemSatcher 이벤트 핸들러
