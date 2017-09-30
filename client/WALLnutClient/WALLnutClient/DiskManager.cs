@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace WALLnutClient
 {
@@ -36,7 +37,10 @@ namespace WALLnutClient
             unsafe
             {
                 SafeFileHandle h = DiskIO.CreateFile(diskinfo.DeviceID, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
-
+                if(h.IsInvalid == true)
+                {
+                    MessageBox.Show("관리자 권한이 필요합니다", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
                 byte[] buf = new byte[512];
                 uint[] read = new uint[1];
                 fixed (byte* buffer = &buf[0])
@@ -48,7 +52,7 @@ namespace WALLnutClient
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
                         DiskIO.ReadFile(h, buffer, 512, readed, IntPtr.Zero);
 
-                        BinaryWriter bw = new BinaryWriter(File.Open(diskinfo.DeviceID + ".backup",FileMode.Create));
+                        BinaryWriter bw = new BinaryWriter(File.Open(diskinfo.DeviceID.Replace("\\","_") + ".backup",FileMode.Create));
                         foreach(byte b in buf)
                         {
                             bw.Write(b);
@@ -77,7 +81,7 @@ namespace WALLnutClient
                         }
                         fixed (byte* ptr = &buf[0x28]) // 디스크 크기 TODO
                         {
-                            *(UInt64*)ptr = 1 * 0x1234;
+                            *(UInt64*)ptr = 1 * diskinfo.Size;
                         }
                         fixed (byte* ptr = &buf[0x30]) // Reserved
                         {
@@ -87,8 +91,6 @@ namespace WALLnutClient
                         {
                             buf[0x38 + i] = Convert.ToByte(SIGNATURE[i]);
                         }
-
-
 
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
                         DiskIO.WriteFile(h, buffer, 512, readed, IntPtr.Zero);
