@@ -1,10 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace WALLnutClient
@@ -21,7 +17,7 @@ namespace WALLnutClient
         public DiskManager(string diskname)
         {
             handle = DiskIO.CreateFile(diskname, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
-            if (handle.IsInvalid == false && handle.IsClosed == false)
+            if (!handle.IsInvalid && !handle.IsClosed)
             {
                 isActive = true;
             }
@@ -30,16 +26,17 @@ namespace WALLnutClient
                 isActive = false;
             }
         }
-        
+
         #region [Funciton] 디스크를 인자로 받아 포맷합니다
-        public static int FormatDisk(DiskInfo diskinfo)
+        public static bool FormatDisk(DiskInfo diskinfo)
         {
             unsafe
             {
                 SafeFileHandle h = DiskIO.CreateFile(diskinfo.DeviceID, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
-                if(h.IsInvalid == true)
+                if (h.IsInvalid)
                 {
                     MessageBox.Show("관리자 권한이 필요합니다", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
                 }
                 byte[] buf = new byte[512];
                 uint[] read = new uint[1];
@@ -52,18 +49,23 @@ namespace WALLnutClient
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
                         DiskIO.ReadFile(h, buffer, 512, readed, IntPtr.Zero);
 
-                        BinaryWriter bw = new BinaryWriter(File.Open(diskinfo.DeviceID.Replace("\\","_") + ".backup",FileMode.Create));
-                        foreach(byte b in buf)
+                        BinaryWriter bw = new BinaryWriter(File.Open(diskinfo.DeviceID.Replace("\\", "_") + ".backup", FileMode.Create));
+                        foreach (byte b in buf)
                         {
                             bw.Write(b);
                         }
                         bw.Close();
+                        
+                        for(int i=0;i<512;i++)
+                        {
+                            buf[i] = 0x00;
+                        }
 
-                        for (int i=0; i<8; i++) // 시그니처
+                        for (int i = 0; i < 8; i++) // 시그니처
                         {
                             buf[i] = Convert.ToByte(SIGNATURE[i]);
                         }
-                        fixed(byte* ptr = &buf[0x08]) // 블록 사이즈 (기본 4096 byte)
+                        fixed (byte* ptr = &buf[0x08]) // 블록 사이즈 (기본 4096 byte)
                         {
                             *(UInt64*)ptr = BLOCK_SIZE;
                         }
@@ -85,7 +87,7 @@ namespace WALLnutClient
                         }
                         fixed (byte* ptr = &buf[0x30]) // Reserved
                         {
-                            *(UInt64*)ptr = 1 * 0x1234;
+                            *(UInt64*)ptr = 1 * 0x0000000000000000L;
                         }
                         for (int i = 0; i < 8; i++) // END 시그니처
                         {
@@ -98,7 +100,7 @@ namespace WALLnutClient
                 }
                 DiskIO.CloseHandle(h);
             }
-            return 0;
+            return true;
         }
         #endregion
 
