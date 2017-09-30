@@ -8,6 +8,8 @@ using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
+using System.Diagnostics;
+using System.IO.Pipes;
 
 namespace WALLnutClient
 {
@@ -16,93 +18,11 @@ namespace WALLnutClient
         FileSystemWatcher fs = null;
         List<string> BlackListExtensions = new List<string>();
 
-        internal partial class DeviceIO
-        {
-
-            #region Constants used in unmanaged functions
-
-            public const uint FILE_SHARE_READ = 0x00000001;
-            public const uint FILE_SHARE_WRITE = 0x00000002;
-            public const uint FILE_SHARE_DELETE = 0x00000004;
-            public const uint OPEN_EXISTING = 3;
-
-            public const uint GENERIC_READ = (0x80000000);
-            public const uint GENERIC_WRITE = (0x40000000);
-
-            public const uint FILE_FLAG_NO_BUFFERING = 0x20000000;
-            public const uint FILE_FLAG_WRITE_THROUGH = 0x80000000;
-            public const uint FILE_READ_ATTRIBUTES = (0x0080);
-            public const uint FILE_WRITE_ATTRIBUTES = 0x0100;
-            public const uint ERROR_INSUFFICIENT_BUFFER = 122;
-
-            #endregion
-
-            #region Unamanged function declarations
-           
-            [DllImport("kernel32.dll", SetLastError = true)]
-            public static unsafe extern SafeFileHandle CreateFile(
-                string FileName,
-                uint DesiredAccess,
-                uint ShareMode,
-                IntPtr SecurityAttributes,
-                uint CreationDisposition,
-                uint FlagsAndAttributes,
-                IntPtr hTemplateFile);
-
-            [DllImport("kernel32.dll", SetLastError = true)]
-            public static extern bool CloseHandle(SafeFileHandle hHandle);
-
-            [DllImport("kernel32.dll", SetLastError = true)]
-            public static extern bool DeviceIoControl(
-                SafeFileHandle hDevice,
-                uint dwIoControlCode,
-                IntPtr lpInBuffer,
-                uint nInBufferSize,
-                [Out] IntPtr lpOutBuffer,
-                uint nOutBufferSize,
-                ref uint lpBytesReturned,
-                IntPtr lpOverlapped);
-
-            [DllImport("kernel32.dll", SetLastError = true)]
-            public static extern unsafe bool WriteFile(
-                SafeFileHandle hFile,
-                byte* pBuffer,
-                uint NumberOfBytesToWrite,
-                uint* pNumberOfBytesWritten,
-                IntPtr Overlapped);
-
-            [DllImport("kernel32.dll", SetLastError = true)]
-            public static extern unsafe bool ReadFile(
-                SafeFileHandle hFile,
-                byte* pBuffer,
-                uint NumberOfBytesToRead,
-                uint* pNumberOfBytesRead,
-                IntPtr Overlapped);
-
-            [DllImport("kernel32.dll", SetLastError = true)]
-            public static extern bool SetFilePointerEx(
-                SafeFileHandle hFile,
-                ulong liDistanceToMove,
-                out ulong lpNewFilePointer,
-                uint dwMoveMethod);
-
-            [DllImport("kernel32.dll")]
-            public static extern bool FlushFileBuffers(
-                SafeFileHandle hFile);
-
-            #endregion
-
-        }
-
-        [DllImport("kernel32.dll")]
-        static extern uint GetLastError();
-
         public MainWindow()
         {
             InitializeComponent();
 
             tb_path.Text = System.AppDomain.CurrentDomain.BaseDirectory;
-
             #region [Code] 블랙리스트 파일을 읽어와서 리스트에 저장
             using (StreamReader sr = new StreamReader(@"..\..\ext.data"))
             {
@@ -117,40 +37,22 @@ namespace WALLnutClient
                 }
             }
             #endregion
-            
-            string a = "";
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Volume");
-            ManagementObjectCollection collection = searcher.Get();
-            
-            foreach (ManagementObject item in collection)
-            {
-                System.Console.WriteLine(
-                    "Name: {0}, Device ID: {1}",
-                     item["Name"], item["DeviceID"]);
-                a = item["DeviceID"].ToString();
-            }
-            
-            unsafe
-            {
-                SafeFileHandle h = DeviceIO.CreateFile(@"\\.\PhysicalDrive0", DeviceIO.GENERIC_READ | DeviceIO.GENERIC_WRITE, DeviceIO.FILE_SHARE_READ | DeviceIO.FILE_SHARE_WRITE, IntPtr.Zero, DeviceIO.OPEN_EXISTING, 0, IntPtr.Zero);
-                
-                MessageBox.Show(GetLastError().ToString());
-                byte[] buf = new byte[512];
-                
-                uint[] read = new uint[1];
-                fixed(byte* buffer = &buf[0])
-                {
-                    fixed (uint* readed = &read[0])
-                    {
-                        DeviceIO.ReadFile(h, buffer, 512, readed, IntPtr.Zero);
-                        string tmp = string.Empty;
 
-                        MessageBox.Show(tmp);
-                        DeviceIO.CloseHandle(h);
-                    }
-                }
-            }
+            UpdateDriveList();
         }
+
+        #region [Function] Drive 목록 업데이트
+        public void UpdateDriveList()
+        {
+            List<DiskInfo> list = GetDriveList();
+            cb_disk.Items.Clear();
+            for (int i = 0; i < list.Count; i++)
+            {
+                cb_disk.Items.Add(list[i]);
+            }
+            cb_disk.SelectedIndex = 0;
+        }
+        #endregion
 
         #region [Function] FileSystemSatcher 이벤트 핸들러
         protected void event_CreateFile(object fscreated, FileSystemEventArgs Eventocc)
@@ -269,5 +171,83 @@ namespace WALLnutClient
             }
         }
         #endregion
+
+        #region [Function] PhysicalDrive의 목록을 반환
+        public List<DiskInfo> GetDriveList()
+        {
+            List<DiskInfo> result = new List<DiskInfo>();
+            Process WmicProcess = new Process();
+            WmicProcess.StartInfo.FileName = "wmic.exe";
+            WmicProcess.StartInfo.UseShellExecute = false;
+            WmicProcess.StartInfo.Arguments = "diskdrive list brief / format:list";
+            WmicProcess.StartInfo.RedirectStandardOutput = true;
+            WmicProcess.StartInfo.CreateNoWindow = true;
+            WmicProcess.Start();
+
+            string[] lines = WmicProcess.StandardOutput.ReadToEnd().Split(new[] { "\r\r\n\r\r\n" }, StringSplitOptions.None);
+            foreach (string line in lines)
+            {
+                if (line.Length == 0)
+                {
+                    continue;
+                }
+                DiskInfo diskinfo = new DiskInfo();
+                string[] infos = line.Split(new[] { "\r\r\n" }, StringSplitOptions.None);
+                foreach (string info in infos)
+                {
+                    try
+                    {
+                        string[] t = info.Split('=');
+                        if(t[0] == "Caption")
+                        {
+                            diskinfo.Caption = t[1];
+                        }
+                        else if(t[0] == "DeviceID")
+                        {
+                            diskinfo.DeviceID = t[1];
+                        }
+                        else if (t[0] == "Model")
+                        {
+                            diskinfo.Model = t[1];
+                        }
+                        else if (t[0] == "Partitions")
+                        {
+                            diskinfo.Partitions = Convert.ToUInt64(t[1]);
+                        }
+                        else if (t[0] == "Size")
+                        {
+                            diskinfo.Size = Convert.ToUInt64(t[1]);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        continue;
+                    }
+                }
+                result.Add(diskinfo);
+            }
+            WmicProcess.WaitForExit();
+            WmicProcess.Close();
+            return result;
+        }
+        #endregion
+
+        private void btn_format_Click(object sender, RoutedEventArgs e)
+        {
+            if (cb_disk.SelectedIndex == -1)
+            {
+                MessageBox.Show("포맷할 디스크를 선택해주세요!", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
+            if (MessageBoxResult.OK == MessageBox.Show(
+                "정말로 포맷하시겠습니까? 디스크 내 모든 데이터가 초기화됩니다!",
+                "매우 주의",
+                MessageBoxButton.OKCancel,
+                MessageBoxImage.Warning))
+            {
+                DiskManager.FormatDisk((DiskInfo)cb_disk.SelectedItem);
+            }
+        }
     }
 }
