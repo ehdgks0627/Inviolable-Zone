@@ -247,6 +247,7 @@ namespace WALLnutClient
                 MessageBoxImage.Warning))
             {
                 DiskManager.FormatDisk((DiskInfo)cb_disk.SelectedItem);
+                MessageBox.Show("포맷 성공", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
     }
