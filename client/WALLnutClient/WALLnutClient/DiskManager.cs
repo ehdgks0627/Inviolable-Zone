@@ -72,12 +72,18 @@ namespace WALLnutClient
 
         public bool SetBitMapBlock(UInt64 offset)
         {
+            byte[] buffer = new byte[BLOCK_SIZE];
+            UInt64 block = 0x0014 + offset / 8;
+            byte mask = (byte)(1 << (byte)(offset % 8));
 
             return false;
         }
 
-        public bool UnSetBitMapBlock(int offset)
+        public bool UnSetBitMapBlock(UInt64 offset)
         {
+            byte[] buffer = new byte[BLOCK_SIZE];
+            UInt64 block = 0x0014 + offset / 8;
+            byte mask = (byte)(1 << (byte)(offset % 8));
 
             return false;
         }
@@ -104,7 +110,6 @@ namespace WALLnutClient
         {
             UInt64 block = 0x0014 + offset / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
-            int test = (buffer[block] & mask);
             if ((buffer[block] & mask) == 0)
             {
                 buffer[block] |= mask;
@@ -118,7 +123,7 @@ namespace WALLnutClient
 
         private static bool UnSetBit(ref byte[] buffer, UInt64 offset)
         {
-            UInt64 block = 0x000C + offset / 8;
+            UInt64 block = 0x0014 + offset / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
             if ((buffer[block] & mask) != 0)
             {
