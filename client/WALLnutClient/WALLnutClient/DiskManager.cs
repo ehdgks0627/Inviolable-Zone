@@ -123,7 +123,6 @@ namespace WALLnutClient
             if ((buffer[block] & mask) != 0)
             {
                 buffer[block] ^= mask;
-                //buffer[block] &= (byte)~mask;
                 return true;
             }
             else
