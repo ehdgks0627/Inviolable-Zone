@@ -169,7 +169,7 @@ namespace WALLnutClient
                         // 블록 사이즈 (기본 4096 byte)
                         fixed (byte* ptr = &buf[0x0008]) { *(UInt64*)ptr = BLOCK_SIZE; }
                         // 파일 엔트리 (기본 오프셋 0xFF)
-                        fixed (byte* ptr = &buf[0x0010]) { *(UInt64*)ptr = 0xFFFFFFFFFFFFFFFFL; }
+                        fixed (byte* ptr = &buf[0x0010]) { *(UInt64*)ptr = 2 * BLOCK_SIZE; }
                         // 색인 엔트리 (기본 오프셋 0xFF)
                         fixed (byte* ptr = &buf[0x0018]) { *(UInt64*)ptr = 0xFFFFFFFFFFFFFFFFL; }
                         // 비트맵 엔트리 (기본 오프셋 1)
@@ -193,6 +193,22 @@ namespace WALLnutClient
                         SetBit(ref buf, 0x0001); //BITMAP BLOCK
 
                         offset = 1 * BLOCK_SIZE;
+                        DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
+                        DiskIO.WriteFile(h, buffer, BLOCK_SIZE, readed, IntPtr.Zero);
+                        
+                        // 초기 파일 엔트리 생성
+                        long now = DateTime.Now.ToFileTimeUtc();
+                        offset = 2 * BLOCK_SIZE;
+                        for (uint i = 0; i < BLOCK_SIZE; i++) { buf[i] = 0x00; }
+                        fixed (byte* ptr = &buf[0x0000]) { *(UInt32*)ptr = (UInt32)BLOCKTYPE.ENTRY_FOLDER; }
+                        buf[0x0004] = Convert.ToByte('\\');
+                        fixed (byte* ptr = &buf[0x0104]) { *(UInt64*)ptr = BLOCK_END; }
+                        fixed (byte* ptr = &buf[0x010C]) { *(UInt64*)ptr = BLOCK_END; }
+                        fixed (byte* ptr = &buf[0x0114]) { *(UInt64*)ptr = BLOCK_END; }
+                        fixed (byte* ptr = &buf[0x011C]) { *(Int64*)ptr = now; }
+                        fixed (byte* ptr = &buf[0x0124]) { *(Int64*)ptr = now; }
+                        
+                        offset = 2 * BLOCK_SIZE;
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
                         DiskIO.WriteFile(h, buffer, BLOCK_SIZE, readed, IntPtr.Zero);
                     }
