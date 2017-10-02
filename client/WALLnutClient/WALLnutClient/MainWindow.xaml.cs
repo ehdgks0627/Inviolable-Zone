@@ -46,9 +46,9 @@ namespace WALLnutClient
         {
             List<DiskInfo> list = GetDriveList();
             cb_disk.Items.Clear();
-            for (int i = 0; i < list.Count; i++)
+            foreach (DiskInfo info in list)
             {
-                cb_disk.Items.Add(list[i]);
+                cb_disk.Items.Add(info);
             }
             cb_disk.SelectedIndex = 0;
         }
@@ -198,11 +198,11 @@ namespace WALLnutClient
                     try
                     {
                         string[] t = info.Split('=');
-                        if(t[0] == "Caption")
+                        if (t[0] == "Caption")
                         {
                             diskinfo.Caption = t[1];
                         }
-                        else if(t[0] == "DeviceID")
+                        else if (t[0] == "DeviceID")
                         {
                             diskinfo.DeviceID = t[1];
                         }
@@ -239,15 +239,17 @@ namespace WALLnutClient
                 MessageBox.Show("포맷할 디스크를 선택해주세요!", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            
+
             if (MessageBoxResult.OK == MessageBox.Show(
                 "정말로 포맷하시겠습니까? 디스크 내 모든 데이터가 초기화됩니다!",
                 "매우 주의",
                 MessageBoxButton.OKCancel,
                 MessageBoxImage.Warning))
             {
-                DiskManager.FormatDisk((DiskInfo)cb_disk.SelectedItem);
-                MessageBox.Show("포맷 성공", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (DiskManager.FormatDisk((DiskInfo)cb_disk.SelectedItem))
+                {
+                    MessageBox.Show("포맷 성공", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
         }
     }
