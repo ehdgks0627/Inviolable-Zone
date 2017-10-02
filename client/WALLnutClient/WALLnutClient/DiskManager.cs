@@ -102,7 +102,7 @@ namespace WALLnutClient
 
         private static bool SetBit(ref byte[] buffer, UInt64 offset)
         {
-            UInt64 block = 0x000C + offset / 8;
+            UInt64 block = 0x0014 + offset / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
             int test = (buffer[block] & mask);
             if ((buffer[block] & mask) == 0)
@@ -116,7 +116,7 @@ namespace WALLnutClient
             }
         }
 
-        private static bool UnsetBit(ref byte[] buffer, UInt64 offset)
+        private static bool UnSetBit(ref byte[] buffer, UInt64 offset)
         {
             UInt64 block = 0x000C + offset / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
@@ -157,7 +157,7 @@ namespace WALLnutClient
                         foreach (byte b in buf) { bw.Write(b); }
                         bw.Close();
 
-                        //버퍼 초기화
+                        // 버퍼 초기화
                         for (uint i = 0; i < 0x1000; i++) { buf[i] = 0x00; }
                         // 시그니처
                         for (uint i = 0; i < 0x0008; i++) { buf[i] = Convert.ToByte(SIGNATURE[(int)i]); }
@@ -176,16 +176,16 @@ namespace WALLnutClient
                         // END 시그니처
                         for (uint i = 0; i < 8; i++) { buf[0x0038 + i] = Convert.ToByte(SIGNATURE[(int)i]); }
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
-                        DiskIO.WriteFile(h, buffer, 0x0200, readed, IntPtr.Zero);
-
-
+                        DiskIO.WriteFile(h, buffer, BLOCK_SIZE, readed, IntPtr.Zero);
+                        
                         // 초기 비트맵 생성
                         offset = 1 * BLOCK_SIZE;
                         for (uint i = 0; i < BLOCK_SIZE; i++) { buf[i] = 0x00; }
                         fixed (byte* ptr = &buf[0x0000]) { *(UInt32*)ptr = (UInt32)BLOCKTYPE.BITMAP; }
                         fixed (byte* ptr = &buf[0x0004]) { *(UInt64*)ptr = BLOCK_END; }
                         fixed (byte* ptr = &buf[0x000C]) { *(UInt64*)ptr = BLOCK_END; }
-                        SetBit(ref buf, 0x0001);
+                        SetBit(ref buf, 0x0000); //HEADER
+                        SetBit(ref buf, 0x0001); //BITMAP BLOCK
 
                         offset = 1 * BLOCK_SIZE;
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);

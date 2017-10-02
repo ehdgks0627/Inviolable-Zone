@@ -59,7 +59,6 @@ namespace WALLnutClient
         {
             try
             {
-
                 this.Dispatcher.Invoke((Action)(() =>
                 {
                     lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Created - " + Eventocc.Name);
