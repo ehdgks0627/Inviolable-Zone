@@ -17,6 +17,7 @@ namespace WALLnutClient
     {
         FileSystemWatcher fs = null;
         List<string> BlackListExtensions = new List<string>();
+        DiskManager manager = null;
 
         public MainWindow()
         {
@@ -64,12 +65,9 @@ namespace WALLnutClient
                     lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Created - " + Eventocc.Name);
                 }));
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show(ex.ToString());
-            }
-            finally
-            {
+                
             }
         }
 
@@ -83,7 +81,7 @@ namespace WALLnutClient
                     lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Changed - " + changeEvent.Name);
                 }));
             }
-            catch (Exception ex)
+            catch
             {
             }
             finally
@@ -102,7 +100,7 @@ namespace WALLnutClient
                     lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Renamed - " + changeEvent.Name + ", oldname : " + changeEvent.OldName);
                 }));
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
@@ -116,7 +114,7 @@ namespace WALLnutClient
                     lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Deleted - " + changeEvent.Name);
                 }));
             }
-            catch (Exception ex)
+            catch
             {
             }
         }
@@ -164,7 +162,7 @@ namespace WALLnutClient
 
                 MessageBox.Show("동기화 시작!");
             }
-            catch (Exception err)
+            catch
             {
                 MessageBox.Show("올바른 경로가 아님...");
             }
@@ -218,7 +216,7 @@ namespace WALLnutClient
                             diskinfo.Size = Convert.ToUInt64(t[1]);
                         }
                     }
-                    catch (Exception e)
+                    catch
                     {
                         continue;
                     }

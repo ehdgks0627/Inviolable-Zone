@@ -136,8 +136,16 @@ namespace WALLnutClient
         }
         #endregion
 
+        #region [Function] path를 기준으로 오프셋을 찾기
+        public UInt64 Path2Offset(string filename)
+        {
+
+            return 0xFFFFFFFFFFFFFFFFL;
+        }
+        #endregion
+
         #region [Function] path를 기준으로 파일을 찾기, Offset 반환
-        public UInt64 FindFile(string filename)
+        public UInt64 ReadFile(string filename)
         {
 
             return 0xFFFFFFFFFFFFFFFFL;
@@ -145,7 +153,7 @@ namespace WALLnutClient
         #endregion
 
         #region [Function] path를 기준으로 파일을 저장 / 덮어쓰기
-        public UInt64 SaveFile(string filename)
+        public UInt64 WriteFile(string filename)
         {
 
             return 0xFFFFFFFFFFFFFFFFL;
@@ -226,12 +234,12 @@ namespace WALLnutClient
                         for (uint i = 0; i < 0x0008; i++) { buffer[i] = Convert.ToByte(SIGNATURE[(int)i]); }
                         // 블록 사이즈 (기본 4096 byte)
                         fixed (byte* ptr = &buffer[0x0008]) { *(UInt64*)ptr = BLOCK_SIZE; }
-                        // 파일 엔트리 (기본 오프셋 0xFF)
-                        fixed (byte* ptr = &buffer[0x0010]) { *(UInt64*)ptr = 2 * BLOCK_SIZE; }
+                        // 파일 엔트리 (기본 오프셋 2)
+                        fixed (byte* ptr = &buffer[0x0010]) { *(UInt64*)ptr = 2; }
                         // 색인 엔트리 (기본 오프셋 0xFF)
                         fixed (byte* ptr = &buffer[0x0018]) { *(UInt64*)ptr = 0xFFFFFFFFFFFFFFFFL; }
                         // 비트맵 엔트리 (기본 오프셋 1)
-                        fixed (byte* ptr = &buffer[0x0020]) { *(UInt64*)ptr = 1 * BLOCK_SIZE; }
+                        fixed (byte* ptr = &buffer[0x0020]) { *(UInt64*)ptr = 1; }
                         // 디스크 크기
                         fixed (byte* ptr = &buffer[0x0028]) { *(UInt64*)ptr = diskinfo.Size; }
                         // Reserved
@@ -242,13 +250,13 @@ namespace WALLnutClient
                         DiskIO.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                         
                         // 초기 비트맵 생성
-                        offset = 1 * BLOCK_SIZE;
                         for (uint i = 0; i < BLOCK_SIZE; i++) { buffer[i] = 0x00; }
                         fixed (byte* ptr = &buffer[0x0000]) { *(UInt32*)ptr = (UInt32)BLOCKTYPE.BITMAP; }
                         fixed (byte* ptr = &buffer[0x0004]) { *(UInt64*)ptr = BLOCK_END; }
                         fixed (byte* ptr = &buffer[0x000C]) { *(UInt64*)ptr = BLOCK_END; }
                         SetBit(ref buffer, 0x0000); //HEADER
                         SetBit(ref buffer, 0x0001); //BITMAP BLOCK
+                        SetBit(ref buffer, 0x0002); //FILE BLOCK
 
                         offset = 1 * BLOCK_SIZE;
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
@@ -256,7 +264,6 @@ namespace WALLnutClient
                         
                         // 초기 파일 엔트리 생성
                         long now = DateTime.Now.ToFileTimeUtc();
-                        offset = 2 * BLOCK_SIZE;
                         for (uint i = 0; i < BLOCK_SIZE; i++) { buffer[i] = 0x00; }
                         fixed (byte* ptr = &buffer[0x0000]) { *(UInt32*)ptr = (UInt32)BLOCKTYPE.ENTRY_FOLDER; }
                         buffer[0x0004] = Convert.ToByte('\\');
