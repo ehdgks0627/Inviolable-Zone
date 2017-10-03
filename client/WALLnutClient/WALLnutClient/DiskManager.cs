@@ -29,7 +29,7 @@ namespace WALLnutClient
         public UInt64 offset_parent;
         public long time_create;
         public long time_modify;
-        public fixed byte memo[0x0ec4];
+        public fixed byte memo[0x0EC4];
     }
 
     public unsafe struct ENTRY_DATA_STRUCTURE
@@ -37,7 +37,7 @@ namespace WALLnutClient
         public DiskManager.BLOCKTYPE type;
         public UInt64 prev_file;
         public UInt64 next_file;
-        public fixed byte data[0x0fec];
+        public fixed byte data[0x0FEC];
     }
 
     public class DiskManager
@@ -160,26 +160,93 @@ namespace WALLnutClient
         #endregion
 
         #region [Function] 해당 디스크에서 비트맵 블록에서 offset의 비트 Set
-        public bool SetBitMapBlock(UInt64 offset)
+        public unsafe bool SetBitMapBlock(UInt64 offset)
         {
             byte[] buffer = new byte[BLOCK_SIZE];
-            UInt64 block = 0x0014 + offset / 8;
+            UInt64 finder = ENTRY_BITMAP;
+            UInt64 chunk = offset / 8 / 4096;
+            UInt64 block = (offset - 8 * 4096 * chunk) / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
 
+            while (chunk > 0)
+            {
+                ReadBlock(ref buffer, finder);
+                fixed (byte* ptr_buffer = &buffer[0])
+                {
+                    chunk--;
+                    ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                    if (finder == BLOCK_END)
+                    {
+                        UInt64 new_block = InitBlock(BLOCKTYPE.BITMAP);
+                        ptr->next_file = new_block;
+                        WriteBlock(buffer, finder);
+
+                        for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                        ptr->prev_file = finder;
+                        ptr->next_file = BLOCK_END;
+                        WriteBlock(buffer, new_block);
+                    }
+                    if (chunk != 0)
+                    {
+                        finder = ptr->next_file;
+                    }
+                }
+
+            }
+            if ((buffer[block] & mask) == 0)
+            {
+                buffer[block] ^= mask;
+                WriteBlock(buffer, finder);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
             throw new NotImplementedException();
-            return false;
         }
         #endregion
 
         #region [Function] 해당 디스크에서 비트맵 블록에서 offset의 비트 UnSet
-        public bool UnSetBitMapBlock(UInt64 offset)
+        public unsafe bool UnSetBitMapBlock(UInt64 offset)
         {
             byte[] buffer = new byte[BLOCK_SIZE];
-            UInt64 block = 0x0014 + offset / 8;
+            UInt64 finder = ENTRY_BITMAP;
+            UInt64 chunk = offset / 8 / 4096;
+            UInt64 block = (offset - 8 * 4096 * chunk) / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
 
+            while (chunk > 0)
+            {
+                ReadBlock(ref buffer, finder);
+                fixed (byte* ptr_buffer = &buffer[0])
+                {
+                    chunk--;
+                    ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                    if(chunk != 0)
+                    {
+                        finder = ptr->next_file;
+                    }
+                    if (finder == BLOCK_END)
+                    {
+                        return false;
+                    }
+                }
+                
+            }
+            if((buffer[block] & mask ) == 1)
+            {
+                buffer[block] ^= mask;
+                WriteBlock(buffer, finder);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
             throw new NotImplementedException();
-            return false;
         }
         #endregion
 
