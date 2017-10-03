@@ -40,6 +40,12 @@ namespace WALLnutClient
             #endregion
 
             UpdateDriveList();
+            /*
+            manager = new DiskManager("\\\\.\\PhysicalDrive1");
+            if(manager.isActive)
+            {
+                manager.Path2Offset("\\a");
+            }*/
         }
 
         #region [Function] Drive 목록 업데이트

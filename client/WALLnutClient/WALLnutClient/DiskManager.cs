@@ -1,11 +1,46 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 
 namespace WALLnutClient
 {
-    class DiskManager
+    public unsafe struct DISK_HEADER_STRUCTURE
+    {
+        public fixed byte signature[0x0008];
+        public UInt64 block_size;
+        public UInt64 entry_file;
+        public UInt64 entry_index;
+        public UInt64 entry_bitmap;
+        public UInt64 disk_size;
+        public fixed byte reserved[0x0008];
+        public fixed byte end_signature[0x0008];
+    }
+
+    public unsafe struct ENTRY_FILE_STRUCTURE
+    {
+        public DiskManager.BLOCKTYPE type;
+        public UInt64 prev_file;
+        public UInt64 next_file;
+        public fixed byte filename[0x0100];
+        public UInt64 offset_data;
+        public UInt64 filesize;
+        public UInt64 offset_parent;
+        public long time_create;
+        public long time_modify;
+        public fixed byte memo[0x0ec4];
+    }
+
+    public unsafe struct ENTRY_DATA_STRUCTURE
+    {
+        public DiskManager.BLOCKTYPE type;
+        public UInt64 prev_file;
+        public UInt64 next_file;
+        public fixed byte data[0x0fec];
+    }
+
+    public class DiskManager
     {
         SafeFileHandle handle;
         public bool isActive { get; set; }
@@ -28,6 +63,15 @@ namespace WALLnutClient
             BITMAP
         }
 
+        public unsafe static void strcpy(byte* destination, string source)
+        {
+            int length = source.Length;
+            for (int i = 0; i < length; i++)
+            {
+                destination[i] = Convert.ToByte(source[i]);
+            }
+        }
+
         public unsafe DiskManager(string diskname)
         {
             handle = DiskIO.CreateFile(diskname, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
@@ -35,9 +79,9 @@ namespace WALLnutClient
             {
                 byte[] buffer = new byte[BLOCK_SIZE];
                 ReadBlock(ref buffer, 0);
-                for(int i=0; i< 0x0008; i++)
+                for (int i = 0; i < 0x0008; i++)
                 {
-                    if(buffer[0x0000 + i] != SIGNATURE[i] || buffer[0x0038 + i] != SIGNATURE[i])
+                    if (buffer[0x0000 + i] != SIGNATURE[i] || buffer[0x0038 + i] != SIGNATURE[i])
                     {
                         isActive = false;
                         return;
@@ -58,7 +102,7 @@ namespace WALLnutClient
                 return;
             }
         }
-        
+
 
         public UInt64 InitBlock(BLOCKTYPE type)
         {
@@ -88,7 +132,7 @@ namespace WALLnutClient
         public unsafe void ReadBlock(ref byte[] buffer, UInt64 offset)
         {
             uint[] read = new uint[1];
-            fixed(uint* ptr_read = &read[0])
+            fixed (uint* ptr_read = &read[0])
             {
                 fixed (byte* ptr_buffer = &buffer[0x0000])
                 {
@@ -136,46 +180,97 @@ namespace WALLnutClient
         }
         #endregion
 
-        #region [Function] path를 기준으로 오프셋을 찾기
-        public UInt64 Path2Offset(string filename)
+        #region [Function] path를 기준으로 파일 엔트리 오프셋을 찾기
+        public unsafe UInt64 Path2Offset(string filename)
         {
-
-            return 0xFFFFFFFFFFFFFFFFL;
+            UInt64 finder = ENTRY_FILE;
+            byte[] buffer = new byte[BLOCK_SIZE];
+            while (finder != BLOCK_END)
+            {
+                ReadBlock(ref buffer, finder);
+                fixed (byte* ptr = &buffer[0])
+                {
+                    ENTRY_FILE_STRUCTURE* file = (ENTRY_FILE_STRUCTURE*)ptr;
+                    string compare_filename = Marshal.PtrToStringAuto((IntPtr)file->filename); //주의
+                    if (filename.Equals(compare_filename))
+                    {
+                        return finder;
+                    }
+                    finder = file->next_file;
+                }
+            }
+            return BLOCK_END;
         }
         #endregion
 
         #region [Function] path를 기준으로 파일을 찾기, Offset 반환
-        public UInt64 ReadFile(string filename)
+        public UInt64 ReadFile(string filename, ref byte[] filecontent)
         {
-
+            /*
+            Path2Offset으로 파일 유무 확인
+            if(있으면)
+            {
+                데이터 블록 오프셋 얻어서
+                바이트 버퍼 생성
+                filecontent에 저장
+            }
+            else(없으면)
+            {
+                에러
+            }
+            */
             return 0xFFFFFFFFFFFFFFFFL;
         }
         #endregion
 
         #region [Function] path를 기준으로 파일을 저장 / 덮어쓰기
-        public UInt64 WriteFile(string filename)
+        public UInt64 WriteFile(string filename, string targetfile)
         {
-
+            /*
+            Path2Offset으로 파일 유무 확인
+            if(있으면)
+            {
+                기존꺼의 data블록을 찾아 덮어쓰기
+                마지막 수정 시간 수정
+            } 
+            else(없으면)
+            {
+                새로운 파일 엔트리 블록 할당받고
+                엔트리블록에 정보를 쓴 후
+                데이터블록을 할당 받고 거따가 쓰기
+            }
+            */
             return 0xFFFFFFFFFFFFFFFFL;
         }
         #endregion
 
         #region [Function] path를 기준으로 파일을 삭제
-        public UInt64 DeleteFile(string filename)
+        public bool DeleteFile(string filename)
         {
-
-            return 0xFFFFFFFFFFFFFFFFL;
+            /*
+            Path2Offset으로 파일 유무 확인
+            if(있으면)
+            {
+                엔트리 블록 삭제 및 전후 연결
+                데이터 블록 삭제
+            }
+            else(없으면)
+            {
+                에러
+            }
+            */
+            return false;
         }
         #endregion
 
         #region [Function] 비트맵 블록에서 해당 오프셋의 비트를 Set
-        private static bool SetBit(ref byte[] buffer, UInt64 offset)
+        private unsafe static bool SetBit(byte* data, UInt64 offset)
         {
-            UInt64 block = 0x0014 + offset / 8;
+            UInt64 block = offset / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
-            if ((buffer[block] & mask) == 0)
+            if ((data[block] & mask) == 0)
             {
-                buffer[block] |= mask;
+                data[block] |= mask;
                 return true;
             }
             else
@@ -186,13 +281,13 @@ namespace WALLnutClient
         #endregion
 
         #region [Function] 비트맵 블록에서 해당 오프셋의 비트를 UnSet
-        private static bool UnSetBit(ref byte[] buffer, UInt64 offset)
+        private unsafe static bool UnSetBit(byte* data, UInt64 offset)
         {
-            UInt64 block = 0x0014 + offset / 8;
+            UInt64 block = offset / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
-            if ((buffer[block] & mask) != 0)
+            if ((data[block] & mask) != 0)
             {
-                buffer[block] ^= mask;
+                data[block] ^= mask;
                 return true;
             }
             else
@@ -228,51 +323,49 @@ namespace WALLnutClient
                         foreach (byte b in buffer) { bw.Write(b); }
                         bw.Close();
 
-                        // 버퍼 초기화
+                        // 헤더 생성
                         for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
-                        // 시그니처
-                        for (uint i = 0; i < 0x0008; i++) { buffer[i] = Convert.ToByte(SIGNATURE[(int)i]); }
-                        // 블록 사이즈 (기본 4096 byte)
-                        fixed (byte* ptr = &buffer[0x0008]) { *(UInt64*)ptr = BLOCK_SIZE; }
-                        // 파일 엔트리 (기본 오프셋 2)
-                        fixed (byte* ptr = &buffer[0x0010]) { *(UInt64*)ptr = 2; }
-                        // 색인 엔트리 (기본 오프셋 0xFF)
-                        fixed (byte* ptr = &buffer[0x0018]) { *(UInt64*)ptr = 0xFFFFFFFFFFFFFFFFL; }
-                        // 비트맵 엔트리 (기본 오프셋 1)
-                        fixed (byte* ptr = &buffer[0x0020]) { *(UInt64*)ptr = 1; }
-                        // 디스크 크기
-                        fixed (byte* ptr = &buffer[0x0028]) { *(UInt64*)ptr = diskinfo.Size; }
-                        // Reserved
-                        fixed (byte* ptr = &buffer[0x0030]) { *(UInt64*)ptr = 0x0000000000000000L; }
-                        // END 시그니처
-                        for (uint i = 0; i < 8; i++) { buffer[0x0038 + i] = Convert.ToByte(SIGNATURE[(int)i]); }
+                        DISK_HEADER_STRUCTURE* header = (DISK_HEADER_STRUCTURE*)ptr_buffer;
+                        strcpy(header->signature, SIGNATURE);
+                        header->block_size = BLOCK_SIZE;
+                        header->entry_file = 2;
+                        header->entry_index = 0xFFFFFFFFFFFFFFFFL;
+                        header->entry_bitmap = 1;
+                        header->disk_size = diskinfo.Size;
+                        //header->reserved;
+                        strcpy(header->end_signature, SIGNATURE);
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
                         DiskIO.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
-                        
+
                         // 초기 비트맵 생성
                         for (uint i = 0; i < BLOCK_SIZE; i++) { buffer[i] = 0x00; }
-                        fixed (byte* ptr = &buffer[0x0000]) { *(UInt32*)ptr = (UInt32)BLOCKTYPE.BITMAP; }
-                        fixed (byte* ptr = &buffer[0x0004]) { *(UInt64*)ptr = BLOCK_END; }
-                        fixed (byte* ptr = &buffer[0x000C]) { *(UInt64*)ptr = BLOCK_END; }
-                        SetBit(ref buffer, 0x0000); //HEADER
-                        SetBit(ref buffer, 0x0001); //BITMAP BLOCK
-                        SetBit(ref buffer, 0x0002); //FILE BLOCK
+                        ENTRY_DATA_STRUCTURE* bitmap = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                        bitmap->type = BLOCKTYPE.BITMAP;
+                        bitmap->prev_file = BLOCK_END;
+                        bitmap->next_file = BLOCK_END;
+                        SetBit(bitmap->data, 0x0000); // HEADER
+                        SetBit(bitmap->data, 0x0001); // BITMAP BLOCK
+                        SetBit(bitmap->data, 0x0002); // FILE BLOCK
 
                         offset = 1 * BLOCK_SIZE;
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
                         DiskIO.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
-                        
+
                         // 초기 파일 엔트리 생성
-                        long now = DateTime.Now.ToFileTimeUtc();
                         for (uint i = 0; i < BLOCK_SIZE; i++) { buffer[i] = 0x00; }
-                        fixed (byte* ptr = &buffer[0x0000]) { *(UInt32*)ptr = (UInt32)BLOCKTYPE.ENTRY_FOLDER; }
-                        buffer[0x0004] = Convert.ToByte('\\');
-                        fixed (byte* ptr = &buffer[0x0104]) { *(UInt64*)ptr = BLOCK_END; }
-                        fixed (byte* ptr = &buffer[0x010C]) { *(UInt64*)ptr = BLOCK_END; }
-                        fixed (byte* ptr = &buffer[0x0114]) { *(UInt64*)ptr = BLOCK_END; }
-                        fixed (byte* ptr = &buffer[0x011C]) { *(Int64*)ptr = now; }
-                        fixed (byte* ptr = &buffer[0x0124]) { *(Int64*)ptr = now; }
-                        
+                        long now = DateTime.Now.ToFileTimeUtc();
+
+                        ENTRY_FILE_STRUCTURE* file = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
+                        file->type = BLOCKTYPE.ENTRY_FOLDER;
+                        file->prev_file = BLOCK_END;
+                        file->next_file = BLOCK_END;
+                        strcpy(file->filename, "\\");
+                        file->offset_data = BLOCK_END;
+                        file->filesize = BLOCK_END;
+                        file->offset_parent = BLOCK_END;
+                        file->time_create = now;
+                        file->time_modify = now;
+
                         offset = 2 * BLOCK_SIZE;
                         DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
                         DiskIO.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
