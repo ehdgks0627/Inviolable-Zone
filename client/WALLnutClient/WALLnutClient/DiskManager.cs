@@ -125,6 +125,7 @@ namespace WALLnutClient
 
                     break;
             }
+            throw new NotImplementedException();
             return 0xFFFFFFFFFFFFFFFFL;
         }
 
@@ -165,6 +166,7 @@ namespace WALLnutClient
             UInt64 block = 0x0014 + offset / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
 
+            throw new NotImplementedException();
             return false;
         }
         #endregion
@@ -176,6 +178,7 @@ namespace WALLnutClient
             UInt64 block = 0x0014 + offset / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
 
+            throw new NotImplementedException();
             return false;
         }
         #endregion
@@ -206,6 +209,15 @@ namespace WALLnutClient
         #region [Function] path를 기준으로 파일을 찾기, Offset 반환
         public UInt64 ReadFile(string filename, ref byte[] filecontent)
         {
+            UInt64 offset = Path2Offset(filename);
+            if(offset != BLOCK_END)
+            {
+
+            }
+            else
+            {
+                
+            }
             /*
             Path2Offset으로 파일 유무 확인
             if(있으면)
@@ -219,6 +231,7 @@ namespace WALLnutClient
                 에러
             }
             */
+            throw new NotImplementedException();
             return 0xFFFFFFFFFFFFFFFFL;
         }
         #endregion
@@ -240,6 +253,7 @@ namespace WALLnutClient
                 데이터블록을 할당 받고 거따가 쓰기
             }
             */
+            throw new NotImplementedException();
             return 0xFFFFFFFFFFFFFFFFL;
         }
         #endregion
