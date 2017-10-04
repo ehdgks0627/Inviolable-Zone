@@ -74,6 +74,16 @@ namespace WALLnutClient
         }
         #endregion
 
+        #region [Function] byte 배열에 byte 배열을 대입
+        public unsafe static void bytecpy(byte* destination, byte* source, ulong index, ulong size)
+        {
+            for (ulong i = 0; i < size; i++)
+            {
+                destination[index + i] = source[i];
+            }
+        }
+        #endregion
+
         #region [Function] 생성자, 헤더의 기본 정보를 읽음
         public unsafe DiskManager(string diskname)
         {
@@ -203,7 +213,7 @@ namespace WALLnutClient
                         WriteBlock(buffer, new_block);
                         finder = new_block;
                     }
-                    else if(chunk != UInt64.MaxValue)
+                    else if (chunk != UInt64.MaxValue)
                     {
                         finder = ptr->next_file;
                     }
@@ -291,32 +301,45 @@ namespace WALLnutClient
         #endregion
 
         #region [Function] path를 기준으로 파일을 찾기, Offset 반환
-        public UInt64 ReadFile(string filename, ref byte[] filecontent)
+        public unsafe bool ReadFile(string filename, out byte[] filecontent)
         {
             UInt64 offset = Path2Offset(filename);
+            UInt64 finder;
+            ulong readsize = 0;
+            UInt64 filesize;
+            byte[] buffer = new byte[BLOCK_SIZE];
+            filecontent = null;
             if (offset != BLOCK_END)
             {
-
+                ReadBlock(ref buffer, offset);
+                fixed (byte* ptr_buffer = &buffer[0])
+                {
+                    ENTRY_FILE_STRUCTURE* ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
+                    finder = ptr->offset_data;
+                    filesize = ptr->filesize;
+                    filecontent = new byte[filesize];
+                }
+                fixed (byte* ptr_filecontent = &filecontent[0])
+                {
+                    fixed (byte* ptr_buffer = &buffer[0])
+                    {
+                        ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                        while (readsize > 0)
+                        {
+                            UInt64 buffer_read_size = (filesize - readsize > 4076) ? 4076 : filesize - readsize;
+                            ReadBlock(ref buffer, offset);
+                            bytecpy(ptr_filecontent, ptr->data, readsize, buffer_read_size);
+                            finder = ptr->next_file;
+                            readsize += buffer_read_size;
+                        }
+                    }
+                }
+                return true;
             }
             else
             {
-
+                return false;
             }
-            /*
-            Path2Offset으로 파일 유무 확인
-            if(있으면)
-            {
-                데이터 블록 오프셋 얻어서
-                바이트 버퍼 생성
-                filecontent에 저장
-            }
-            else(없으면)
-            {
-                에러
-            }
-            */
-            throw new NotImplementedException();
-            return 0xFFFFFFFFFFFFFFFFL;
         }
         #endregion
 
