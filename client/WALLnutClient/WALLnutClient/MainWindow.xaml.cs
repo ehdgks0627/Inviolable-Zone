@@ -40,11 +40,20 @@ namespace WALLnutClient
             #endregion
 
             UpdateDriveList();
-            /*
-            manager = new DiskManager("\\\\.\\PhysicalDrive1");
-            if(manager.isActive)
+            /*manager = new DiskManager("\\\\.\\PhysicalDrive1");
+            if (manager.isActive)
             {
-                manager.Path2Offset("\\a");
+                Console.WriteLine(manager.Path2Offset("\\a"));
+                Console.WriteLine(manager.Path2Offset("\\"));
+                Console.WriteLine(manager.SetBitMapBlock(1));
+                Console.WriteLine(manager.SetBitMapBlock(7));
+                Console.WriteLine(manager.SetBitMapBlock(7));
+                Console.WriteLine(manager.SetBitMapBlock(4076));
+                Console.WriteLine(manager.SetBitMapBlock(4076 * 8 - 1));
+                Console.WriteLine(manager.SetBitMapBlock(4076 * 19));
+                Console.WriteLine(manager.SetBitMapBlock(4076 * 19));
+                Console.WriteLine(manager.UnSetBitMapBlock(4076 * 19));
+                Console.WriteLine(manager.SetBitMapBlock(4076 * 19));
             }*/
         }
 
@@ -73,7 +82,7 @@ namespace WALLnutClient
             }
             catch
             {
-                
+
             }
         }
 
