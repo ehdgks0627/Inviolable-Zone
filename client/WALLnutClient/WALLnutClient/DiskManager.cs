@@ -63,6 +63,7 @@ namespace WALLnutClient
             BITMAP
         }
 
+        #region [Function] byte 배열에 string 문자열을 대입
         public unsafe static void strcpy(byte* destination, string source)
         {
             int length = source.Length;
@@ -71,7 +72,9 @@ namespace WALLnutClient
                 destination[i] = Convert.ToByte(source[i]);
             }
         }
+        #endregion
 
+        #region [Function] 생성자, 헤더의 기본 정보를 읽음
         public unsafe DiskManager(string diskname)
         {
             handle = DiskIO.CreateFile(diskname, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
@@ -102,6 +105,7 @@ namespace WALLnutClient
                 return;
             }
         }
+        #endregion
 
         #region [Function] 블록타입에 맞는 블록중 사용 가능한 블록을 찾고 할당하여 오프셋 반환
         public UInt64 AvailableBlock(BLOCKTYPE type)
