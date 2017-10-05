@@ -57,7 +57,8 @@ namespace WALLnutClient
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100) == false);
             Debug.Assert(manager.SetBitMapBlock(4076 * 100) == true);
 
-            //할당되지 않은 블록
+            //할당되지 않은 블록에 대한 UnSet
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 100 + 1) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 200) == false);
         }
 

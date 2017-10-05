@@ -329,7 +329,7 @@ namespace WALLnutClient
         }
         #endregion
 
-        #region [Function] path를 기준으로 파일을 찾기, Offset 반환
+        #region [Function] path를 기준으로 파일을 찾기
         public unsafe bool ReadFile(string filename, out byte[] filecontent)
         {
             UInt64 offset = Path2Offset(filename);
@@ -380,6 +380,14 @@ namespace WALLnutClient
             ulong readsize = 0;
             UInt64 filesize;
             byte[] buffer = new byte[BLOCK_SIZE];
+            if(offset != BLOCK_END)
+            {
+
+            }
+            else
+            {
+
+            }
             /*
             Path2Offset으로 파일 유무 확인
             if(있으면)
@@ -400,21 +408,48 @@ namespace WALLnutClient
         #endregion
 
         #region [Function] path를 기준으로 파일을 삭제
-        public bool DeleteFile(string filename)
+        public unsafe bool DeleteFile(string filename)
         {
-            /*
-            Path2Offset으로 파일 유무 확인
-            if(있으면)
+            UInt64 offset = Path2Offset(filename);
+            UInt64 finder;
+            UInt64 prev_file, next_file;
+            byte[] buffer = new byte[BLOCK_SIZE];
+            if(offset !=BLOCK_END)
             {
-                엔트리 블록 삭제 및 전후 연결
-                데이터 블록 삭제
+                ReadBlock(ref buffer, offset);
+                fixed(byte *ptr_buffer = &buffer[0])
+                {
+                    ENTRY_FILE_STRUCTURE* ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
+                    finder = ptr->offset_data;
+                    prev_file = ptr->prev_file;
+                    next_file = ptr->next_file;
+                    UnSetBitMapBlock(offset);
+
+                    if(prev_file != BLOCK_END)
+                    {
+                        ReadBlock(ref buffer, prev_file);
+                        ptr->next_file = next_file;
+                        WriteBlock(buffer, prev_file);
+                    }
+                    if(next_file != BLOCK_END)
+                    {
+                        ReadBlock(ref buffer, next_file);
+                        ptr->prev_file = prev_file;
+                        WriteBlock(buffer, next_file);
+                    }
+                    while(finder != BLOCK_END)
+                    {
+                        ReadBlock(ref buffer, finder);
+                        UnSetBitMapBlock(finder);
+                        finder = ptr->next_file;
+                    }
+                }
+                return true;
             }
-            else(없으면)
+            else
             {
-                에러
+                return false;
             }
-            */
-            return false;
         }
         #endregion
 
