@@ -126,7 +126,7 @@ namespace WALLnutClient
         {
             byte[] buffer = new byte[BLOCK_SIZE];
             UInt64 finder = ENTRY_BITMAP;
-            UInt64 new_offset = 0;
+            UInt64 new_offset = 4076 * 8;
             ReadBlock(ref buffer, finder);
             fixed (byte* ptr_buffer = &buffer[0])
             {
@@ -137,11 +137,11 @@ namespace WALLnutClient
                     ReadBlock(ref buffer, finder);
                     new_offset += 4076 * 8;
                 }
-                new_offset += 1;
                 ptr->next_file = new_offset;
                 WriteBlock(buffer, finder);
 
                 for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                ptr->type = BLOCKTYPE.BITMAP;
                 ptr->prev_file = finder;
                 ptr->next_file = BLOCK_END;
                 WriteBlock(buffer, new_offset);
@@ -232,15 +232,13 @@ namespace WALLnutClient
                     chunk--;
                     if (ptr->next_file == BLOCK_END && chunk != UInt64.MaxValue)
                     {
-                        UInt64 new_block = AvailableBlock(BLOCKTYPE.BITMAP);
+                        UInt64 new_block = NewBitMapBlock();
                         
                         if (chunk == UInt64.MaxValue)
                         {
                             SetBitMapBlock(offset);
                             return true;
                         }
-
-                        WriteBlock(buffer, new_block);
                         finder = new_block;
                     }
                     else if (chunk != UInt64.MaxValue)
