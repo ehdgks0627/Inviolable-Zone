@@ -19,6 +19,40 @@ namespace WALLnutClient
         List<string> BlackListExtensions = new List<string>();
         DiskManager manager = null;
 
+        public void TestCase(string drivename)
+        {
+            Debug.Assert(DiskManager.FormatDisk(new DiskInfo { DeviceID = drivename }) == true);
+            manager = new DiskManager(drivename);
+            Debug.Assert(manager.isActive == true);
+            Debug.Assert(manager.Path2Offset("\\a") == DiskManager.BLOCK_END);
+            Debug.Assert(manager.Path2Offset("\\") == 2);
+
+            Debug.Assert(manager.SetBitMapBlock(1) == false);
+            Debug.Assert(manager.SetBitMapBlock(2) == false);
+
+            Debug.Assert(manager.SetBitMapBlock(3) == true);
+            Debug.Assert(manager.SetBitMapBlock(3) == false);
+            Debug.Assert(manager.UnSetBitMapBlock(3) == true);
+            Debug.Assert(manager.SetBitMapBlock(35) == true);
+
+            Debug.Assert(manager.SetBitMapBlock(4076) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076) == false);
+            Debug.Assert(manager.UnSetBitMapBlock(4076) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076) == true);
+
+            Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == false);
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 8 - 1) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == true);
+
+            Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076 * 19) == false);
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
+
+
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -40,21 +74,7 @@ namespace WALLnutClient
             #endregion
 
             UpdateDriveList();
-            /*manager = new DiskManager("\\\\.\\PhysicalDrive1");
-            if (manager.isActive)
-            {
-                Console.WriteLine(manager.Path2Offset("\\a"));
-                Console.WriteLine(manager.Path2Offset("\\"));
-                Console.WriteLine(manager.SetBitMapBlock(1));
-                Console.WriteLine(manager.SetBitMapBlock(7));
-                Console.WriteLine(manager.SetBitMapBlock(7));
-                Console.WriteLine(manager.SetBitMapBlock(4076));
-                Console.WriteLine(manager.SetBitMapBlock(4076 * 8 - 1));
-                Console.WriteLine(manager.SetBitMapBlock(4076 * 19));
-                Console.WriteLine(manager.SetBitMapBlock(4076 * 19));
-                Console.WriteLine(manager.UnSetBitMapBlock(4076 * 19));
-                Console.WriteLine(manager.SetBitMapBlock(4076 * 19));
-            }*/
+            TestCase("\\\\.\\PhysicalDrive1");
         }
 
         #region [Function] Drive 목록 업데이트

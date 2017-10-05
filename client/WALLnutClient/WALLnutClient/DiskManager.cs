@@ -3,9 +3,11 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Runtime.InteropServices;
 
 namespace WALLnutClient
 {
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public unsafe struct DISK_HEADER_STRUCTURE
     {
         public fixed byte signature[0x0008];
@@ -18,6 +20,7 @@ namespace WALLnutClient
         public fixed byte end_signature[0x0008];
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public unsafe struct ENTRY_FILE_STRUCTURE
     {
         public DiskManager.BLOCKTYPE type;
@@ -32,6 +35,7 @@ namespace WALLnutClient
         public fixed byte memo[0x0EC4];
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public unsafe struct ENTRY_DATA_STRUCTURE
     {
         public DiskManager.BLOCKTYPE type;
@@ -117,27 +121,61 @@ namespace WALLnutClient
         }
         #endregion
 
-        #region [Function] 블록타입에 맞는 블록중 사용 가능한 블록을 찾고 할당하여 오프셋 반환
-        public UInt64 AvailableBlock(BLOCKTYPE type)
+        #region [Function] 비트맵 에서 사용 가능한 오프셋을 찾아 반환
+        public unsafe UInt64 NewBitMapBlock()
         {
+            byte[] buffer = new byte[BLOCK_SIZE];
+            UInt64 finder = ENTRY_BITMAP;
+            UInt64 new_offset = 0;
+            ReadBlock(ref buffer, finder);
+            fixed (byte* ptr_buffer = &buffer[0])
+            {
+                ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                while (ptr->next_file != BLOCK_END)
+                {
+                    finder = ptr->next_file;
+                    ReadBlock(ref buffer, finder);
+                    new_offset += 4076 * 8;
+                }
+                new_offset += 1;
+                ptr->next_file = new_offset;
+                WriteBlock(buffer, finder);
+
+                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                ptr->prev_file = finder;
+                ptr->next_file = BLOCK_END;
+                WriteBlock(buffer, new_offset);
+                SetBitMapBlock(new_offset);
+            }
+            return new_offset;
+        }
+        #endregion
+
+        #region [Function] 블록타입에 맞는 블록중 사용 가능한 블록을 찾고 할당하여 오프셋 반환
+        public unsafe UInt64 AvailableBlock(BLOCKTYPE type)
+        {
+            byte[] buffer = new byte[BLOCK_SIZE];
+            UInt64 finder;
             if (!Enum.IsDefined(typeof(BLOCKTYPE), type))
             {
                 return STATE_ERROR;
             }
-            switch (type)
+            fixed (byte* ptr_buffer = &buffer[0])
             {
-                case BLOCKTYPE.ENTRY_FILE:
+                switch (type)
+                {
+                    case BLOCKTYPE.ENTRY_FILE:
+                    case BLOCKTYPE.ENTRY_FOLDER:
+                        finder = ENTRY_FILE;
+                        while (true) ;
+                        break;
+                    case BLOCKTYPE.DATA:
 
-                    break;
-                case BLOCKTYPE.ENTRY_FOLDER:
-
-                    break;
-                case BLOCKTYPE.DATA:
-
-                    break;
-                case BLOCKTYPE.BITMAP:
-
-                    break;
+                        break;
+                    case BLOCKTYPE.BITMAP:
+                        
+                        break;
+                }
             }
             throw new NotImplementedException();
             return 0xFFFFFFFFFFFFFFFFL;
@@ -185,28 +223,20 @@ namespace WALLnutClient
             UInt64 block = (offset - 8 * 4076 * chunk) / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
 
-            ReadBlock(ref buffer, finder);
-            while (chunk != UInt64.MaxValue)
+            fixed (byte* ptr_buffer = &buffer[0])
             {
-                ReadBlock(ref buffer, finder);
-                fixed (byte* ptr_buffer = &buffer[0])
+                ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                while (chunk != UInt64.MaxValue)
                 {
+                    ReadBlock(ref buffer, finder);
                     chunk--;
-                    ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
                     if (ptr->next_file == BLOCK_END && chunk != UInt64.MaxValue)
                     {
-                        //UInt64 new_block = AvailableBlock(BLOCKTYPE.BITMAP);
-                        UInt64 new_block = 3;
-                        ptr->next_file = new_block;
-                        WriteBlock(buffer, finder);
-
-                        for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
-                        ptr->prev_file = finder;
-                        ptr->next_file = BLOCK_END;
+                        UInt64 new_block = AvailableBlock(BLOCKTYPE.BITMAP);
+                        
                         if (chunk == UInt64.MaxValue)
                         {
-                            SetBit(ptr_buffer, mask);
-                            WriteBlock(buffer, new_block);
+                            SetBitMapBlock(offset);
                             return true;
                         }
 
@@ -218,17 +248,18 @@ namespace WALLnutClient
                         finder = ptr->next_file;
                     }
                 }
-            }
 
-            if ((buffer[block] & mask) == 0)
-            {
-                buffer[block] ^= mask;
-                WriteBlock(buffer, finder);
-                return true;
-            }
-            else
-            {
-                return false;
+
+                if ((ptr->data[block] & mask) == 0)
+                {
+                    ptr->data[block] ^= mask;
+                    WriteBlock(buffer, finder);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             throw new NotImplementedException();
@@ -244,14 +275,13 @@ namespace WALLnutClient
             UInt64 block = (offset - 8 * 4076 * chunk) / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
 
-            ReadBlock(ref buffer, finder);
-            while (chunk != UInt64.MaxValue)
+            fixed (byte* ptr_buffer = &buffer[0])
             {
-                ReadBlock(ref buffer, finder);
-                fixed (byte* ptr_buffer = &buffer[0])
+                ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                while (chunk != UInt64.MaxValue)
                 {
+                    ReadBlock(ref buffer, finder);
                     chunk--;
-                    ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
                     if (chunk != UInt64.MaxValue)
                     {
                         finder = ptr->next_file;
@@ -261,16 +291,17 @@ namespace WALLnutClient
                         return false;
                     }
                 }
-            }
-            if ((buffer[block] & mask) != 0)
-            {
-                buffer[block] ^= mask;
-                WriteBlock(buffer, finder);
-                return true;
-            }
-            else
-            {
-                return false;
+
+                if ((ptr->data[block] & mask) != 0)
+                {
+                    ptr->data[block] ^= mask;
+                    WriteBlock(buffer, finder);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             throw new NotImplementedException();
@@ -346,6 +377,11 @@ namespace WALLnutClient
         #region [Function] path를 기준으로 파일을 저장 / 덮어쓰기
         public UInt64 WriteFile(string filename, string targetfile)
         {
+            UInt64 offset = Path2Offset(filename);
+            UInt64 finder;
+            ulong readsize = 0;
+            UInt64 filesize;
+            byte[] buffer = new byte[BLOCK_SIZE];
             /*
             Path2Offset으로 파일 유무 확인
             if(있으면)
