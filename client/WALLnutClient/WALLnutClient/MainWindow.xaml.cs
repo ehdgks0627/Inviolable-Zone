@@ -24,8 +24,16 @@ namespace WALLnutClient
             Debug.Assert(DiskManager.FormatDisk(new DiskInfo { DeviceID = drivename }) == true);
             manager = new DiskManager(drivename);
             Debug.Assert(manager.isActive == true);
-            Debug.Assert(manager.Path2Offset("\\a") == DiskManager.BLOCK_END);
-            Debug.Assert(manager.Path2Offset("\\") == 2);
+            Debug.Assert(manager.Path2Offset(@"a") == DiskManager.BLOCK_END);
+            Debug.Assert(manager.Path2Offset(@"\a") == DiskManager.BLOCK_END);
+            Debug.Assert(manager.Path2Offset(@"\") == 2);
+
+            Debug.Assert(manager.GetAvailableBit(0x00) == 0);
+            Debug.Assert(manager.GetAvailableBit(0x01) == 1);
+            Debug.Assert(manager.GetAvailableBit(0x03) == 2);
+            Debug.Assert(manager.GetAvailableBit(0x07) == 3);
+            Debug.Assert(manager.GetAvailableBit(0x80) == 0);
+            Debug.Assert(manager.GetAvailableBit(0xFF) == 0xFF);
 
             Debug.Assert(manager.SetBitMapBlock(1) == false);
             Debug.Assert(manager.SetBitMapBlock(2) == false);
@@ -60,6 +68,8 @@ namespace WALLnutClient
             //할당되지 않은 블록에 대한 UnSet
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100 + 1) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 200) == false);
+
+            manager.WriteFile(@"\test", @"C:\WALLnut\test.txt");
         }
 
         public MainWindow()
@@ -83,7 +93,7 @@ namespace WALLnutClient
             #endregion
 
             UpdateDriveList();
-            TestCase("\\\\.\\PhysicalDrive1");
+            TestCase(@"\\.\PhysicalDrive1");
         }
 
         #region [Function] Drive 목록 업데이트
