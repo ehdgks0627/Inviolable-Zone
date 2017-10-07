@@ -28,6 +28,43 @@ namespace WALLnutClient
             Debug.Assert(manager.Path2Offset(@"\a") == DiskManager.BLOCK_END);
             Debug.Assert(manager.Path2Offset(@"\") == 2);
 
+            /*for(ulong i=3; i<40000; i++)
+            {
+                Debug.Assert(manager.AvailableBlock(DiskManager.BLOCKTYPE.DATA) == i);
+                Console.WriteLine(i);
+            }*/
+            byte[] data = new byte[10];
+            byte[] read_data;
+            Random r = new Random((int)(DateTime.Now.ToFileTimeUtc()));
+            FileStream fs = new FileStream(@"C:\WALLnut\test.txt", FileMode.Create);
+            for (int i=0; i<data.Length; i++)
+            {
+                data[i] = Convert.ToByte(r.Next(1, 255));
+                fs.WriteByte(data[i]);
+            }
+            fs.Close();
+
+            Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
+            Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
+            for(int i=0; i<data.Length; i++)
+            {
+                Debug.Assert(data[i] == read_data[i]);
+            }
+            Debug.Assert(manager.DeleteFile(@"\test") == true); //not modifiyed prev's next pointer
+            Debug.Assert(manager.DeleteFile(@"\test") == false);
+            Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
+            Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
+            for (int i = 0; i < data.Length; i++)
+            {
+                Debug.Assert(data[i] == read_data[i]);
+            }
+            Debug.Assert(manager.DeleteFile(@"test") == false);
+            Debug.Assert(manager.DeleteFile(@"\test") == true);
+            Debug.Assert(manager.DeleteFile(@"\test") == false);
+
             Debug.Assert(manager.GetAvailableBit(0x00) == 0);
             Debug.Assert(manager.GetAvailableBit(0x01) == 1);
             Debug.Assert(manager.GetAvailableBit(0x03) == 2);
@@ -68,8 +105,6 @@ namespace WALLnutClient
             //할당되지 않은 블록에 대한 UnSet
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100 + 1) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 200) == false);
-
-            manager.WriteFile(@"\test", @"C:\WALLnut\test.txt");
         }
 
         public MainWindow()
