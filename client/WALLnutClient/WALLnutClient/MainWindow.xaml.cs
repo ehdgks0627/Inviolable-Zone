@@ -44,6 +44,7 @@ namespace WALLnutClient
             }
             fs.Close();
 
+            //복합 경로에 대한 테스트 남음
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
@@ -53,7 +54,7 @@ namespace WALLnutClient
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
-            Debug.Assert(manager.DeleteFile(@"\test") == true); //not modifiyed prev's next pointer
+            Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);

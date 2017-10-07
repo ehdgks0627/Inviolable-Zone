@@ -68,6 +68,7 @@ namespace WALLnutClient
         public enum BLOCKTYPE : UInt32
         {
             ENTRY_FILE = 1,
+            ENTRY_FOLDER,
             DATA,
             BITMAP
         }
@@ -80,7 +81,7 @@ namespace WALLnutClient
             {
                 byte[] buffer = new byte[BLOCK_SIZE];
                 ReadBlock(ref buffer, 0);
-                fixed(byte *ptr_buffer = &buffer[0])
+                fixed (byte* ptr_buffer = &buffer[0])
                 {
                     DISK_HEADER_STRUCTURE* ptr = (DISK_HEADER_STRUCTURE*)ptr_buffer;
                     for (int i = 0; i < SIGNATURE.Length; i++)
@@ -167,7 +168,7 @@ namespace WALLnutClient
                 ptr->next_file = new_offset;
                 WriteBlock(buffer, finder);
 
-                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                ClearBuffer(ref buffer);
                 ptr->type = BLOCKTYPE.BITMAP;
                 ptr->prev_file = finder;
                 ptr->next_file = BLOCK_END;
@@ -181,9 +182,9 @@ namespace WALLnutClient
         #region [Function] 바이트중 어느 비트가 사용 가능한지 반환
         public byte GetAvailableBit(byte b)
         {
-            for(byte i=0; i<8; i++)
+            for (byte i = 0; i < 8; i++)
             {
-                if((b & (1 << i)) == 0)
+                if ((b & (1 << i)) == 0)
                 {
                     return i;
                 }
@@ -244,7 +245,7 @@ namespace WALLnutClient
                                 file_ptr->next_file = new_block;
                                 WriteBlock(buffer, LAST_FILE);
                                 SetBitMapBlock(new_block);
-                                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                                ClearBuffer(ref buffer);
                                 file_ptr->type = BLOCKTYPE.ENTRY_FILE;
                                 file_ptr->prev_file = LAST_FILE;
                                 file_ptr->next_file = BLOCK_END;
@@ -283,7 +284,7 @@ namespace WALLnutClient
                             else
                             {
                                 SetBitMapBlock(new_block);
-                                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                                ClearBuffer(ref buffer);
                                 data_ptr->type = BLOCKTYPE.DATA;
                                 data_ptr->prev_file = BLOCK_END;
                                 data_ptr->next_file = BLOCK_END;
@@ -433,7 +434,7 @@ namespace WALLnutClient
             UInt64 prev_finder = BLOCK_END;
             byte[] buffer = new byte[BLOCK_SIZE];
             string[] paths = filename.Split('\\');
-            if(!paths[0].Equals(""))
+            if (!paths[0].Equals(""))
             {
                 return BLOCK_END;
             }
@@ -510,6 +511,51 @@ namespace WALLnutClient
         }
         #endregion
 
+        #region [Function] 버퍼를 초기화합니다
+        public static void ClearBuffer(ref byte[] buffer)
+        {
+            for(int i=0; i<buffer.Length; i++)
+            {
+                buffer[i] = 0;
+            }
+        }
+        #endregion
+
+        #region [Function] path를 기준으로 폴더를 저장 / 덮어쓰기
+        public unsafe bool WriteFolder(string filename)
+        {
+            UInt64 offset = Path2Offset(filename);
+            byte[] buffer = new byte[BLOCK_SIZE];
+            ClearBuffer(ref buffer);
+            long now = DateTime.Now.ToFileTimeUtc();
+            fixed (byte *ptr_buffer = &buffer[0])
+            {
+                ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
+                if (offset != BLOCK_END) //폴더가 있을경우
+                {
+                    ReadBlock(ref buffer, offset);
+                    ustrcpy(file_ptr->filename,filename.Split('\\')[filename.Split('\\').Length - 1]);
+                    file_ptr->time_modify = now;
+                    WriteBlock(buffer, offset);
+                    return true;
+                }
+                else
+                {
+                    offset = AvailableBlock(BLOCKTYPE.ENTRY_FILE);
+                    ustrcpy(file_ptr->filename, filename.Split('\\')[filename.Split('\\').Length - 1]);
+                    file_ptr->filesize = 0;
+                    file_ptr->offset_data = BLOCK_END;
+                    file_ptr->time_create = now;
+                    file_ptr->time_modify = now;
+                    file_ptr->type = BLOCKTYPE.ENTRY_FOLDER;
+                    file_ptr->offset_parent = Path2Offset(filename.Substring(0, filename.LastIndexOf('\\') + 1));
+                    WriteBlock(buffer, offset);
+                    return true;
+                }
+            }
+        }
+        #endregion
+
         #region [Function] path를 기준으로 파일을 저장 / 덮어쓰기
         public unsafe bool WriteFile(string filename, string targetfile)
         {
@@ -529,13 +575,13 @@ namespace WALLnutClient
                 byte[] data = File.ReadAllBytes(targetfile);
                 long now = DateTime.Now.ToFileTimeUtc();
                 List<UInt64> block_list = new List<UInt64>();
-                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                ClearBuffer(ref buffer);
                 file_ptr->filesize = (ulong)data.Length;
                 for (uint i = 0; i <= (file_ptr->filesize / 0x0FEC); i++)
                 {
                     block_list.Add(AvailableBlock(BLOCKTYPE.DATA));
                 }
-                
+
                 ustrcpy(file_ptr->filename, filename.Split('\\')[filename.Split('\\').Length - 1]);
                 file_ptr->time_create = now;
                 file_ptr->time_create = now;
@@ -552,12 +598,12 @@ namespace WALLnutClient
                 file_ptr->next_file = BLOCK_END;
                 //file_ptr->memo = 
                 WriteBlock(buffer, finder);
-                
-                for(int i=0; i<block_list.Count; i++)
+
+                for (int i = 0; i < block_list.Count; i++)
                 {
                     data_ptr->type = BLOCKTYPE.DATA;
-                    for (uint j = 0; j < 0x1000; j++) { buffer[j] = 0x00; }
-                    if(i == 0)
+                    ClearBuffer(ref buffer);
+                    if (i == 0)
                     {
                         data_ptr->prev_file = BLOCK_END;
                     }
@@ -565,7 +611,7 @@ namespace WALLnutClient
                     {
                         data_ptr->prev_file = block_list[i - 1];
                     }
-                    if(i == block_list.Count - 1)
+                    if (i == block_list.Count - 1)
                     {
                         data_ptr->next_file = BLOCK_END;
 
@@ -608,7 +654,7 @@ namespace WALLnutClient
                     next_file = ptr->next_file;
                     UnSetBitMapBlock(offset);
 
-                    if(offset == LAST_FILE)
+                    if (offset == LAST_FILE)
                     {
                         LAST_FILE = prev_file;
                     }
@@ -702,7 +748,7 @@ namespace WALLnutClient
                         bw.Close();
 
                         // 헤더 생성
-                        for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                        ClearBuffer(ref buffer);
                         DISK_HEADER_STRUCTURE* header = (DISK_HEADER_STRUCTURE*)ptr_buffer;
                         strcpy(header->signature, SIGNATURE);
                         header->block_size = BLOCK_SIZE;
@@ -718,7 +764,7 @@ namespace WALLnutClient
                         DiskIO.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         // 초기 비트맵 생성
-                        for (uint i = 0; i < BLOCK_SIZE; i++) { buffer[i] = 0x00; }
+                        ClearBuffer(ref buffer);
                         ENTRY_DATA_STRUCTURE* bitmap = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
                         bitmap->type = BLOCKTYPE.BITMAP;
                         bitmap->prev_file = BLOCK_END;
@@ -732,16 +778,16 @@ namespace WALLnutClient
                         DiskIO.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         // 초기 파일 엔트리 생성
-                        for (uint i = 0; i < BLOCK_SIZE; i++) { buffer[i] = 0x00; }
+                        ClearBuffer(ref buffer);
                         long now = DateTime.Now.ToFileTimeUtc();
 
                         ENTRY_FILE_STRUCTURE* file = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
-                        file->type = BLOCKTYPE.ENTRY_FILE;
+                        file->type = BLOCKTYPE.ENTRY_FOLDER;
                         file->prev_file = BLOCK_END;
                         file->next_file = BLOCK_END;
                         //strcpy(file->filename, "\\");
                         file->offset_data = BLOCK_END;
-                        file->filesize = BLOCK_END;
+                        file->filesize = 0;
                         file->offset_parent = BLOCK_END;
                         file->time_create = now;
                         file->time_modify = now;
