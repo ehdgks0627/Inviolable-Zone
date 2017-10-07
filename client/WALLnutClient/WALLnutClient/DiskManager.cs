@@ -16,6 +16,8 @@ namespace WALLnutClient
         public UInt64 entry_file;
         public UInt64 entry_index;
         public UInt64 entry_bitmap;
+        public UInt64 last_file;
+        public UInt64 last_bitmap;
         public UInt64 disk_size;
         public fixed byte reserved[0x0008];
         public fixed byte end_signature[0x0008];
@@ -65,10 +67,64 @@ namespace WALLnutClient
 
         public enum BLOCKTYPE : UInt32
         {
-            ENTRY_FILE,
+            ENTRY_FILE = 1,
             DATA,
             BITMAP
         }
+
+        #region [Function] 생성자, 헤더의 기본 정보를 읽음
+        public unsafe DiskManager(string diskname)
+        {
+            handle = DiskIO.CreateFile(diskname, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
+            if (!handle.IsInvalid && !handle.IsClosed)
+            {
+                byte[] buffer = new byte[BLOCK_SIZE];
+                ReadBlock(ref buffer, 0);
+                fixed(byte *ptr_buffer = &buffer[0])
+                {
+                    DISK_HEADER_STRUCTURE* ptr = (DISK_HEADER_STRUCTURE*)ptr_buffer;
+                    for (int i = 0; i < SIGNATURE.Length; i++)
+                    {
+                        if (ptr->signature[i] != SIGNATURE[i] || ptr->end_signature[i] != SIGNATURE[i])
+                        {
+                            isActive = false;
+                            return;
+                        }
+                    }
+                    ENTRY_FILE = ptr->entry_file;
+                    ENTRY_INDEX = ptr->entry_index;
+                    ENTRY_BITMAP = ptr->entry_bitmap;
+                    LAST_FILE = ptr->last_file;
+                    LAST_BITMAP = ptr->last_bitmap;
+                    isActive = true;
+                    return;
+                }
+            }
+            else
+            {
+                isActive = false;
+                return;
+            }
+        }
+        #endregion
+
+        #region [Function] byte 배열에 string 유니코드 문자열을 대입
+        public unsafe static void ustrcpy(byte* destination, string source)
+        {
+            int length = source.Length;
+            char[] c = new char[1];
+            fixed (char* ptr_c = &c[0])
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    byte* ptr = (byte*)ptr_c;
+                    c[0] = source[i];
+                    destination[i * 2] = ptr[0];
+                    destination[i * 2 + 1] = ptr[1];
+                }
+            }
+        }
+        #endregion
 
         #region [Function] byte 배열에 string 문자열을 대입
         public unsafe static void strcpy(byte* destination, string source)
@@ -91,38 +147,6 @@ namespace WALLnutClient
         }
         #endregion
 
-        #region [Function] 생성자, 헤더의 기본 정보를 읽음
-        public unsafe DiskManager(string diskname)
-        {
-            handle = DiskIO.CreateFile(diskname, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
-            if (!handle.IsInvalid && !handle.IsClosed)
-            {
-                byte[] buffer = new byte[BLOCK_SIZE];
-                ReadBlock(ref buffer, 0);
-                for (int i = 0; i < 0x0008; i++)
-                {
-                    if (buffer[0x0000 + i] != SIGNATURE[i] || buffer[0x0038 + i] != SIGNATURE[i])
-                    {
-                        isActive = false;
-                        return;
-                    }
-                }
-                // 파일 엔트리 (기본 오프셋 0xFF)
-                fixed (byte* ptr = &buffer[0x0010]) { ENTRY_FILE = *(UInt64*)ptr; }
-                // 색인 엔트리 (기본 오프셋 0xFF)
-                fixed (byte* ptr = &buffer[0x0018]) { ENTRY_INDEX = *(UInt64*)ptr; }
-                // 비트맵 엔트리 (기본 오프셋 1)
-                fixed (byte* ptr = &buffer[0x0020]) { ENTRY_BITMAP = *(UInt64*)ptr; }
-                isActive = true;
-                return;
-            }
-            else
-            {
-                isActive = false;
-                return;
-            }
-        }
-        #endregion
 
         #region [Function] 비트맵 에서 사용 가능한 오프셋을 찾아 반환
         public unsafe UInt64 NewBitMapBlock()
@@ -171,99 +195,110 @@ namespace WALLnutClient
         #region [Function] 블록타입에 맞는 블록중 사용 가능한 블록을 찾고 할당하여 오프셋 반환
         public unsafe UInt64 AvailableBlock(BLOCKTYPE type)
         {
-            byte[] buffer = new byte[BLOCK_SIZE];
-            bool work = true;
-            UInt64 finder = 0xFFFFFFFFFFFFFFFFL, new_block = 0xFFFFFFFFFFFFFFFFL;
-            if (!Enum.IsDefined(typeof(BLOCKTYPE), type))
+            try
             {
-                return STATE_ERROR;
-            }
-            fixed (byte* ptr_buffer = &buffer[0])
-            {
-
-                ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
-                ENTRY_DATA_STRUCTURE* data_ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
-
-                switch (type)
+                byte[] buffer = new byte[BLOCK_SIZE];
+                bool work = true;
+                UInt64 finder = 0xFFFFFFFFFFFFFFFFL, new_block = 0;
+                if (!Enum.IsDefined(typeof(BLOCKTYPE), type))
                 {
-                    case BLOCKTYPE.ENTRY_FILE:
-                        finder = ENTRY_BITMAP;
-                        ReadBlock(ref buffer, finder);
-                        while (finder != BLOCK_END && work)
-                        {
-                            for (int i = 0; i < 0x0FEC; i++)
-                            {
-                                if (data_ptr->data[i] != 0xFF)
-                                {
-                                    new_block = GetAvailableBit(data_ptr->data[i]);
-                                    work = false;
-                                    break;
-                                }
-                            }
-                            if(work)
-                            {
-                                finder = data_ptr->next_file;
-                            }
-                        }
-                        if (work)
-                        {
-                            NewBitMapBlock();
-                            return AvailableBlock(BLOCKTYPE.ENTRY_FILE);
-                        }
-                        else
-                        {
-                            ReadBlock(ref buffer, LAST_FILE);
-                            file_ptr->next_file = new_block;
-                            WriteBlock(buffer, LAST_FILE);
-                            SetBitMapBlock(new_block);
-                            for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
-                            data_ptr->type = BLOCKTYPE.ENTRY_FILE;
-                            data_ptr->prev_file = LAST_FILE;
-                            data_ptr->next_file = BLOCK_END;
-                            WriteBlock(buffer, new_block);
-                            LAST_FILE = new_block;
-                            return new_block;
-                        }
-                        break;
+                    return STATE_ERROR;
+                }
+                fixed (byte* ptr_buffer = &buffer[0])
+                {
 
-                    case BLOCKTYPE.DATA:
-                        finder = ENTRY_BITMAP;
-                        ReadBlock(ref buffer, finder);
-                        while (finder != BLOCK_END && work)
-                        {
-                            for (int i = 0; i < 0x0FEC; i++)
+                    ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
+                    ENTRY_DATA_STRUCTURE* data_ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+
+                    switch (type)
+                    {
+                        case BLOCKTYPE.ENTRY_FILE:
+                            finder = ENTRY_BITMAP;
+                            ReadBlock(ref buffer, finder);
+                            while (finder != BLOCK_END && work)
                             {
-                                if (data_ptr->data[i] != 0xFF)
+                                for (ulong i = 0; i < 0x0FEC; i++)
                                 {
-                                    new_block = GetAvailableBit(data_ptr->data[i]);
-                                    work = false;
-                                    break;
+                                    if (data_ptr->data[i] != 0xFF)
+                                    {
+                                        new_block += i * 8 + GetAvailableBit(data_ptr->data[i]);
+                                        work = false;
+                                        break;
+                                    }
+                                }
+                                if (work)
+                                {
+                                    finder = data_ptr->next_file;
+                                    ReadBlock(ref buffer, finder);
+                                    new_block += 0x0FEC * 8;
                                 }
                             }
                             if (work)
                             {
-                                finder = data_ptr->next_file;
+                                NewBitMapBlock();
+                                return AvailableBlock(BLOCKTYPE.ENTRY_FILE);
                             }
-                        }
-                        if (work)
-                        {
-                            NewBitMapBlock();
-                            return AvailableBlock(BLOCKTYPE.DATA);
-                        }
-                        else
-                        {
-                            SetBitMapBlock(new_block);
-                            for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
-                            data_ptr->type = BLOCKTYPE.DATA;
-                            data_ptr->prev_file = BLOCK_END;
-                            data_ptr->next_file = BLOCK_END;
-                            WriteBlock(buffer, new_block);
-                            return new_block;
-                        }
-                        break;
+                            else
+                            {
+                                ReadBlock(ref buffer, LAST_FILE);
+                                file_ptr->next_file = new_block;
+                                WriteBlock(buffer, LAST_FILE);
+                                SetBitMapBlock(new_block);
+                                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                                file_ptr->type = BLOCKTYPE.ENTRY_FILE;
+                                file_ptr->prev_file = LAST_FILE;
+                                file_ptr->next_file = BLOCK_END;
+                                WriteBlock(buffer, new_block);
+                                LAST_FILE = new_block;
+                                return new_block;
+                            }
+                            break;
+
+                        case BLOCKTYPE.DATA:
+                            finder = ENTRY_BITMAP;
+                            ReadBlock(ref buffer, finder);
+                            while (finder != BLOCK_END && work)
+                            {
+                                for (ulong i = 0; i < 0x0FEC; i++)
+                                {
+                                    if (data_ptr->data[i] != 0xFF)
+                                    {
+                                        new_block += i * 8 + GetAvailableBit(data_ptr->data[i]);
+                                        work = false;
+                                        break;
+                                    }
+                                }
+                                if (work)
+                                {
+                                    finder = data_ptr->next_file;
+                                    ReadBlock(ref buffer, finder);
+                                    new_block += 0x0FEC * 8;
+                                }
+                            }
+                            if (work)
+                            {
+                                NewBitMapBlock();
+                                return AvailableBlock(BLOCKTYPE.DATA);
+                            }
+                            else
+                            {
+                                SetBitMapBlock(new_block);
+                                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                                data_ptr->type = BLOCKTYPE.DATA;
+                                data_ptr->prev_file = BLOCK_END;
+                                data_ptr->next_file = BLOCK_END;
+                                WriteBlock(buffer, new_block);
+                                return new_block;
+                            }
+                            break;
+                    }
                 }
+                return BLOCK_END;
             }
-            return 0xFFFFFFFFFFFFFFFFL;
+            catch (Exception e)
+            {
+                return 0;
+            }
         }
         #endregion
 
@@ -410,7 +445,7 @@ namespace WALLnutClient
                     fixed (byte* ptr = &buffer[0])
                     {
                         ENTRY_FILE_STRUCTURE* file = (ENTRY_FILE_STRUCTURE*)ptr;
-                        string compare_filename = Marshal.PtrToStringAuto((IntPtr)file->filename); //주의
+                        string compare_filename = Marshal.PtrToStringUni((IntPtr)file->filename); //주의
                         if (paths[i].Equals(compare_filename) && file->offset_parent == prev_finder)
                         {
                             if (i == paths.Length - 1)
@@ -419,11 +454,11 @@ namespace WALLnutClient
                             }
                             else
                             {
-                                prev_finder = finder;
                                 finder = ENTRY_FILE;
                                 break;
                             }
                         }
+                        prev_finder = finder;
                         finder = file->next_file;
                     }
                 }
@@ -456,10 +491,10 @@ namespace WALLnutClient
                     fixed (byte* ptr_buffer = &buffer[0])
                     {
                         ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
-                        while (readsize > 0)
+                        while (filesize - readsize > 0)
                         {
                             UInt64 buffer_read_size = (filesize - readsize > 0x0FEC) ? 0x0FEC : filesize - readsize;
-                            ReadBlock(ref buffer, offset);
+                            ReadBlock(ref buffer, finder);
                             bytecpy(ptr_filecontent, ptr->data, readsize, buffer_read_size);
                             finder = ptr->next_file;
                             readsize += buffer_read_size;
@@ -476,10 +511,10 @@ namespace WALLnutClient
         #endregion
 
         #region [Function] path를 기준으로 파일을 저장 / 덮어쓰기
-        public unsafe UInt64 WriteFile(string filename, string targetfile)
+        public unsafe bool WriteFile(string filename, string targetfile)
         {
             UInt64 offset = Path2Offset(filename);
-            UInt64 finder;
+            UInt64 finder, prev_LAST_FILE;
             byte[] buffer = new byte[BLOCK_SIZE];
             fixed (byte* ptr_buffer = &buffer[0])
             {
@@ -489,33 +524,42 @@ namespace WALLnutClient
                 }
                 ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
                 ENTRY_DATA_STRUCTURE* data_ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                prev_LAST_FILE = LAST_FILE;
                 finder = AvailableBlock(BLOCKTYPE.ENTRY_FILE);
-                ReadBlock(ref buffer, finder);
                 byte[] data = File.ReadAllBytes(targetfile);
                 long now = DateTime.Now.ToFileTimeUtc();
-                offset = AvailableBlock(BLOCKTYPE.DATA);
+                List<UInt64> block_list = new List<UInt64>();
+                for (uint i = 0; i <= (file_ptr->filesize / 0x0FEC); i++)
+                {
+                    block_list.Add(AvailableBlock(BLOCKTYPE.DATA));
+                }
+
 
                 for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
-                strcpy(file_ptr->filename, targetfile.Split('\\')[targetfile.Split('\\').Length - 1]);
-                file_ptr->filesize = (ulong)data.Length;
+                ustrcpy(file_ptr->filename, filename.Split('\\')[filename.Split('\\').Length - 1]);
+                file_ptr->filesize = (ulong)data.Length; //*2 해야하나? 트레이싱 해보자
                 file_ptr->time_create = now;
                 file_ptr->time_create = now;
-                file_ptr->offset_data = offset;
-                file_ptr->prev_file = LAST_FILE;
-                file_ptr->offset_parent = Path2Offset(filename);
-                LAST_FILE = finder;
+                if (file_ptr->filesize == 0)
+                {
+                    file_ptr->offset_data = BLOCK_END;
+                }
+                else
+                {
+                    file_ptr->offset_data = block_list[0];
+                }
+                file_ptr->prev_file = prev_LAST_FILE;
+                file_ptr->offset_parent = Path2Offset(filename.Substring(0, filename.LastIndexOf('\\') + 1));
                 file_ptr->next_file = BLOCK_END;
+                //file_ptr->memo = 
                 WriteBlock(buffer, finder);
 
                 for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
                 data_ptr->prev_file = BLOCK_END;
-                List<UInt64> block_list = new List<UInt64>();
-                for(uint i=0; i<=(file_ptr->filesize / 0x0FEC); i++)
-                {
-                    block_list.Add(AvailableBlock(BLOCKTYPE.DATA));
-                }
+                
                 for(int i=0; i<block_list.Count; i++)
                 {
+                    data_ptr->type = BLOCKTYPE.DATA;
                     for (uint j = 0; j < 0x1000; j++) { buffer[j] = 0x00; }
                     if(i == 0)
                     {
@@ -545,24 +589,8 @@ namespace WALLnutClient
                     }
                     WriteBlock(buffer, block_list[i]);
                 }
-                //ptr->memo = 
             }
-            /*
-            Path2Offset으로 파일 유무 확인
-            if(있으면)
-            {
-                기존꺼의 data블록을 찾아 덮어쓰기
-                마지막 수정 시간 수정
-            } 
-            else(없으면)
-            {
-                새로운 파일 엔트리 블록 할당받고
-                엔트리블록에 정보를 쓴 후
-                데이터블록을 할당 받고 거따가 쓰기
-            }
-            */
-            throw new NotImplementedException();
-            return 0xFFFFFFFFFFFFFFFFL;
+            return true;
         }
         #endregion
 
@@ -583,6 +611,11 @@ namespace WALLnutClient
                     prev_file = ptr->prev_file;
                     next_file = ptr->next_file;
                     UnSetBitMapBlock(offset);
+
+                    if(offset == LAST_FILE)
+                    {
+                        LAST_FILE = prev_file;
+                    }
 
                     if (prev_file != BLOCK_END)
                     {
@@ -680,6 +713,8 @@ namespace WALLnutClient
                         header->entry_file = 2;
                         header->entry_index = 0xFFFFFFFFFFFFFFFFL;
                         header->entry_bitmap = 1;
+                        header->last_file = 2;
+                        header->last_bitmap = 1;
                         header->disk_size = diskinfo.Size;
                         //header->reserved;
                         strcpy(header->end_signature, SIGNATURE);
