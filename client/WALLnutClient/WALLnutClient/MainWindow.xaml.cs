@@ -9,6 +9,7 @@ using System.Text;
 using Microsoft.Win32.SafeHandles;
 using System.Diagnostics;
 using System.IO.Pipes;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace WALLnutClient
 {
@@ -32,7 +33,7 @@ namespace WALLnutClient
                 Debug.Assert(manager.AvailableBlock(DiskManager.BLOCKTYPE.DATA) == i);
                 Console.WriteLine(i);
             }*/
-            byte[] data = new byte[10];
+            byte[] data = new byte[50000];
             byte[] read_data;
             Random r = new Random((int)(DateTime.Now.ToFileTimeUtc()));
             FileStream fs = new FileStream(@"C:\WALLnut\test.txt", FileMode.Create);
@@ -46,6 +47,7 @@ namespace WALLnutClient
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.Path2Offset(@"\test") == 3);
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
             for(int i=0; i<data.Length; i++)
             {
@@ -56,6 +58,7 @@ namespace WALLnutClient
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
+            Debug.Assert(manager.Path2Offset(@"\test") == 3);
             for (int i = 0; i < data.Length; i++)
             {
                 Debug.Assert(data[i] == read_data[i]);
@@ -63,6 +66,7 @@ namespace WALLnutClient
             Debug.Assert(manager.DeleteFile(@"test") == false);
             Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
+            
 
             Debug.Assert(manager.GetAvailableBit(0x00) == 0);
             Debug.Assert(manager.GetAvailableBit(0x01) == 1);

@@ -529,15 +529,14 @@ namespace WALLnutClient
                 byte[] data = File.ReadAllBytes(targetfile);
                 long now = DateTime.Now.ToFileTimeUtc();
                 List<UInt64> block_list = new List<UInt64>();
+                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                file_ptr->filesize = (ulong)data.Length;
                 for (uint i = 0; i <= (file_ptr->filesize / 0x0FEC); i++)
                 {
                     block_list.Add(AvailableBlock(BLOCKTYPE.DATA));
                 }
-
-
-                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
+                
                 ustrcpy(file_ptr->filename, filename.Split('\\')[filename.Split('\\').Length - 1]);
-                file_ptr->filesize = (ulong)data.Length; //*2 해야하나? 트레이싱 해보자
                 file_ptr->time_create = now;
                 file_ptr->time_create = now;
                 if (file_ptr->filesize == 0)
@@ -553,9 +552,6 @@ namespace WALLnutClient
                 file_ptr->next_file = BLOCK_END;
                 //file_ptr->memo = 
                 WriteBlock(buffer, finder);
-
-                for (uint i = 0; i < 0x1000; i++) { buffer[i] = 0x00; }
-                data_ptr->prev_file = BLOCK_END;
                 
                 for(int i=0; i<block_list.Count; i++)
                 {
