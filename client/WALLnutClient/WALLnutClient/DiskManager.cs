@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 namespace WALLnutClient
 {
+    #region [Structure] 디스크 헤더 구조체
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public unsafe struct DISK_HEADER_STRUCTURE
     {
@@ -22,7 +23,9 @@ namespace WALLnutClient
         public fixed byte reserved[0x0008];
         public fixed byte end_signature[0x0008];
     }
+    #endregion
 
+    #region [Structure] 파일 엔트리 구조체
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public unsafe struct ENTRY_FILE_STRUCTURE
     {
@@ -37,7 +40,9 @@ namespace WALLnutClient
         public long time_modify;
         public fixed byte memo[0x0EC4];
     }
+    #endregion
 
+    #region [Structure] 데이터 구조체
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public unsafe struct ENTRY_DATA_STRUCTURE
     {
@@ -46,6 +51,7 @@ namespace WALLnutClient
         public UInt64 next_file;
         public fixed byte data[0x0FEC];
     }
+    #endregion
 
     public class DiskManager
     {
@@ -65,6 +71,7 @@ namespace WALLnutClient
         private UInt64 LAST_FILE { get; set; }
         private UInt64 LAST_BITMAP { get; set; }
 
+        #region [Enum] 블록 종류
         public enum BLOCKTYPE : UInt32
         {
             ENTRY_FILE = 1,
@@ -72,6 +79,7 @@ namespace WALLnutClient
             DATA,
             BITMAP
         }
+        #endregion
 
         #region [Function] 생성자, 헤더의 기본 정보를 읽음
         public unsafe DiskManager(string diskname)
@@ -148,7 +156,6 @@ namespace WALLnutClient
         }
         #endregion
 
-
         #region [Function] 비트맵 에서 사용 가능한 오프셋을 찾아 반환
         public unsafe UInt64 NewBitMapBlock()
         {
@@ -214,6 +221,7 @@ namespace WALLnutClient
                     switch (type)
                     {
                         case BLOCKTYPE.ENTRY_FILE:
+                        case BLOCKTYPE.ENTRY_FOLDER:
                             finder = ENTRY_BITMAP;
                             ReadBlock(ref buffer, finder);
                             while (finder != BLOCK_END && work)
@@ -237,7 +245,7 @@ namespace WALLnutClient
                             if (work)
                             {
                                 NewBitMapBlock();
-                                return AvailableBlock(BLOCKTYPE.ENTRY_FILE);
+                                return AvailableBlock(type);
                             }
                             else
                             {
@@ -434,11 +442,20 @@ namespace WALLnutClient
             UInt64 prev_finder = BLOCK_END;
             byte[] buffer = new byte[BLOCK_SIZE];
             string[] paths = filename.Split('\\');
+            int length = paths.Length;
+            if (paths.Length > 2 && paths[paths.Length - 1].Equals(""))
+            {
+                length -= 1;
+            }
             if (!paths[0].Equals(""))
             {
                 return BLOCK_END;
             }
-            for (int i = 1; i < paths.Length; i++)
+            else if(!filename.Equals("\\"))
+            {
+                prev_finder = 2;
+            }
+            for (int i = 1; i < length; i++)
             {
                 while (finder != BLOCK_END)
                 {
@@ -449,17 +466,17 @@ namespace WALLnutClient
                         string compare_filename = Marshal.PtrToStringUni((IntPtr)file->filename); //주의
                         if (paths[i].Equals(compare_filename) && file->offset_parent == prev_finder)
                         {
-                            if (i == paths.Length - 1)
+                            if (i == length - 1)
                             {
                                 return finder;
                             }
                             else
                             {
+                                prev_finder = finder;
                                 finder = ENTRY_FILE;
                                 break;
                             }
                         }
-                        prev_finder = finder;
                         finder = file->next_file;
                     }
                 }
@@ -531,9 +548,18 @@ namespace WALLnutClient
             fixed (byte *ptr_buffer = &buffer[0])
             {
                 ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
+                UInt64 offset_parent = Path2Offset(filename.Substring(0, filename.LastIndexOf('\\') + 1));
+                if(offset_parent == BLOCK_END)
+                {
+                    return false;
+                }
                 if (offset != BLOCK_END) //폴더가 있을경우
                 {
                     ReadBlock(ref buffer, offset);
+                    if(file_ptr->type != BLOCKTYPE.ENTRY_FOLDER)
+                    {
+                        return false;
+                    }
                     ustrcpy(file_ptr->filename,filename.Split('\\')[filename.Split('\\').Length - 1]);
                     file_ptr->time_modify = now;
                     WriteBlock(buffer, offset);
@@ -541,14 +567,15 @@ namespace WALLnutClient
                 }
                 else
                 {
-                    offset = AvailableBlock(BLOCKTYPE.ENTRY_FILE);
+                    offset = AvailableBlock(BLOCKTYPE.ENTRY_FOLDER);
+                    ReadBlock(ref buffer, offset);
                     ustrcpy(file_ptr->filename, filename.Split('\\')[filename.Split('\\').Length - 1]);
                     file_ptr->filesize = 0;
                     file_ptr->offset_data = BLOCK_END;
                     file_ptr->time_create = now;
                     file_ptr->time_modify = now;
                     file_ptr->type = BLOCKTYPE.ENTRY_FOLDER;
-                    file_ptr->offset_parent = Path2Offset(filename.Substring(0, filename.LastIndexOf('\\') + 1));
+                    file_ptr->offset_parent = offset_parent;
                     WriteBlock(buffer, offset);
                     return true;
                 }
@@ -564,18 +591,29 @@ namespace WALLnutClient
             byte[] buffer = new byte[BLOCK_SIZE];
             fixed (byte* ptr_buffer = &buffer[0])
             {
-                if (offset != BLOCK_END)
-                {
-                    DeleteFile(filename);
-                }
                 ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
                 ENTRY_DATA_STRUCTURE* data_ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                if (offset != BLOCK_END)
+                {
+                    ReadBlock(ref buffer, offset);
+                    if(file_ptr->type != BLOCKTYPE.ENTRY_FILE)
+                    {
+                        return false;
+                    }
+                    DeleteFile(filename);
+                }
+                UInt64 offset_parent = Path2Offset(filename.Substring(0, filename.LastIndexOf('\\') + 1));
+                if(offset_parent == BLOCK_END)
+                {
+                    return false;
+                }
                 prev_LAST_FILE = LAST_FILE;
                 finder = AvailableBlock(BLOCKTYPE.ENTRY_FILE);
                 byte[] data = File.ReadAllBytes(targetfile);
                 long now = DateTime.Now.ToFileTimeUtc();
                 List<UInt64> block_list = new List<UInt64>();
                 ClearBuffer(ref buffer);
+                ReadBlock(ref buffer, finder);
                 file_ptr->filesize = (ulong)data.Length;
                 for (uint i = 0; i <= (file_ptr->filesize / 0x0FEC); i++)
                 {
@@ -594,15 +632,15 @@ namespace WALLnutClient
                     file_ptr->offset_data = block_list[0];
                 }
                 file_ptr->prev_file = prev_LAST_FILE;
-                file_ptr->offset_parent = Path2Offset(filename.Substring(0, filename.LastIndexOf('\\') + 1));
+                file_ptr->offset_parent = offset_parent;
                 file_ptr->next_file = BLOCK_END;
                 //file_ptr->memo = 
                 WriteBlock(buffer, finder);
 
                 for (int i = 0; i < block_list.Count; i++)
                 {
-                    data_ptr->type = BLOCKTYPE.DATA;
                     ClearBuffer(ref buffer);
+                    data_ptr->type = BLOCKTYPE.DATA;
                     if (i == 0)
                     {
                         data_ptr->prev_file = BLOCK_END;

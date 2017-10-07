@@ -54,6 +54,15 @@ namespace WALLnutClient
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
+
+            Debug.Assert(manager.WriteFile(@"\테스트", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.ReadFile(@"\테스트", out read_data) == true);
+            for (int i = 0; i < data.Length; i++)
+            {
+                Debug.Assert(data[i] == read_data[i]);
+            }
+            Debug.Assert(manager.DeleteFile(@"\테스트") == true);
+
             Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
@@ -67,7 +76,25 @@ namespace WALLnutClient
             Debug.Assert(manager.DeleteFile(@"test") == false);
             Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
-            
+
+            //폴더 삭제 처리해줘야 할듯
+            Debug.Assert(manager.WriteFile(@"\asdf\test", @"C:\WALLnut\test.txt") == false);
+            Debug.Assert(manager.WriteFolder(@"asdf\asdf") == false);
+            Debug.Assert(manager.WriteFolder(@"\asdf\asdf") == false);
+            Debug.Assert(manager.WriteFolder(@"\asdf") == true);
+            Debug.Assert(manager.WriteFolder(@"\asdf") == true);
+            Debug.Assert(manager.WriteFile(@"\asdf\test", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.WriteFolder(@"\asdf\test") == flase);
+            Debug.Assert(manager.WriteFile(@"\asdf", @"C:\WALLnut\test.txt") == false);
+            Debug.Assert(manager.WriteFile(@"\asdf\\", @"C:\WALLnut\test.txt") == false);
+            Debug.Assert(manager.WriteFile(@"asdf\test", @"C:\WALLnut\test.txt") == false);
+            Debug.Assert(manager.ReadFile(@"\asdf\test", out read_data));
+            for (int i = 0; i < data.Length; i++)
+            {
+                Debug.Assert(data[i] == read_data[i]);
+            }
+            Debug.Assert(manager.DeleteFile(@"\asdf\test") == true);
+            Debug.Assert(manager.DeleteFile(@"\asdf\test") == false);
 
             Debug.Assert(manager.GetAvailableBit(0x00) == 0);
             Debug.Assert(manager.GetAvailableBit(0x01) == 1);
