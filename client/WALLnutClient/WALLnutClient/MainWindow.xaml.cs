@@ -19,6 +19,7 @@ namespace WALLnutClient
         List<string> BlackListExtensions = new List<string>();
         DiskManager manager = null;
 
+        #region [Funciton] test function
         public void TestCase(string drivename)
         {
             Debug.Assert(DiskManager.FormatDisk(new DiskInfo { DeviceID = drivename }) == true);
@@ -77,14 +78,17 @@ namespace WALLnutClient
             Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
 
-            //폴더 삭제 처리해줘야 할듯
+            //폴더 삭제 처리해줘야 할듯 어떻게할까? 그냥 파일마다 일일히 삭제 때리면 될 듯 한데
             Debug.Assert(manager.WriteFile(@"\asdf\test", @"C:\WALLnut\test.txt") == false);
             Debug.Assert(manager.WriteFolder(@"asdf\asdf") == false);
             Debug.Assert(manager.WriteFolder(@"\asdf\asdf") == false);
             Debug.Assert(manager.WriteFolder(@"\asdf") == true);
             Debug.Assert(manager.WriteFolder(@"\asdf") == true);
+            Debug.Assert(manager.DeleteFile(@"\asdf") == true);
+            Debug.Assert(manager.DeleteFile(@"\asdf") == false);
+            Debug.Assert(manager.WriteFolder(@"\asdf") == true);
             Debug.Assert(manager.WriteFile(@"\asdf\test", @"C:\WALLnut\test.txt") == true);
-            Debug.Assert(manager.WriteFolder(@"\asdf\test") == flase);
+            Debug.Assert(manager.WriteFolder(@"\asdf\test") == false);
             Debug.Assert(manager.WriteFile(@"\asdf", @"C:\WALLnut\test.txt") == false);
             Debug.Assert(manager.WriteFile(@"\asdf\\", @"C:\WALLnut\test.txt") == false);
             Debug.Assert(manager.WriteFile(@"asdf\test", @"C:\WALLnut\test.txt") == false);
@@ -137,6 +141,7 @@ namespace WALLnutClient
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100 + 1) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 200) == false);
         }
+        #endregion
 
         public MainWindow()
         {

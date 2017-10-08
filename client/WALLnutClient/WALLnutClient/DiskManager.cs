@@ -724,7 +724,7 @@ namespace WALLnutClient
             }
         }
         #endregion
-
+        
         #region [Function] 비트맵 블록에서 해당 오프셋의 비트를 Set
         private unsafe static bool SetBit(byte* data, UInt64 offset)
         {
