@@ -304,7 +304,7 @@ namespace WALLnutClient
                 }
                 return BLOCK_END;
             }
-            catch (Exception e)
+            catch
             {
                 return 0;
             }
@@ -324,6 +324,22 @@ namespace WALLnutClient
                     DiskIO.ReadFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                 }
             }
+        }
+
+        public unsafe static void ReadBlock(ref byte[] buffer, UInt64 offset, string diskname)
+        {
+            SafeFileHandle handle = DiskIO.CreateFile(diskname, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
+            uint[] read = new uint[1];
+            offset *= BLOCK_SIZE;
+            fixed (uint* ptr_read = &read[0])
+            {
+                fixed (byte* ptr_buffer = &buffer[0x0000])
+                {
+                    DiskIO.SetFilePointerEx(handle, offset, out offset, DiskIO.FILE_BEGIN);
+                    DiskIO.ReadFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                }
+            }
+            DiskIO.CloseHandle(handle);
         }
         #endregion
 
@@ -545,6 +561,10 @@ namespace WALLnutClient
             byte[] buffer = new byte[BLOCK_SIZE];
             ClearBuffer(ref buffer);
             long now = DateTime.Now.ToFileTimeUtc();
+            if(filename == @"\")
+            {
+                return false;
+            }
             fixed (byte *ptr_buffer = &buffer[0])
             {
                 ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;

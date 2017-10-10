@@ -18,6 +18,12 @@ namespace WALLnutClient
         FileSystemWatcher fs = null;
         List<string> BlackListExtensions = new List<string>();
         DiskManager manager = null;
+        /* 
+            TODO List
+            맨처음 동작 할때 파일리스트 읽어와서 백업
+            디스크 용량 초과?
+            폴더 삭제 처리해줘야 할듯 어떻게할까? 그냥 파일마다 일일히 삭제 때리면 될 듯 한데
+        */
 
         #region [Funciton] test function
         public void TestCase(string drivename)
@@ -34,7 +40,7 @@ namespace WALLnutClient
                 Debug.Assert(manager.AvailableBlock(DiskManager.BLOCKTYPE.DATA) == i);
                 Console.WriteLine(i);
             }*/
-            byte[] data = new byte[50000];
+        byte[] data = new byte[50000];
             byte[] read_data;
             Random r = new Random((int)(DateTime.Now.ToFileTimeUtc()));
             FileStream fs = new FileStream(@"C:\WALLnut\test.txt", FileMode.Create);
@@ -44,8 +50,7 @@ namespace WALLnutClient
                 fs.WriteByte(data[i]);
             }
             fs.Close();
-
-            //복합 경로에 대한 테스트 남음
+            
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
@@ -77,10 +82,12 @@ namespace WALLnutClient
             Debug.Assert(manager.DeleteFile(@"test") == false);
             Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
-
-            //폴더 삭제 처리해줘야 할듯 어떻게할까? 그냥 파일마다 일일히 삭제 때리면 될 듯 한데
+            
             Debug.Assert(manager.WriteFile(@"\asdf\test", @"C:\WALLnut\test.txt") == false);
             Debug.Assert(manager.WriteFolder(@"asdf\asdf") == false);
+            Debug.Assert(manager.WriteFolder(@"\") == false);
+            Debug.Assert(manager.WriteFolder(@"\\") == false);
+            Debug.Assert(manager.WriteFolder(@"\\a") == false);
             Debug.Assert(manager.WriteFolder(@"\asdf\asdf") == false);
             Debug.Assert(manager.WriteFolder(@"\asdf") == true);
             Debug.Assert(manager.WriteFolder(@"\asdf") == true);
@@ -110,9 +117,9 @@ namespace WALLnutClient
             Debug.Assert(manager.SetBitMapBlock(1) == false);
             Debug.Assert(manager.SetBitMapBlock(2) == false);
 
-            Debug.Assert(manager.SetBitMapBlock(3) == true);
-            Debug.Assert(manager.SetBitMapBlock(3) == false);
-            Debug.Assert(manager.UnSetBitMapBlock(3) == true);
+            Debug.Assert(manager.SetBitMapBlock(4) == true);
+            Debug.Assert(manager.SetBitMapBlock(4) == false);
+            Debug.Assert(manager.UnSetBitMapBlock(4) == true);
             Debug.Assert(manager.SetBitMapBlock(35) == true);
 
             Debug.Assert(manager.SetBitMapBlock(4076) == true);
@@ -170,7 +177,7 @@ namespace WALLnutClient
         #region [Function] Drive 목록 업데이트
         public void UpdateDriveList()
         {
-            List<DiskInfo> list = GetDriveList();
+            List<DiskInfo> list = DiskInfo.GetDriveList();
             cb_disk.Items.Clear();
             foreach (DiskInfo info in list)
             {
@@ -294,66 +301,7 @@ namespace WALLnutClient
         }
         #endregion
 
-        #region [Function] PhysicalDrive의 목록을 반환
-        public List<DiskInfo> GetDriveList()
-        {
-            List<DiskInfo> result = new List<DiskInfo>();
-            Process WmicProcess = new Process();
-            WmicProcess.StartInfo.FileName = "wmic.exe";
-            WmicProcess.StartInfo.UseShellExecute = false;
-            WmicProcess.StartInfo.Arguments = "diskdrive list brief / format:list";
-            WmicProcess.StartInfo.RedirectStandardOutput = true;
-            WmicProcess.StartInfo.CreateNoWindow = true;
-            WmicProcess.Start();
-
-            string[] lines = WmicProcess.StandardOutput.ReadToEnd().Split(new[] { "\r\r\n\r\r\n" }, StringSplitOptions.None);
-            foreach (string line in lines)
-            {
-                if (line.Length == 0)
-                {
-                    continue;
-                }
-                DiskInfo diskinfo = new DiskInfo();
-                string[] infos = line.Split(new[] { "\r\r\n" }, StringSplitOptions.None);
-                foreach (string info in infos)
-                {
-                    try
-                    {
-                        string[] t = info.Split('=');
-                        if (t[0] == "Caption")
-                        {
-                            diskinfo.Caption = t[1];
-                        }
-                        else if (t[0] == "DeviceID")
-                        {
-                            diskinfo.DeviceID = t[1];
-                        }
-                        else if (t[0] == "Model")
-                        {
-                            diskinfo.Model = t[1];
-                        }
-                        else if (t[0] == "Partitions")
-                        {
-                            diskinfo.Partitions = Convert.ToUInt64(t[1]);
-                        }
-                        else if (t[0] == "Size")
-                        {
-                            diskinfo.Size = Convert.ToUInt64(t[1]);
-                        }
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                }
-                result.Add(diskinfo);
-            }
-            WmicProcess.WaitForExit();
-            WmicProcess.Close();
-            return result;
-        }
-        #endregion
-
+        #region [Function] 포맷 버튼 핸들러
         private void btn_format_Click(object sender, RoutedEventArgs e)
         {
             if (cb_disk.SelectedIndex == -1)
@@ -374,5 +322,6 @@ namespace WALLnutClient
                 }
             }
         }
+        #endregion
     }
 }
