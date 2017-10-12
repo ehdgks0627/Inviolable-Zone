@@ -40,23 +40,23 @@ namespace WALLnutClient
                 Debug.Assert(manager.AvailableBlock(DiskManager.BLOCKTYPE.DATA) == i);
                 Console.WriteLine(i);
             }*/
-        byte[] data = new byte[50000];
+            byte[] data = new byte[50000];
             byte[] read_data;
             Random r = new Random((int)(DateTime.Now.ToFileTimeUtc()));
             FileStream fs = new FileStream(@"C:\WALLnut\test.txt", FileMode.Create);
-            for (int i=0; i<data.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
                 data[i] = Convert.ToByte(r.Next(1, 255));
                 fs.WriteByte(data[i]);
             }
             fs.Close();
-            
+
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
-            for(int i=0; i<data.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
@@ -82,7 +82,7 @@ namespace WALLnutClient
             Debug.Assert(manager.DeleteFile(@"test") == false);
             Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
-            
+
             Debug.Assert(manager.WriteFile(@"\asdf\test", @"C:\WALLnut\test.txt") == false);
             Debug.Assert(manager.WriteFolder(@"asdf\asdf") == false);
             Debug.Assert(manager.WriteFolder(@"\") == false);
@@ -137,7 +137,7 @@ namespace WALLnutClient
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == true);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == false);
             Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
-            
+
             Debug.Assert(manager.SetBitMapBlock(4076 * 100) == true);
             Debug.Assert(manager.SetBitMapBlock(4076 * 100) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100) == true);

@@ -99,9 +99,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DiskIO.cs" />
+    <Compile Include="DiskIOWrapper.cs" />
     <Compile Include="DiskInfo.cs" />
     <Compile Include="DiskManager.cs" />
+    <Compile Include="FileNode.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
