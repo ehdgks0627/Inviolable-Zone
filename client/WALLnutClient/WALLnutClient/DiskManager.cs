@@ -3,58 +3,72 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
 namespace WALLnutClient
 {
-    #region [Structure] 디스크 헤더 구조체
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public unsafe struct DISK_HEADER_STRUCTURE
-    {
-        public fixed byte signature[0x0008];
-        public UInt64 block_size;
-        public UInt64 entry_file;
-        public UInt64 entry_index;
-        public UInt64 entry_bitmap;
-        public UInt64 last_file;
-        public UInt64 last_bitmap;
-        public UInt64 disk_size;
-        public fixed byte reserved[0x0008];
-        public fixed byte end_signature[0x0008];
-    }
-    #endregion
-
-    #region [Structure] 파일 엔트리 구조체
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public unsafe struct ENTRY_FILE_STRUCTURE
-    {
-        public DiskManager.BLOCKTYPE type;
-        public UInt64 prev_file;
-        public UInt64 next_file;
-        public fixed byte filename[0x0100];
-        public UInt64 offset_data;
-        public UInt64 filesize;
-        public UInt64 offset_parent;
-        public long time_create;
-        public long time_modify;
-        public fixed byte memo[0x0EC4];
-    }
-    #endregion
-
-    #region [Structure] 데이터 구조체
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    public unsafe struct ENTRY_DATA_STRUCTURE
-    {
-        public DiskManager.BLOCKTYPE type;
-        public UInt64 prev_file;
-        public UInt64 next_file;
-        public fixed byte data[0x0FEC];
-    }
-    #endregion
-
     public class DiskManager
     {
+        #region [Structure] 디스크 헤더 구조체
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public unsafe struct DISK_HEADER_STRUCTURE
+        {
+            public fixed byte signature[0x0008];
+            public UInt64 block_size;
+            public UInt64 entry_file;
+            public UInt64 entry_index;
+            public UInt64 entry_bitmap;
+            public UInt64 last_file;
+            public UInt64 last_bitmap;
+            public UInt64 disk_size;
+            public Int64 last_modify_time;
+            public fixed byte end_signature[0x0008];
+        }
+        #endregion
+
+        #region [Structure] 파일 엔트리 구조체
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public unsafe struct ENTRY_FILE_STRUCTURE : ICloneable
+        {
+            public DiskManager.BLOCKTYPE type;
+            public UInt64 prev_file;
+            public UInt64 next_file;
+            public fixed byte filename[0x0100];
+            public UInt64 offset_data;
+            public UInt64 filesize;
+            public UInt64 offset_parent;
+            public long time_create;
+            public long time_modify;
+            public fixed byte memo[0x0EC4];
+
+            public object Clone()
+            {
+                return this.MemberwiseClone();
+            }
+        }
+        #endregion
+
+        #region [Structure] 데이터 구조체
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public unsafe struct ENTRY_DATA_STRUCTURE
+        {
+            public DiskManager.BLOCKTYPE type;
+            public UInt64 prev_file;
+            public UInt64 next_file;
+            public fixed byte data[0x0FEC];
+        }
+        #endregion
+
+        #region [Enum] 블록 종류
+        public enum BLOCKTYPE : UInt32
+        {
+            ENTRY_FILE = 1,
+            ENTRY_FOLDER,
+            DATA,
+            BITMAP
+        }
+        #endregion
+
         SafeFileHandle handle;
         public bool isActive { get; set; }
 
@@ -71,20 +85,12 @@ namespace WALLnutClient
         private UInt64 LAST_FILE { get; set; }
         private UInt64 LAST_BITMAP { get; set; }
 
-        #region [Enum] 블록 종류
-        public enum BLOCKTYPE : UInt32
-        {
-            ENTRY_FILE = 1,
-            ENTRY_FOLDER,
-            DATA,
-            BITMAP
-        }
-        #endregion
-
-        #region [Function] 생성자, 헤더의 기본 정보를 읽음
+        FileNode root { get; set; }
+        
+        #region [Function] [생성자] 헤더의 기본 정보를 읽음
         public unsafe DiskManager(string diskname)
         {
-            handle = DiskIO.CreateFile(diskname, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
+            handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ | DiskIOWrapper.FILE_SHARE_WRITE, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
             if (!handle.IsInvalid && !handle.IsClosed)
             {
                 byte[] buffer = new byte[BLOCK_SIZE];
@@ -105,6 +111,8 @@ namespace WALLnutClient
                     ENTRY_BITMAP = ptr->entry_bitmap;
                     LAST_FILE = ptr->last_file;
                     LAST_BITMAP = ptr->last_bitmap;
+
+                    /* TODO Read Headers*/
                     isActive = true;
                     return;
                 }
@@ -113,6 +121,20 @@ namespace WALLnutClient
             {
                 isActive = false;
                 return;
+            }
+        }
+        #endregion
+
+        #region [Function] 디스크 헤더의 last_modify_time을 현재 시간으로 업데이트함
+        private unsafe void updateTime()
+        {
+            byte[] buffer = new byte[BLOCK_SIZE];
+            fixed (byte* ptr_buffer = &buffer[0])
+            {
+                DISK_HEADER_STRUCTURE* ptr = (DISK_HEADER_STRUCTURE*)ptr_buffer;
+                ReadBlock(ref buffer, 0);
+                ptr->last_modify_time = DateTime.Now.ToFileTimeUtc();
+                WriteBlock(buffer, 0);
             }
         }
         #endregion
@@ -320,26 +342,26 @@ namespace WALLnutClient
             {
                 fixed (byte* ptr_buffer = &buffer[0x0000])
                 {
-                    DiskIO.SetFilePointerEx(handle, offset, out offset, DiskIO.FILE_BEGIN);
-                    DiskIO.ReadFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                    DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                    DiskIOWrapper.ReadFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                 }
             }
         }
 
         public unsafe static void ReadBlock(ref byte[] buffer, UInt64 offset, string diskname)
         {
-            SafeFileHandle handle = DiskIO.CreateFile(diskname, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
+            SafeFileHandle handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ | DiskIOWrapper.FILE_SHARE_WRITE, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
             uint[] read = new uint[1];
             offset *= BLOCK_SIZE;
             fixed (uint* ptr_read = &read[0])
             {
                 fixed (byte* ptr_buffer = &buffer[0x0000])
                 {
-                    DiskIO.SetFilePointerEx(handle, offset, out offset, DiskIO.FILE_BEGIN);
-                    DiskIO.ReadFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                    DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                    DiskIOWrapper.ReadFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                 }
             }
-            DiskIO.CloseHandle(handle);
+            DiskIOWrapper.CloseHandle(handle);
         }
         #endregion
 
@@ -352,10 +374,11 @@ namespace WALLnutClient
             {
                 fixed (byte* ptr_buffer = &buffer[0x0000])
                 {
-                    DiskIO.SetFilePointerEx(handle, offset, out offset, DiskIO.FILE_BEGIN);
-                    DiskIO.WriteFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                    DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                    DiskIOWrapper.WriteFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                 }
             }
+            updateTime();
         }
         #endregion
 
@@ -454,6 +477,17 @@ namespace WALLnutClient
         #region [Function] path를 기준으로 파일 엔트리 오프셋을 찾기
         public unsafe UInt64 Path2Offset(string filename)
         {
+            FileNode node;
+            node = root.FindNodeByFilename(filename, 0);
+            if(node == null)
+            {
+                return BLOCK_END;
+            }
+            else
+            {
+                return node.index;
+            }
+            /*
             UInt64 finder = ENTRY_FILE;
             UInt64 prev_finder = BLOCK_END;
             byte[] buffer = new byte[BLOCK_SIZE];
@@ -497,7 +531,7 @@ namespace WALLnutClient
                     }
                 }
             }
-            return BLOCK_END;
+            return BLOCK_END;*/
         }
         #endregion
 
@@ -784,7 +818,7 @@ namespace WALLnutClient
         {
             unsafe
             {
-                SafeFileHandle h = DiskIO.CreateFile(diskinfo.DeviceID, DiskIO.GENERIC_READ | DiskIO.GENERIC_WRITE, DiskIO.FILE_SHARE_READ | DiskIO.FILE_SHARE_WRITE, IntPtr.Zero, DiskIO.OPEN_EXISTING, 0, IntPtr.Zero);
+                SafeFileHandle h = DiskIOWrapper.CreateFile(diskinfo.DeviceID, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ | DiskIOWrapper.FILE_SHARE_WRITE, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
                 if (h.IsInvalid)
                 {
                     MessageBox.Show("관리자 권한이 필요합니다", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -798,8 +832,8 @@ namespace WALLnutClient
                     {
                         ulong offset = 0;
 
-                        DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
-                        DiskIO.ReadFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(h, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.ReadFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         BinaryWriter bw = new BinaryWriter(File.Open(diskinfo.DeviceID.Replace("\\", "_") + ".backup", FileMode.Create));
                         foreach (byte b in buffer) { bw.Write(b); }
@@ -816,10 +850,10 @@ namespace WALLnutClient
                         header->last_file = 2;
                         header->last_bitmap = 1;
                         header->disk_size = diskinfo.Size;
-                        //header->reserved;
+                        header->last_modify_time = DateTime.Now.ToFileTimeUtc();
                         strcpy(header->end_signature, SIGNATURE);
-                        DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
-                        DiskIO.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(h, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         // 초기 비트맵 생성
                         ClearBuffer(ref buffer);
@@ -832,8 +866,8 @@ namespace WALLnutClient
                         SetBit(bitmap->data, 0x0002); // FILE BLOCK
 
                         offset = 1 * BLOCK_SIZE;
-                        DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
-                        DiskIO.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(h, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         // 초기 파일 엔트리 생성
                         ClearBuffer(ref buffer);
@@ -851,19 +885,21 @@ namespace WALLnutClient
                         file->time_modify = now;
 
                         offset = 2 * BLOCK_SIZE;
-                        DiskIO.SetFilePointerEx(h, offset, out offset, DiskIO.FILE_BEGIN);
-                        DiskIO.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(h, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                     }
                 }
-                DiskIO.CloseHandle(h);
+                DiskIOWrapper.CloseHandle(h);
             }
             return true;
         }
         #endregion
 
+        #region [Function] [소멸자] 
         ~DiskManager()
         {
-            DiskIO.CloseHandle(handle);
+            DiskIOWrapper.CloseHandle(handle);
         }
+        #endregion
     }
 }

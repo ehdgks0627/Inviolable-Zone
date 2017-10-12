@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WALLnutClient
 {
-    internal partial class DiskIO
+    internal partial class DiskIOWrapper
     {
 
         #region Constants used in unmanaged functions
