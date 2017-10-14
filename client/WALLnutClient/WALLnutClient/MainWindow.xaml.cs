@@ -10,10 +10,11 @@ using Microsoft.Win32.SafeHandles;
 using System.Diagnostics;
 using System.IO.Pipes;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using MahApps.Metro.Controls;
 
 namespace WALLnutClient
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         FileSystemWatcher fs = null;
         List<string> BlackListExtensions = new List<string>();

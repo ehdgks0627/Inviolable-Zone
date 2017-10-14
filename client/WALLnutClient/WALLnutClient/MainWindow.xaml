@@ -1,11 +1,13 @@
-﻿<Window x:Class="WALLnutClient.MainWindow"
+﻿<Controls:MetroWindow x:Class="WALLnutClient.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WALLnutClient"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
         Title="MainWindow" Height="500" Width="525">
+    
     <Grid>
         <ListView x:Name="lv_log" Margin="37,73,33,163.5">
             <ListView.View>
@@ -19,4 +21,4 @@
         <Button x:Name="btn_format" Content="Format" HorizontalAlignment="Left" Margin="299,339,0,0" VerticalAlignment="Top" Width="161" Height="26" Click="btn_format_Click"/>
         <ComboBox x:Name="cb_disk" HorizontalAlignment="Left" VerticalAlignment="Top" Width="231" Margin="47,341,0,0" Height="26"/>
     </Grid>
-</Window>
+</Controls:MetroWindow>
