@@ -9,10 +9,12 @@ namespace WALLnutClient
 {
     class FileNode
     {
+        public static Int64 LastUpdate;
         public FileNode Root;
         public UInt64 RootIndex;
         public UInt64 index;
         public Dictionary<string, FileNode> child;
+        public DiskManager.BLOCKTYPE type;
 
         public byte[] buffer;
         string filename { get; set; }
@@ -20,21 +22,49 @@ namespace WALLnutClient
 
         public unsafe FileNode(DiskManager.ENTRY_FILE_STRUCTURE _info, UInt64 _index)
         {
-            buffer = (byte[])_info.Clone();
+            int size = Marshal.SizeOf(_info);
+            buffer = new byte[size];
+            IntPtr tmp_ptr = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(_info, tmp_ptr, true);
+            Marshal.Copy(tmp_ptr, buffer, 0, size);
+            Marshal.FreeHGlobal(tmp_ptr);
+
             child = new Dictionary<string, FileNode>();
             fixed (byte* ptr_buffer = buffer)
             {
                 DiskManager.ENTRY_FILE_STRUCTURE* ptr = (DiskManager.ENTRY_FILE_STRUCTURE * )ptr_buffer;
                 filename = Marshal.PtrToStringUni((IntPtr)(ptr->filename));
-                fullname = FullPath();
+                fullname = null;
+                type = ptr->type;
                 index = _index;
             }
         }
 
-        public FileNode FindNodeByFilename(string path, int deep)
+        public FileNode FindNodeByFilename(string path, int deep, bool isparent=false)
+        {
+            if(path[0] != '\\')
+            {
+                return null;
+            }
+            else
+            {
+                path = path.Substring(1, path.Length - 1);
+            }
+            if (path.Length != 0 && path[path.Length - 1] == '\\')
+            {
+                path = path.Substring(0, path.Length - 1);
+            }
+            string[] paths = path.Split('\\');
+            if(paths[deep] == filename && paths.Length == (deep +1))
+            {
+                return this;
+            }
+            return this._FindNodeByFilename(paths, deep, isparent);
+        }
+
+        private FileNode _FindNodeByFilename(string[] paths, int deep, bool isparent=false)
         {
             FileNode c;
-            string[] paths = path.Split('\\');
             try
             {
                 c = child[paths[deep]];
@@ -43,19 +73,33 @@ namespace WALLnutClient
             {
                 return null;
             }
-            if(paths.Length == deep)
+            if(paths[deep] == c.filename && paths.Length == (deep + 1))
             {
-                return this;
+                if (isparent)
+                {
+                    if(c.type == DiskManager.BLOCKTYPE.ENTRY_FOLDER)
+                    {
+                        return c;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return c;
+                }
             }
-            else
-            {
-                return c.FindNodeByFilename(path, deep + 1);
-            }
+            return c._FindNodeByFilename(paths, deep + 1, isparent);
         }
 
-        public bool AppendNode(FileNode node)
+        public bool AppendChild(FileNode node)
         {
             child.Add(node.filename, node);
+            node.Root = this;
+            node.RootIndex = this.index;
+            node.fullname = node.FullPath();
             return true;
         }
 
@@ -67,12 +111,37 @@ namespace WALLnutClient
             }
             else
             {
-                return "\\";
+                return "";
             }
         }
-        public UInt64 path2offset()
+
+        public void UpdateInfo(DiskManager.ENTRY_FILE_STRUCTURE _info)
         {
-            return 2;
+            int size = Marshal.SizeOf(_info);
+            buffer = new byte[size];
+            IntPtr tmp_ptr = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(_info, tmp_ptr, true);
+            Marshal.Copy(tmp_ptr, buffer, 0, size);
+            Marshal.FreeHGlobal(tmp_ptr);
+        }
+
+        public void DeleteNode(DiskManager manager)
+        {
+            this._DeleteNode(manager);
+            if (Root != null)
+            {
+                Root.child.Remove(filename);
+            }
+        }
+
+        private void _DeleteNode(DiskManager manager)
+        {
+            manager._DeleteFile(fullname);
+            foreach (string key in child.Keys)
+            {
+                child[key]._DeleteNode(manager);
+            }
+            child.Clear();
         }
      }
 }
