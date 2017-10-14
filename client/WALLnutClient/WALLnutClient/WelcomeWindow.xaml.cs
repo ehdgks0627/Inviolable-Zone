@@ -27,7 +27,7 @@ namespace WALLnutClient
 
         private void btn_start_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow window = new MainWindow();
+            SelectDiskWindow window = new SelectDiskWindow();
             window.Show();
             this.Hide();
         }

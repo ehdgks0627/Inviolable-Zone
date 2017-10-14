@@ -18,7 +18,5 @@
         </ListView>
         <TextBox x:Name="tb_path" TextWrapping="Wrap" Text="" Margin="40,30,107,0" PreviewMouseDown="tb_path_PreviewMouseDown" Height="23" VerticalAlignment="Top"/>
         <Button x:Name="btn_sync" Content="Sync" Margin="0,31,36,0" Click="btn_sync_Click" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="66"/>
-        <Button x:Name="btn_format" Content="Format" HorizontalAlignment="Left" Margin="299,339,0,0" VerticalAlignment="Top" Width="161" Height="26" Click="btn_format_Click"/>
-        <ComboBox x:Name="cb_disk" HorizontalAlignment="Left" VerticalAlignment="Top" Width="231" Margin="47,341,0,0" Height="26"/>
     </Grid>
 </Controls:MetroWindow>

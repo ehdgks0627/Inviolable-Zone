@@ -158,7 +158,7 @@ namespace WALLnutClient
         {
             InitializeComponent();
 
-            tb_path.Text = System.AppDomain.CurrentDomain.BaseDirectory;
+            //tb_path.Text = System.AppDomain.CurrentDomain.BaseDirectory;
             #region [Code] 블랙리스트 파일을 읽어와서 리스트에 저장
             using (StreamReader sr = new StreamReader(@"..\..\ext.data"))
             {
@@ -174,23 +174,9 @@ namespace WALLnutClient
             }
             #endregion
 
-            UpdateDriveList();
             //TestCase(@"\\.\PhysicalDrive1");
             manager = new DiskManager(@"\\.\PhysicalDrive1");
         }
-
-        #region [Function] Drive 목록 업데이트
-        public void UpdateDriveList()
-        {
-            List<DiskInfo> list = DiskInfo.GetDriveList();
-            cb_disk.Items.Clear();
-            foreach (DiskInfo info in list)
-            {
-                cb_disk.Items.Add(info);
-            }
-            cb_disk.SelectedIndex = 0;
-        }
-        #endregion
 
         #region [Function] FileSystemSatcher 이벤트 핸들러
         protected void event_CreateFile(object fscreated, FileSystemEventArgs Eventocc)
@@ -302,30 +288,6 @@ namespace WALLnutClient
             catch
             {
                 MessageBox.Show("올바른 경로가 아님...");
-            }
-        }
-        #endregion
-
-        #region [Function] 포맷 버튼 핸들러
-        private void btn_format_Click(object sender, RoutedEventArgs e)
-        {
-            if (cb_disk.SelectedIndex == -1)
-            {
-                MessageBox.Show("포맷할 디스크를 선택해주세요!", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (MessageBoxResult.OK == MessageBox.Show(
-                "정말로 포맷하시겠습니까? 디스크 내 모든 데이터가 초기화됩니다!",
-                "매우 주의",
-                MessageBoxButton.OKCancel,
-                MessageBoxImage.Warning))
-            {
-                if (DiskManager.FormatDisk((DiskInfo)cb_disk.SelectedItem))
-                {
-                    MessageBox.Show("포맷 성공", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
-                    UpdateDriveList();
-                }
             }
         }
         #endregion

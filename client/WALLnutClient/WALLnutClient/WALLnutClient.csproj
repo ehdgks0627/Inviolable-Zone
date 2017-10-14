@@ -100,6 +100,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="SelectDiskWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="WelcomeWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -115,6 +119,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SelectDiskWindow.xaml.cs">
+      <DependentUpon>SelectDiskWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="WelcomeWindow.xaml.cs">
       <DependentUpon>WelcomeWindow.xaml</DependentUpon>
