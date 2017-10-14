@@ -53,6 +53,9 @@ namespace WALLnutClient
 
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.Path2Offset(@"\test") == 3);
+            Debug.Assert(manager.WriteFile(@"\test\a", @"C:\WALLnut\test.txt") == false);
+            Debug.Assert(manager.Path2Offset(@"\test") == 3);
             Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
@@ -67,7 +70,7 @@ namespace WALLnutClient
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
-            Debug.Assert(manager.DeleteFile(@"\테스트") == true);
+            //Debug.Assert(manager.DeleteFile(@"\테스트") == true);
 
             Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
@@ -131,13 +134,13 @@ namespace WALLnutClient
             Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 8 - 1) == true);
             Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == true);
-
+            
             Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
             Debug.Assert(manager.SetBitMapBlock(4076 * 19) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == true);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == false);
             Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
-
+            
             Debug.Assert(manager.SetBitMapBlock(4076 * 100) == true);
             Debug.Assert(manager.SetBitMapBlock(4076 * 100) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100) == true);
@@ -171,7 +174,8 @@ namespace WALLnutClient
             #endregion
 
             UpdateDriveList();
-            TestCase(@"\\.\PhysicalDrive1");
+            //TestCase(@"\\.\PhysicalDrive1");
+            manager = new DiskManager(@"\\.\PhysicalDrive1");
         }
 
         #region [Function] Drive 목록 업데이트
@@ -319,6 +323,7 @@ namespace WALLnutClient
                 if (DiskManager.FormatDisk((DiskInfo)cb_disk.SelectedItem))
                 {
                     MessageBox.Show("포맷 성공", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                    UpdateDriveList();
                 }
             }
         }

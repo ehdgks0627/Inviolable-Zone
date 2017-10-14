@@ -59,6 +59,15 @@ namespace WALLnutClient
         }
         #endregion
 
+        #region [Structure] 인덱스 폴더 구조체
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public struct FolderIndex
+        {
+            public string filename;
+            public UInt64 parent;
+        }
+        #endregion
+
         #region [Enum] 블록 종류
         public enum BLOCKTYPE : UInt32
         {
@@ -90,29 +99,72 @@ namespace WALLnutClient
         #region [Function] [생성자] 헤더의 기본 정보를 읽음
         public unsafe DiskManager(string diskname)
         {
-            handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ | DiskIOWrapper.FILE_SHARE_WRITE, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
+            UInt64 finder, offset;
+            handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
             if (!handle.IsInvalid && !handle.IsClosed)
             {
                 byte[] buffer = new byte[BLOCK_SIZE];
                 ReadBlock(ref buffer, 0);
                 fixed (byte* ptr_buffer = &buffer[0])
                 {
-                    DISK_HEADER_STRUCTURE* ptr = (DISK_HEADER_STRUCTURE*)ptr_buffer;
+                    DISK_HEADER_STRUCTURE* header_ptr = (DISK_HEADER_STRUCTURE*)ptr_buffer;
                     for (int i = 0; i < SIGNATURE.Length; i++)
                     {
-                        if (ptr->signature[i] != SIGNATURE[i] || ptr->end_signature[i] != SIGNATURE[i])
+                        if (header_ptr->signature[i] != SIGNATURE[i] || header_ptr->end_signature[i] != SIGNATURE[i])
                         {
                             isActive = false;
                             return;
                         }
                     }
-                    ENTRY_FILE = ptr->entry_file;
-                    ENTRY_INDEX = ptr->entry_index;
-                    ENTRY_BITMAP = ptr->entry_bitmap;
-                    LAST_FILE = ptr->last_file;
-                    LAST_BITMAP = ptr->last_bitmap;
+                    ENTRY_FILE = header_ptr->entry_file;
+                    ENTRY_INDEX = header_ptr->entry_index;
+                    ENTRY_BITMAP = header_ptr->entry_bitmap;
+                    LAST_FILE = header_ptr->last_file;
+                    LAST_BITMAP = header_ptr->last_bitmap;
 
                     /* TODO Read Headers*/
+                    ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
+
+                    Dictionary<UInt64, FolderIndex> FolderList = new Dictionary<UInt64, FolderIndex>();
+                    finder = ENTRY_FILE;
+                    while(finder != BLOCK_END)
+                    {
+                        ReadBlock(ref buffer, finder);
+                        if(file_ptr->type == BLOCKTYPE.ENTRY_FOLDER)
+                        {
+                            FolderList.Add(finder, new FolderIndex { filename=Marshal.PtrToStringUni((IntPtr)file_ptr->filename), parent=file_ptr->offset_parent });
+                        }
+                        finder = file_ptr->next_file;
+                    }
+                    finder = ENTRY_FILE;
+                    while (finder != BLOCK_END)
+                    {
+                        ReadBlock(ref buffer, finder);
+                        FileNode new_node = null;
+                        new_node = new FileNode((ENTRY_FILE_STRUCTURE)(file_ptr->Clone()), finder);
+                        offset = file_ptr->offset_parent;
+                        if (finder == ENTRY_FILE)
+                        {
+                            root = new_node;
+                        }
+                        else
+                        {
+                            string root_path = string.Empty;
+                            while (offset != ENTRY_FILE)
+                            {
+                                root_path = "\\" + FolderList[offset].filename + root_path;
+                                offset = FolderList[offset].parent;
+                            }
+                            root_path += "\\" + Marshal.PtrToStringUni((IntPtr)(file_ptr->filename));
+                            FileNode parent = root.FindNodeByFilename(root_path, 0);
+                            if(parent != null)
+                            {
+                                parent.AppendChild(new_node);
+                            }
+                        }
+                        finder = file_ptr->next_file;
+                    }
+
                     isActive = true;
                     return;
                 }
@@ -126,16 +178,18 @@ namespace WALLnutClient
         #endregion
 
         #region [Function] 디스크 헤더의 last_modify_time을 현재 시간으로 업데이트함
-        private unsafe void updateTime()
+        private unsafe Int64 updateTime()
         {
             byte[] buffer = new byte[BLOCK_SIZE];
+            Int64 now = DateTime.Now.ToFileTimeUtc();
             fixed (byte* ptr_buffer = &buffer[0])
             {
                 DISK_HEADER_STRUCTURE* ptr = (DISK_HEADER_STRUCTURE*)ptr_buffer;
                 ReadBlock(ref buffer, 0);
-                ptr->last_modify_time = DateTime.Now.ToFileTimeUtc();
+                ptr->last_modify_time = now;
                 WriteBlock(buffer, 0);
             }
+            return now;
         }
         #endregion
 
@@ -191,6 +245,7 @@ namespace WALLnutClient
                 while (ptr->next_file != BLOCK_END)
                 {
                     finder = ptr->next_file;
+                    ClearBuffer(ref buffer);
                     ReadBlock(ref buffer, finder);
                     new_offset += 0x0FEC * 8;
                 }
@@ -378,7 +433,6 @@ namespace WALLnutClient
                     DiskIOWrapper.WriteFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                 }
             }
-            updateTime();
         }
         #endregion
 
@@ -390,7 +444,6 @@ namespace WALLnutClient
             UInt64 chunk = offset / 8 / 0x0FEC;
             UInt64 block = (offset - 8 * 0x0FEC * chunk) / 8;
             byte mask = (byte)(1 << (byte)(offset % 8));
-
             fixed (byte* ptr_buffer = &buffer[0])
             {
                 ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
@@ -478,6 +531,10 @@ namespace WALLnutClient
         public unsafe UInt64 Path2Offset(string filename)
         {
             FileNode node;
+            if(System.Text.RegularExpressions.Regex.IsMatch(filename, @"\\\\"))
+            {
+                return BLOCK_END;
+            }
             node = root.FindNodeByFilename(filename, 0);
             if(node == null)
             {
@@ -487,51 +544,6 @@ namespace WALLnutClient
             {
                 return node.index;
             }
-            /*
-            UInt64 finder = ENTRY_FILE;
-            UInt64 prev_finder = BLOCK_END;
-            byte[] buffer = new byte[BLOCK_SIZE];
-            string[] paths = filename.Split('\\');
-            int length = paths.Length;
-            if (paths.Length > 2 && paths[paths.Length - 1].Equals(""))
-            {
-                length -= 1;
-            }
-            if (!paths[0].Equals(""))
-            {
-                return BLOCK_END;
-            }
-            else if(!filename.Equals("\\"))
-            {
-                prev_finder = 2;
-            }
-            for (int i = 1; i < length; i++)
-            {
-                while (finder != BLOCK_END)
-                {
-                    ReadBlock(ref buffer, finder);
-                    fixed (byte* ptr = &buffer[0])
-                    {
-                        ENTRY_FILE_STRUCTURE* file = (ENTRY_FILE_STRUCTURE*)ptr;
-                        string compare_filename = Marshal.PtrToStringUni((IntPtr)file->filename); //주의
-                        if (paths[i].Equals(compare_filename) && file->offset_parent == prev_finder)
-                        {
-                            if (i == length - 1)
-                            {
-                                return finder;
-                            }
-                            else
-                            {
-                                prev_finder = finder;
-                                finder = ENTRY_FILE;
-                                break;
-                            }
-                        }
-                        finder = file->next_file;
-                    }
-                }
-            }
-            return BLOCK_END;*/
         }
         #endregion
 
@@ -603,7 +615,8 @@ namespace WALLnutClient
             {
                 ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
                 UInt64 offset_parent = Path2Offset(filename.Substring(0, filename.LastIndexOf('\\') + 1));
-                if(offset_parent == BLOCK_END)
+                FileNode new_node = null, parent;
+                if (offset_parent == BLOCK_END)
                 {
                     return false;
                 }
@@ -617,6 +630,9 @@ namespace WALLnutClient
                     ustrcpy(file_ptr->filename,filename.Split('\\')[filename.Split('\\').Length - 1]);
                     file_ptr->time_modify = now;
                     WriteBlock(buffer, offset);
+
+                    root.FindNodeByFilename(filename, 0).UpdateInfo((ENTRY_FILE_STRUCTURE)file_ptr->Clone());
+                    FileNode.LastUpdate = updateTime();
                     return true;
                 }
                 else
@@ -631,6 +647,11 @@ namespace WALLnutClient
                     file_ptr->type = BLOCKTYPE.ENTRY_FOLDER;
                     file_ptr->offset_parent = offset_parent;
                     WriteBlock(buffer, offset);
+                    
+                    new_node = new FileNode((ENTRY_FILE_STRUCTURE)(file_ptr->Clone()), offset);
+                    parent = root.FindNodeByFilename(filename.Substring(0, filename.LastIndexOf('\\') + 1), 0);
+                    parent.AppendChild(new_node);
+                    FileNode.LastUpdate = updateTime();
                     return true;
                 }
             }
@@ -640,13 +661,17 @@ namespace WALLnutClient
         #region [Function] path를 기준으로 파일을 저장 / 덮어쓰기
         public unsafe bool WriteFile(string filename, string targetfile)
         {
-            UInt64 offset = Path2Offset(filename);
-            UInt64 finder, prev_LAST_FILE;
+            UInt64 offset;
+            UInt64 finder, prev_LAST_FILE, offset_parent;
+            FileNode parent, node;
             byte[] buffer = new byte[BLOCK_SIZE];
             fixed (byte* ptr_buffer = &buffer[0])
             {
                 ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
                 ENTRY_DATA_STRUCTURE* data_ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                node = root.FindNodeByFilename(filename, 0);
+                parent = root.FindNodeByFilename(filename.Substring(0, filename.LastIndexOf('\\') + 1), 0, true);
+                offset = (node != null) ? (node.index) : (BLOCK_END);
                 if (offset != BLOCK_END)
                 {
                     ReadBlock(ref buffer, offset);
@@ -654,9 +679,9 @@ namespace WALLnutClient
                     {
                         return false;
                     }
-                    DeleteFile(filename);
+                    node.DeleteNode(this);
                 }
-                UInt64 offset_parent = Path2Offset(filename.Substring(0, filename.LastIndexOf('\\') + 1));
+                offset_parent = (parent != null) ? (parent.index) : BLOCK_END;
                 if(offset_parent == BLOCK_END)
                 {
                     return false;
@@ -690,6 +715,11 @@ namespace WALLnutClient
                 file_ptr->next_file = BLOCK_END;
                 //file_ptr->memo = 
                 WriteBlock(buffer, finder);
+
+                FileNode new_node = null;
+                new_node = new FileNode((ENTRY_FILE_STRUCTURE)(file_ptr->Clone()), finder);
+                parent.AppendChild(new_node);
+                FileNode.LastUpdate = updateTime();
 
                 for (int i = 0; i < block_list.Count; i++)
                 {
@@ -730,6 +760,23 @@ namespace WALLnutClient
 
         #region [Function] path를 기준으로 파일을 삭제
         public unsafe bool DeleteFile(string filename)
+        {
+            FileNode node;
+            node = root.FindNodeByFilename(filename, 0);
+            if (node == null)
+            {
+                return false;
+            }
+            else
+            {
+                node.DeleteNode(this);
+                return true;
+            }
+        }
+        #endregion
+
+        #region [Function] path를 기준으로 파일을 삭제(데이터를 삭제)
+        public unsafe bool _DeleteFile(string filename)
         {
             UInt64 offset = Path2Offset(filename);
             UInt64 finder;
@@ -818,7 +865,7 @@ namespace WALLnutClient
         {
             unsafe
             {
-                SafeFileHandle h = DiskIOWrapper.CreateFile(diskinfo.DeviceID, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ | DiskIOWrapper.FILE_SHARE_WRITE, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
+                SafeFileHandle h = DiskIOWrapper.CreateFile(diskinfo.DeviceID, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
                 if (h.IsInvalid)
                 {
                     MessageBox.Show("관리자 권한이 필요합니다", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -850,7 +897,7 @@ namespace WALLnutClient
                         header->last_file = 2;
                         header->last_bitmap = 1;
                         header->disk_size = diskinfo.Size;
-                        header->last_modify_time = DateTime.Now.ToFileTimeUtc();
+                        //header->last_modify_time = DateTime.Now.ToFileTimeUtc();
                         strcpy(header->end_signature, SIGNATURE);
                         DiskIOWrapper.SetFilePointerEx(h, offset, out offset, DiskIOWrapper.FILE_BEGIN);
                         DiskIOWrapper.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
