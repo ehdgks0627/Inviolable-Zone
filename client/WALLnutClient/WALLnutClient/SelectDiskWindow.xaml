@@ -8,8 +8,8 @@
         mc:Ignorable="d"
         Title="SelectDiskWindow" Height="90" Width="381.314">
     <Grid>
-        <ComboBox x:Name="cb_disk" HorizontalAlignment="Left" VerticalAlignment="Top" Width="231" Margin="20,20,0,20" Height="26"/>
-        <Button x:Name="btn_ok" Content="Go" HorizontalAlignment="Left" Margin="271,20,0,0" VerticalAlignment="Top" Width="96" RenderTransformOrigin="-0.269,-0.454" Height="21"/>
+        <ComboBox x:Name="cb_disk" HorizontalAlignment="Left" VerticalAlignment="Top" Width="231" Margin="20,20,0,20" Height="26" SelectionChanged="cb_disk_SelectionChanged"/>
+        <Button x:Name="btn_ok" Content="Go" HorizontalAlignment="Left" Margin="272,20,0,0" VerticalAlignment="Top" Width="96" RenderTransformOrigin="-0.269,-0.454" Height="21" Click="btn_ok_Click"/>
 
     </Grid>
 </Controls:MetroWindow>
