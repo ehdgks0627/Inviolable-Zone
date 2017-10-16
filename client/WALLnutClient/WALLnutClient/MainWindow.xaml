@@ -6,17 +6,17 @@
         xmlns:local="clr-namespace:WALLnutClient"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="525">
-    
-    <Grid>
-        <ListView x:Name="lv_log" Margin="37,73,33,163.5">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <TextBox x:Name="tb_path" TextWrapping="Wrap" Text="" Margin="40,30,107,0" PreviewMouseDown="tb_path_PreviewMouseDown" Height="23" VerticalAlignment="Top"/>
-        <Button x:Name="btn_sync" Content="Sync" Margin="0,31,36,0" Click="btn_sync_Click" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="66"/>
+        Title="MainWindow" Height="500" Width="900" ResizeMode="CanMinimize">
+
+    <Grid Background="#FF3C3C3C">
+        <Button x:Name="button" Content="Button" Margin="40,140,710,210"/>
+        <Button x:Name="button_Copy" Content="Button" Margin="220,140,530,210"/>
+        <Button x:Name="button_Copy1" Content="Button" Margin="400,140,350,210"/>
+        <Button x:Name="button_Copy2" Margin="40,290,350,40"/>
+        <Label x:Name="lb_version" Content="Version: 2017-10-16" Margin="0,0,0,-0.5" Foreground="White" HorizontalAlignment="Right" Width="122" Height="26" VerticalAlignment="Bottom"/>
+        <ListBox x:Name="listBox" Margin="580,140,40,40"/>
+        <Label x:Name="lb_version_Copy" Content="Disk Usage : " Margin="580,30,240,415.5" Foreground="White"/>
+        <ProgressBar x:Name="pb_diskusage" Margin="660,32,40,417.5" Height="Auto"/>
+        <Label x:Name="lb_version_Copy1" Content="Last Sync Time : PM 2:50" Margin="580,62,40,383.5" Foreground="White"/>
     </Grid>
 </Controls:MetroWindow>

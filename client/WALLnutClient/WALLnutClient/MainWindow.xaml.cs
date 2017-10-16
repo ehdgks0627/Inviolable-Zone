@@ -178,6 +178,7 @@ namespace WALLnutClient
             manager = new DiskManager(@"\\.\PhysicalDrive1");
         }
 
+        /*
         #region [Function] FileSystemSatcher 이벤트 핸들러
         protected void event_CreateFile(object fscreated, FileSystemEventArgs Eventocc)
         {
@@ -291,5 +292,6 @@ namespace WALLnutClient
             }
         }
         #endregion
+        */
     }
 }
