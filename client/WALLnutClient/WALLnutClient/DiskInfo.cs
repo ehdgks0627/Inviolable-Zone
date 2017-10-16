@@ -33,8 +33,9 @@ namespace WALLnutClient
             WmicProcess.StartInfo.RedirectStandardOutput = true;
             WmicProcess.StartInfo.CreateNoWindow = true;
             WmicProcess.Start();
-
+            Console.WriteLine("1");
             string[] lines = WmicProcess.StandardOutput.ReadToEnd().Split(new[] { "\r\r\n\r\r\n" }, StringSplitOptions.None);
+            Console.WriteLine("2");
             foreach (string line in lines)
             {
                 if (line.Length == 0)
@@ -86,8 +87,10 @@ namespace WALLnutClient
                 }
                 result.Add(diskinfo);
             }
+            Console.WriteLine("3");
             WmicProcess.WaitForExit();
             WmicProcess.Close();
+            Console.WriteLine("4");
             return result;
         }
         #endregion

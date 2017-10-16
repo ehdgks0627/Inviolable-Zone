@@ -19,11 +19,10 @@ namespace WALLnutClient
         FileSystemWatcher fs = null;
         List<string> BlackListExtensions = new List<string>();
         DiskManager manager = null;
+        DiskInfo info = null;
         /* 
             TODO List
-            맨처음 동작 할때 파일리스트 읽어와서 백업
             디스크 용량 초과?
-            폴더 삭제 처리해줘야 할듯 어떻게할까? 그냥 파일마다 일일히 삭제 때리면 될 듯 한데
         */
 
         #region [Funciton] test function
@@ -154,10 +153,10 @@ namespace WALLnutClient
         }
         #endregion
 
-        public MainWindow()
+        public MainWindow(DiskInfo _info)
         {
             InitializeComponent();
-
+            info = _info;
             //tb_path.Text = System.AppDomain.CurrentDomain.BaseDirectory;
             #region [Code] 블랙리스트 파일을 읽어와서 리스트에 저장
             using (StreamReader sr = new StreamReader(@"..\..\ext.data"))
@@ -175,7 +174,7 @@ namespace WALLnutClient
             #endregion
 
             //TestCase(@"\\.\PhysicalDrive1");
-            manager = new DiskManager(@"\\.\PhysicalDrive1");
+            manager = new DiskManager(info.DeviceID);
         }
 
         /*
