@@ -23,22 +23,23 @@ namespace WALLnutClient
         public SelectDiskWindow()
         {
             InitializeComponent();
-
+            //btn_refresh.Background = new ImageBrush(new BitmapImage(new Uri(@"..\Resources\refresh.png")));
             UpdateDriveList();
         }
 
         #region [Function] 버튼 버튼 핸들러
         private void btn_ok_Click(object sender, RoutedEventArgs e)
         {
-            DiskInfo info = (DiskInfo)cb_disk.Items[cb_disk.SelectedIndex];
+            DiskInfo info = null;
             if (cb_disk.SelectedIndex == -1)
             {
                 MessageBox.Show("진행할 디스크를 선택해주세요!", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            if(info.isWALLNutDevice)
+            info = (DiskInfo)cb_disk.Items[cb_disk.SelectedIndex];
+            if (info.isWALLNutDevice)
             {
-                MainWindow window = new MainWindow();
+                MainWindow window = new MainWindow(info);
                 window.Show();
                 this.Close();
             }
@@ -46,7 +47,7 @@ namespace WALLnutClient
             {
                 if (MessageBoxResult.OK == MessageBox.Show(
                 "정말로 포맷하시겠습니까? 디스크 내 모든 데이터가 초기화됩니다!",
-                "매우 주의",
+                "주의",
                 MessageBoxButton.OKCancel,
                 MessageBoxImage.Warning))
                 {
@@ -54,7 +55,7 @@ namespace WALLnutClient
                     {
                         MessageBox.Show("포맷 성공", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                         UpdateDriveList();
-                        MainWindow window = new MainWindow();
+                        MainWindow window = new MainWindow(info);
                         window.Show();
                         this.Close();
                     }
@@ -78,15 +79,23 @@ namespace WALLnutClient
 
         private void cb_disk_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            DiskInfo info = (DiskInfo)cb_disk.Items[cb_disk.SelectedIndex];
-            if(!info.isWALLNutDevice)
+            if (cb_disk.SelectedIndex != -1)
             {
-                btn_ok.Content = "Format";
+                DiskInfo info = (DiskInfo)cb_disk.Items[cb_disk.SelectedIndex];
+                if (!info.isWALLNutDevice)
+                {
+                    btn_ok.Content = "Format";
+                }
+                else
+                {
+                    btn_ok.Content = "Go";
+                }
             }
-            else
-            {
-                btn_ok.Content = "Go";
-            }
+        }
+
+        private void btn_refresh_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateDriveList();
         }
     }
 }

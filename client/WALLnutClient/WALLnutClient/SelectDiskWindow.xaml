@@ -6,10 +6,11 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:WALLnutClient"
         mc:Ignorable="d"
-        Title="SelectDiskWindow" Height="90" Width="381.314">
+        Title="SelectDiskWindow" Height="90" Width="400">
     <Grid>
-        <ComboBox x:Name="cb_disk" HorizontalAlignment="Left" VerticalAlignment="Top" Width="231" Margin="20,20,0,20" Height="26" SelectionChanged="cb_disk_SelectionChanged"/>
-        <Button x:Name="btn_ok" Content="Go" HorizontalAlignment="Left" Margin="272,20,0,0" VerticalAlignment="Top" Width="96" RenderTransformOrigin="-0.269,-0.454" Height="21" Click="btn_ok_Click"/>
+        <ComboBox x:Name="cb_disk" HorizontalAlignment="Left" Width="231" Margin="21,15,0,10" SelectionChanged="cb_disk_SelectionChanged"/>
+        <Button x:Name="btn_ok" HorizontalAlignment="Left" Margin="296,15,0,10" Width="80" RenderTransformOrigin="-0.269,-0.454" Click="btn_ok_Click"/>
+        <Button x:Name="btn_refresh" Content="" Margin="256,15,101,10" Click="btn_refresh_Click"></Button>
 
     </Grid>
 </Controls:MetroWindow>
