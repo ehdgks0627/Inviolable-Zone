@@ -405,7 +405,7 @@ namespace WALLnutClient
 
         public unsafe static void ReadBlock(ref byte[] buffer, UInt64 offset, string diskname)
         {
-            SafeFileHandle handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ | DiskIOWrapper.FILE_SHARE_WRITE, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
+            SafeFileHandle handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
             uint[] read = new uint[1];
             offset *= BLOCK_SIZE;
             fixed (uint* ptr_read = &read[0])
