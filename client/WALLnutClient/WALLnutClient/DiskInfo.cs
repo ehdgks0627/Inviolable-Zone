@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Management;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,68 +19,30 @@ namespace WALLnutClient
 
         public override string ToString()
         {
-            return (isWALLNutDevice ? "[O] " : "[X] ") + Caption + " (" + (Size/1024/1024/1024) + "GB)";
+            return (isWALLNutDevice ? "[O] " : "[X] ") + Caption + " (" + (Size / 1024 / 1024 / 1024) + "GB)";
         }
 
         #region [Function] PhysicalDrive의 목록을 반환
         public static List<DiskInfo> GetDriveList()
         {
             List<DiskInfo> result = new List<DiskInfo>();
-            Process WmicProcess = new Process();
             byte[] buffer = new byte[DiskManager.BLOCK_SIZE];
-            WmicProcess.StartInfo.FileName = "wmic.exe";
-            WmicProcess.StartInfo.UseShellExecute = false;
-            WmicProcess.StartInfo.Arguments = "diskdrive list brief / format:list";
-            WmicProcess.StartInfo.RedirectStandardOutput = true;
-            WmicProcess.StartInfo.CreateNoWindow = true;
-            WmicProcess.Start();
-            Console.WriteLine("1");
-            string[] lines = WmicProcess.StandardOutput.ReadToEnd().Split(new[] { "\r\r\n\r\r\n" }, StringSplitOptions.None);
-            Console.WriteLine("2");
-            foreach (string line in lines)
+            ManagementObjectSearcher searcher =
+                                   new ManagementObjectSearcher("",
+                                   "SELECT * FROM Win32_DiskDrive");
+            foreach (ManagementObject queryObj in searcher.Get())
             {
-                if (line.Length == 0)
-                {
-                    continue;
-                }
                 DiskInfo diskinfo = new DiskInfo();
-                string[] infos = line.Split(new[] { "\r\r\n" }, StringSplitOptions.None);
-                foreach (string info in infos)
-                {
-                    try
-                    {
-                        string[] t = info.Split('=');
-                        if (t[0] == "Caption")
-                        {
-                            diskinfo.Caption = t[1];
-                        }
-                        else if (t[0] == "DeviceID")
-                        {
-                            diskinfo.DeviceID = t[1];
-                        }
-                        else if (t[0] == "Model")
-                        {
-                            diskinfo.Model = t[1];
-                        }
-                        else if (t[0] == "Partitions")
-                        {
-                            diskinfo.Partitions = Convert.ToUInt64(t[1]);
-                        }
-                        else if (t[0] == "Size")
-                        {
-                            diskinfo.Size = Convert.ToUInt64(t[1]);
-                        }
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                }
+                diskinfo.Caption = queryObj["Caption"].ToString();
+                diskinfo.DeviceID = queryObj["DeviceID"].ToString();
+                diskinfo.Model = queryObj["Model"].ToString();
+                diskinfo.Size = ulong.Parse(queryObj["Size"].ToString());
+
                 DiskManager.ReadBlock(ref buffer, 0, diskinfo.DeviceID);
                 diskinfo.isWALLNutDevice = true;
-                for(int i=0; i<8; i++)
+                for (int i = 0; i < 8; i++)
                 {
-                    if(buffer[i] != DiskManager.SIGNATURE[i])
+                    if (buffer[i] != DiskManager.SIGNATURE[i])
                     {
                         diskinfo.isWALLNutDevice = false;
                         break;
@@ -87,10 +50,6 @@ namespace WALLnutClient
                 }
                 result.Add(diskinfo);
             }
-            Console.WriteLine("3");
-            WmicProcess.WaitForExit();
-            WmicProcess.Close();
-            Console.WriteLine("4");
             return result;
         }
         #endregion
