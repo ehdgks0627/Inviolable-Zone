@@ -24,7 +24,6 @@ namespace WALLnutClient
         public SelectDiskWindow()
         {
             InitializeComponent();
-            //btn_refresh.Background = new ImageBrush(new BitmapImage(new Uri(@"..\Resources\refresh.png")));
             UpdateDriveList();
         }
 
