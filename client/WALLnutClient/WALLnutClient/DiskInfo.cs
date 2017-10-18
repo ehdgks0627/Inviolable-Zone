@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Management;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace WALLnutClient
 {
@@ -26,6 +23,14 @@ namespace WALLnutClient
         public static List<DiskInfo> GetDriveList()
         {
             List<DiskInfo> result = new List<DiskInfo>();
+            Thread t = new Thread(() => { GetDriveListThread(ref result); });
+            t.Start();
+            t.Join();
+            return result;
+        }
+
+        private static void GetDriveListThread(ref List<DiskInfo> result)
+        {
             byte[] buffer = new byte[DiskManager.BLOCK_SIZE];
             ManagementObjectSearcher searcher =
                                    new ManagementObjectSearcher("",
@@ -50,7 +55,6 @@ namespace WALLnutClient
                 }
                 result.Add(diskinfo);
             }
-            return result;
         }
         #endregion
     }

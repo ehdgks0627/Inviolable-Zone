@@ -79,9 +79,10 @@ namespace WALLnutClient
         #endregion
 
         SafeFileHandle handle;
+        static SafeFileHandle tmp_handle;
         public bool isActive { get; set; }
 
-        public static string SIGNATURE = "WALLnut\x00";
+        public static string SIGNATURE = "\x00WALLnut";
         public static uint BLOCK_SIZE = 0x1000;
         public static UInt64 BLOCK_END = 0xFAFAFAFAFAFAFAFAL;
         public static UInt64 HEADER_SIZE = 0x0040;
@@ -174,6 +175,29 @@ namespace WALLnutClient
                 isActive = false;
                 return;
             }
+        }
+        #endregion
+
+        #region [Function] 디스크 사용량을 구합니다
+        public unsafe UInt64 getUsage()
+        {
+            byte[] buffer = new byte[BLOCK_SIZE];
+            UInt64 size = 0;
+            UInt64 finder = ENTRY_BITMAP;
+            fixed (byte* ptr_buffer = &buffer[0])
+            {
+                ENTRY_DATA_STRUCTURE* ptr = (ENTRY_DATA_STRUCTURE*)ptr_buffer;
+                while (finder != BLOCK_END)
+                {
+                    ReadBlock(ref buffer, finder);
+                    for (int i = 0; i < 0xFEC; i++)
+                    {
+                        size += ptr->data[i];
+                    }
+                    finder = ptr->next_file;
+                }
+            }
+            return size * BLOCK_SIZE;
         }
         #endregion
 
@@ -405,18 +429,19 @@ namespace WALLnutClient
 
         public unsafe static void ReadBlock(ref byte[] buffer, UInt64 offset, string diskname)
         {
-            SafeFileHandle handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
+            tmp_handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
             uint[] read = new uint[1];
             offset *= BLOCK_SIZE;
             fixed (uint* ptr_read = &read[0])
             {
                 fixed (byte* ptr_buffer = &buffer[0x0000])
                 {
-                    DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                    DiskIOWrapper.ReadFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                    DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                    DiskIOWrapper.ReadFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                 }
             }
-            DiskIOWrapper.CloseHandle(handle);
+            tmp_handle.Close();
+            //DiskIOWrapper.CloseHandle(tmp_handle);
         }
         #endregion
 
@@ -865,8 +890,8 @@ namespace WALLnutClient
         {
             unsafe
             {
-                SafeFileHandle h = DiskIOWrapper.CreateFile(diskinfo.DeviceID, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
-                if (h.IsInvalid)
+                tmp_handle = DiskIOWrapper.CreateFile(diskinfo.DeviceID, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
+                if (tmp_handle.IsInvalid)
                 {
                     MessageBox.Show("관리자 권한이 필요합니다", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
@@ -879,8 +904,8 @@ namespace WALLnutClient
                     {
                         ulong offset = 0;
 
-                        DiskIOWrapper.SetFilePointerEx(h, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                        DiskIOWrapper.ReadFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.ReadFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         BinaryWriter bw = new BinaryWriter(File.Open(diskinfo.DeviceID.Replace("\\", "_") + ".backup", FileMode.Create));
                         foreach (byte b in buffer) { bw.Write(b); }
@@ -899,8 +924,8 @@ namespace WALLnutClient
                         header->disk_size = diskinfo.Size;
                         //header->last_modify_time = DateTime.Now.ToFileTimeUtc();
                         strcpy(header->end_signature, SIGNATURE);
-                        DiskIOWrapper.SetFilePointerEx(h, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                        DiskIOWrapper.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.WriteFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         // 초기 비트맵 생성
                         ClearBuffer(ref buffer);
@@ -913,8 +938,8 @@ namespace WALLnutClient
                         SetBit(bitmap->data, 0x0002); // FILE BLOCK
 
                         offset = 1 * BLOCK_SIZE;
-                        DiskIOWrapper.SetFilePointerEx(h, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                        DiskIOWrapper.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.WriteFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         // 초기 파일 엔트리 생성
                         ClearBuffer(ref buffer);
@@ -932,11 +957,12 @@ namespace WALLnutClient
                         file->time_modify = now;
 
                         offset = 2 * BLOCK_SIZE;
-                        DiskIOWrapper.SetFilePointerEx(h, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                        DiskIOWrapper.WriteFile(h, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.WriteFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                     }
                 }
-                DiskIOWrapper.CloseHandle(h);
+                //DiskIOWrapper.CloseHandle(tmp_handle);
+                tmp_handle.Close();
             }
             return true;
         }
@@ -945,7 +971,8 @@ namespace WALLnutClient
         #region [Function] [소멸자] 
         ~DiskManager()
         {
-            DiskIOWrapper.CloseHandle(handle);
+            handle.Close();
+            //DiskIOWrapper.CloseHandle(handle);
         }
         #endregion
     }
