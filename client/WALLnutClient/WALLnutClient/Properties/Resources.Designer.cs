@@ -59,5 +59,14 @@ namespace WALLnutClient.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ..\..\Resources\.
+        /// </summary>
+        internal static string RESOURCES_PATH {
+            get {
+                return ResourceManager.GetString("RESOURCES_PATH", resourceCulture);
+            }
+        }
     }
 }

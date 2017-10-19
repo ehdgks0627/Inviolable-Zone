@@ -25,6 +25,7 @@ namespace WALLnutClient
         {
             InitializeComponent();
             UpdateDriveList();
+            img_refresh.Source = new BitmapImage(new Uri(Properties.Resources.RESOURCES_PATH + "refresh.png", UriKind.RelativeOrAbsolute));
         }
 
         #region [Function] 버튼 버튼 핸들러
