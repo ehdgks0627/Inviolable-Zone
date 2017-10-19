@@ -180,7 +180,9 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\refresh.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\logo_white.png" />
   </ItemGroup>
