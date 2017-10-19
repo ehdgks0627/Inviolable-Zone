@@ -6,11 +6,11 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:WALLnutClient"
         mc:Ignorable="d"
-        Title="WelcomeWindow" Height="500" Width="400">
+        Title="WALLnut" Height="500" Width="400">
     <Grid Background="#FF3C3C3C">
         <Button x:Name="btn_start" Content="start" Margin="20,350,20,20" RenderTransformOrigin="-0.045,-0.815" FontSize="60" FontFamily="Segoe UI Black" Foreground="White" Background="#FF505050" BorderBrush="{x:Null}" Click="btn_start_Click"/>
         <TextBox x:Name="tb_apikey" Margin="20,310,20,140" TextWrapping="Wrap" Text="" RenderTransformOrigin="-0.738,3.496" FontSize="10" BorderBrush="{x:Null}"/>
         <Label x:Name="lb_apikey_description" Height="25" Content="API KEY(Option)" Margin="20,283,20,164.5" Background="{x:Null}" FontFamily="Segoe UI Semibold" FontSize="11" Foreground="White"/>
-        <Image x:Name="image" Margin="20,20,20,300"/>
+        <Image x:Name="img_logo" Margin="20,20,20,300"/>
     </Grid>
 </Controls:MetroWindow>

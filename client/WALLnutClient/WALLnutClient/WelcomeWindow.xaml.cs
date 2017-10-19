@@ -23,6 +23,7 @@ namespace WALLnutClient
         public WelcomeWindow()
         {
             InitializeComponent();
+            img_logo.Source = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\Resources\\logo_white.png", UriKind.Absolute));
         }
 
         private void btn_start_Click(object sender, RoutedEventArgs e)
