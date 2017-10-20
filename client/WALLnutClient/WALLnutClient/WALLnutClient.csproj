@@ -184,7 +184,16 @@
     <Resource Include="Resources\refresh.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\logo_white.png" />
+    <Resource Include="Resources\onoff.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\filesystem.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\setting.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
