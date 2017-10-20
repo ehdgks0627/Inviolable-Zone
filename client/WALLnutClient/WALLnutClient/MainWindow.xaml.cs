@@ -21,6 +21,8 @@ namespace WALLnutClient
         List<string> BlackListExtensions = new List<string>();
         DiskManager manager = null;
         DiskInfo info = null;
+        FileExplorer explorer = null;
+        bool isFileExporerActivate = false;
         /* 
             TODO List
             디스크 용량 초과?
@@ -135,13 +137,13 @@ namespace WALLnutClient
             Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 8 - 1) == true);
             Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == true);
-            
+
             Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
             Debug.Assert(manager.SetBitMapBlock(4076 * 19) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == true);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == false);
             Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
-            
+
             Debug.Assert(manager.SetBitMapBlock(4076 * 100) == true);
             Debug.Assert(manager.SetBitMapBlock(4076 * 100) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100) == true);
@@ -176,10 +178,35 @@ namespace WALLnutClient
                 }
             }
             #endregion
-            
+
             manager = new DiskManager(info.DeviceID);
             Double usage = (manager.getUsage() / info.Size);
             pb_diskusage.Value = usage;
+        }
+
+        private void btn_setting_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        public void OnCloseFileExplorer()
+        {
+            isFileExporerActivate = false;
+        }
+        
+        private void btn_filesystem_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isFileExporerActivate)
+            {
+                isFileExporerActivate = true;
+                explorer = new FileExplorer();
+                explorer.Closed += (object child_sender, EventArgs child_e) => OnCloseFileExplorer();
+                explorer.Show();
+            }
+            else
+            {
+                explorer.Focus();
+            }
         }
 
         /*
