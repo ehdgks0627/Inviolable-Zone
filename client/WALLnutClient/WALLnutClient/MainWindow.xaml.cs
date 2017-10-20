@@ -43,10 +43,10 @@ namespace WALLnutClient
                 Debug.Assert(manager.AvailableBlock(DiskManager.BLOCKTYPE.DATA) == i);
                 Console.WriteLine(i);
             }*/
-            byte[] data = new byte[50000];
+            byte[] data = new byte[200];
             byte[] read_data;
             Random r = new Random((int)(DateTime.Now.ToFileTimeUtc()));
-            FileStream fs = new FileStream(@"C:\WALLnut\test.txt", FileMode.Create);
+            FileStream fs = new FileStream(@"test.txt", FileMode.Create);
             for (int i = 0; i < data.Length; i++)
             {
                 data[i] = Convert.ToByte(r.Next(1, 255));
@@ -55,11 +55,13 @@ namespace WALLnutClient
             fs.Close();
 
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
-            Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.WriteFile(@"\test", @"test.txt") == true);
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
-            Debug.Assert(manager.WriteFile(@"\test\a", @"C:\WALLnut\test.txt") == false);
+            Debug.Assert(manager.WriteFile(@"\test\a", @"test.txt") == false);
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
-            Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
+            manager.WriteFolder(@"\test\a");
+            manager.WriteFile(@"\test\a\wow", @"test.txt");
+            Debug.Assert(manager.WriteFile(@"\test", @"test.txt") == true);
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
             for (int i = 0; i < data.Length; i++)
@@ -67,7 +69,7 @@ namespace WALLnutClient
                 Debug.Assert(data[i] == read_data[i]);
             }
 
-            Debug.Assert(manager.WriteFile(@"\테스트", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.WriteFile(@"\테스트", @"test.txt") == true);
             Debug.Assert(manager.ReadFile(@"\테스트", out read_data) == true);
             for (int i = 0; i < data.Length; i++)
             {
@@ -78,7 +80,7 @@ namespace WALLnutClient
             Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
-            Debug.Assert(manager.WriteFile(@"\test", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.WriteFile(@"\test", @"test.txt") == true);
             Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
             for (int i = 0; i < data.Length; i++)
@@ -89,7 +91,7 @@ namespace WALLnutClient
             Debug.Assert(manager.DeleteFile(@"\test") == true);
             Debug.Assert(manager.DeleteFile(@"\test") == false);
 
-            Debug.Assert(manager.WriteFile(@"\asdf\test", @"C:\WALLnut\test.txt") == false);
+            Debug.Assert(manager.WriteFile(@"\asdf\test", @"test.txt") == false);
             Debug.Assert(manager.WriteFolder(@"asdf\asdf") == false);
             Debug.Assert(manager.WriteFolder(@"\") == false);
             Debug.Assert(manager.WriteFolder(@"\\") == false);
@@ -100,20 +102,20 @@ namespace WALLnutClient
             Debug.Assert(manager.DeleteFile(@"\asdf") == true);
             Debug.Assert(manager.DeleteFile(@"\asdf") == false);
             Debug.Assert(manager.WriteFolder(@"\asdf") == true);
-            Debug.Assert(manager.WriteFile(@"\asdf\test", @"C:\WALLnut\test.txt") == true);
+            Debug.Assert(manager.WriteFile(@"\asdf\test", @"test.txt") == true);
             Debug.Assert(manager.WriteFolder(@"\asdf\test") == false);
-            Debug.Assert(manager.WriteFile(@"\asdf", @"C:\WALLnut\test.txt") == false);
-            Debug.Assert(manager.WriteFile(@"\asdf\\", @"C:\WALLnut\test.txt") == false);
-            Debug.Assert(manager.WriteFile(@"asdf\test", @"C:\WALLnut\test.txt") == false);
+            Debug.Assert(manager.WriteFile(@"\asdf", @"test.txt") == false);
+            Debug.Assert(manager.WriteFile(@"\asdf\\", @"test.txt") == false);
+            Debug.Assert(manager.WriteFile(@"asdf\test", @"test.txt") == false);
             Debug.Assert(manager.ReadFile(@"\asdf\test", out read_data));
             for (int i = 0; i < data.Length; i++)
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
-            Debug.Assert(manager.DeleteFile(@"\asdf\test") == true);
-            Debug.Assert(manager.DeleteFile(@"\asdf\test") == false);
+            //Debug.Assert(manager.DeleteFile(@"\asdf\test") == true);
+            //Debug.Assert(manager.DeleteFile(@"\asdf\test") == false);
 
-            Debug.Assert(manager.GetAvailableBit(0x00) == 0);
+            /*Debug.Assert(manager.GetAvailableBit(0x00) == 0);
             Debug.Assert(manager.GetAvailableBit(0x01) == 1);
             Debug.Assert(manager.GetAvailableBit(0x03) == 2);
             Debug.Assert(manager.GetAvailableBit(0x07) == 3);
@@ -137,7 +139,7 @@ namespace WALLnutClient
             Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 8 - 1) == true);
             Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == true);
-
+            /*
             Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
             Debug.Assert(manager.SetBitMapBlock(4076 * 19) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == true);
@@ -149,7 +151,7 @@ namespace WALLnutClient
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100) == true);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100) == false);
             Debug.Assert(manager.SetBitMapBlock(4076 * 100) == true);
-
+            */
             //할당되지 않은 블록에 대한 UnSet
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100 + 1) == false);
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 200) == false);
@@ -178,8 +180,8 @@ namespace WALLnutClient
                 }
             }
             #endregion
-
-            manager = new DiskManager(info.DeviceID);
+            TestCase("\\\\.\\PHYSICALDRIVE3");
+            //manager = new DiskManager(info.DeviceID);
             Double usage = (manager.getUsage() / info.Size);
             pb_diskusage.Value = usage;
         }
@@ -199,7 +201,11 @@ namespace WALLnutClient
             if (!isFileExporerActivate)
             {
                 isFileExporerActivate = true;
-                explorer = new FileExplorer();
+                explorer = new FileExplorer(manager.root);
+                //explorer.Width = explorer.Width;
+                //explorer.Height = explorer.Height;
+                //updte filesystem when changed
+                explorer.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 explorer.Closed += (object child_sender, EventArgs child_e) => OnCloseFileExplorer();
                 explorer.Show();
             }

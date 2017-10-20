@@ -94,7 +94,7 @@ namespace WALLnutClient
         private UInt64 LAST_FILE { get; set; }
         private UInt64 LAST_BITMAP { get; set; }
 
-        FileNode root { get; set; }
+        public FileNode root { get; set; }
         
         #region [Function] [생성자] 헤더의 기본 정보를 읽음
         public unsafe DiskManager(string diskname)
@@ -122,7 +122,6 @@ namespace WALLnutClient
                     LAST_FILE = header_ptr->last_file;
                     LAST_BITMAP = header_ptr->last_bitmap;
 
-                    /* TODO Read Headers*/
                     ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
 
                     Dictionary<UInt64, FolderIndex> FolderList = new Dictionary<UInt64, FolderIndex>();
@@ -637,9 +636,11 @@ namespace WALLnutClient
             fixed (byte *ptr_buffer = &buffer[0])
             {
                 ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
-                UInt64 offset_parent = Path2Offset(filename.Substring(0, filename.LastIndexOf('\\') + 1));
+                UInt64 offset_parent = BLOCK_END;
                 FileNode new_node = null, parent;
-                if (offset_parent == BLOCK_END)
+                parent = root.FindNodeByFilename(filename.Substring(0, filename.LastIndexOf('\\') + 1), 0, true);
+                offset_parent = (parent != null) ? (parent.index) : BLOCK_END;
+                if (offset_parent == BLOCK_END || parent.type != BLOCKTYPE.ENTRY_FOLDER)
                 {
                     return false;
                 }
@@ -963,10 +964,25 @@ namespace WALLnutClient
         }
         #endregion
 
+        #region [Function] 열려진 핸들을 반환합니다
+        public void Close()
+        {
+            if (isActive)
+            {
+                isActive = false;
+                handle.Close();
+            }
+        }
+        #endregion
+
         #region [Function] [소멸자] 
         ~DiskManager()
         {
-            handle.Close();
+            if (isActive)
+            {
+                isActive = false;
+                handle.Close();
+            }
         }
         #endregion
     }
