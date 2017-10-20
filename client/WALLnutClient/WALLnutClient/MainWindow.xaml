@@ -9,9 +9,15 @@
         Title="WALLnut" Height="500" Width="900" ResizeMode="CanMinimize" Background="#FF3C3C3C">
 
     <Grid Background="#FF3C3C3C">
-        <Button x:Name="button" Content="" Margin="40,140,710,210" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White"/>
-        <Button x:Name="button_Copy" Content="" Margin="220,140,530,210" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White"/>
-        <Button x:Name="button_Copy1" Content="" Margin="400,140,350,210" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White"/>
+        <Button x:Name="btn_onoff" Margin="40,140,710,210" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White">
+            <Image x:Name="img_onoff"></Image>
+        </Button>
+        <Button x:Name="btn_filesystem" Margin="220,140,530,210" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White">
+            <Image x:Name="img_filesystem"></Image>
+        </Button>
+        <Button x:Name="btn_setting" Margin="400,140,350,210" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White">
+            <Image x:Name="img_setting"></Image>
+        </Button>
         <Button x:Name="button_Copy2" Margin="40,290,350,40" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White"/>
         <Label x:Name="lb_version" Content="Version: 2017-10-16" Margin="0,0,0,-0.5" Foreground="White" HorizontalAlignment="Right" Width="122" Height="26" VerticalAlignment="Bottom"/>
         <ListBox x:Name="listBox" Margin="580,140,40,40"/>

@@ -79,7 +79,6 @@ namespace WALLnutClient
         #endregion
 
         SafeFileHandle handle;
-        static SafeFileHandle tmp_handle;
         public bool isActive { get; set; }
 
         public static string SIGNATURE = "\x00WALLnut";
@@ -429,19 +428,18 @@ namespace WALLnutClient
 
         public unsafe static void ReadBlock(ref byte[] buffer, UInt64 offset, string diskname)
         {
-            tmp_handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
+            SafeFileHandle handle = DiskIOWrapper.CreateFile(diskname, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
             uint[] read = new uint[1];
             offset *= BLOCK_SIZE;
             fixed (uint* ptr_read = &read[0])
             {
                 fixed (byte* ptr_buffer = &buffer[0x0000])
                 {
-                    DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                    DiskIOWrapper.ReadFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                    DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                    DiskIOWrapper.ReadFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                 }
             }
-            tmp_handle.Close();
-            //DiskIOWrapper.CloseHandle(tmp_handle);
+            handle.Close();
         }
         #endregion
 
@@ -890,8 +888,8 @@ namespace WALLnutClient
         {
             unsafe
             {
-                tmp_handle = DiskIOWrapper.CreateFile(diskinfo.DeviceID, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
-                if (tmp_handle.IsInvalid)
+                SafeFileHandle handle = DiskIOWrapper.CreateFile(diskinfo.DeviceID, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
+                if (handle.IsInvalid)
                 {
                     MessageBox.Show("관리자 권한이 필요합니다", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
@@ -904,8 +902,8 @@ namespace WALLnutClient
                     {
                         ulong offset = 0;
 
-                        DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                        DiskIOWrapper.ReadFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.ReadFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         BinaryWriter bw = new BinaryWriter(File.Open(diskinfo.DeviceID.Replace("\\", "_") + ".backup", FileMode.Create));
                         foreach (byte b in buffer) { bw.Write(b); }
@@ -922,10 +920,9 @@ namespace WALLnutClient
                         header->last_file = 2;
                         header->last_bitmap = 1;
                         header->disk_size = diskinfo.Size;
-                        //header->last_modify_time = DateTime.Now.ToFileTimeUtc();
                         strcpy(header->end_signature, SIGNATURE);
-                        DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                        DiskIOWrapper.WriteFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.WriteFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         // 초기 비트맵 생성
                         ClearBuffer(ref buffer);
@@ -938,8 +935,8 @@ namespace WALLnutClient
                         SetBit(bitmap->data, 0x0002); // FILE BLOCK
 
                         offset = 1 * BLOCK_SIZE;
-                        DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                        DiskIOWrapper.WriteFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.WriteFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
 
                         // 초기 파일 엔트리 생성
                         ClearBuffer(ref buffer);
@@ -949,7 +946,6 @@ namespace WALLnutClient
                         file->type = BLOCKTYPE.ENTRY_FOLDER;
                         file->prev_file = BLOCK_END;
                         file->next_file = BLOCK_END;
-                        //strcpy(file->filename, "\\");
                         file->offset_data = BLOCK_END;
                         file->filesize = 0;
                         file->offset_parent = BLOCK_END;
@@ -957,12 +953,11 @@ namespace WALLnutClient
                         file->time_modify = now;
 
                         offset = 2 * BLOCK_SIZE;
-                        DiskIOWrapper.SetFilePointerEx(tmp_handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
-                        DiskIOWrapper.WriteFile(tmp_handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
+                        DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
+                        DiskIOWrapper.WriteFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
                     }
                 }
-                //DiskIOWrapper.CloseHandle(tmp_handle);
-                tmp_handle.Close();
+                handle.Close();
             }
             return true;
         }
@@ -972,7 +967,6 @@ namespace WALLnutClient
         ~DiskManager()
         {
             handle.Close();
-            //DiskIOWrapper.CloseHandle(handle);
         }
         #endregion
     }

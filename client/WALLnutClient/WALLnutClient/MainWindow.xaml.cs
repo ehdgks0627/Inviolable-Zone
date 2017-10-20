@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO.Pipes;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using MahApps.Metro.Controls;
+using System.Windows.Media.Imaging;
 
 namespace WALLnutClient
 {
@@ -157,6 +158,9 @@ namespace WALLnutClient
         {
             InitializeComponent();
             info = _info;
+            img_onoff.Source = new BitmapImage(new Uri(Properties.Resources.RESOURCES_PATH + "onoff.png", UriKind.RelativeOrAbsolute));
+            img_filesystem.Source = new BitmapImage(new Uri(Properties.Resources.RESOURCES_PATH + "filesystem.png", UriKind.RelativeOrAbsolute));
+            img_setting.Source = new BitmapImage(new Uri(Properties.Resources.RESOURCES_PATH + "setting.png", UriKind.RelativeOrAbsolute));
             //tb_path.Text = System.AppDomain.CurrentDomain.BaseDirectory;
             #region [Code] 블랙리스트 파일을 읽어와서 리스트에 저장
             using (StreamReader sr = new StreamReader(@"..\..\ext.data"))
@@ -172,8 +176,7 @@ namespace WALLnutClient
                 }
             }
             #endregion
-
-            TestCase(@"\\.\PhysicalDrive1");
+            
             manager = new DiskManager(info.DeviceID);
             Double usage = (manager.getUsage() / info.Size);
             pb_diskusage.Value = usage;
