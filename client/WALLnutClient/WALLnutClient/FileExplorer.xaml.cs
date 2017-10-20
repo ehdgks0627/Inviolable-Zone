@@ -20,10 +20,13 @@ namespace WALLnutClient
     /// </summary>
     public partial class FileExplorer : MetroWindow
     {
-        MainWindow parent = null;
-        public FileExplorer()
+        FileNode Root = null;
+        public FileExplorer(FileNode _Root)
         {
-            parent = Parent as MainWindow;
+            InitializeComponent();
+            Root = _Root;
+            tv_file.Items.Clear();
+            tv_file.Items.Add(Root.GetTreeViewSource());
         }
     }
 }

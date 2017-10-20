@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:WALLnutClient"
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="WALLnut" Height="500" Width="900" ResizeMode="CanMinimize" Background="#FF3C3C3C">
 
     <Grid Background="#FF3C3C3C">

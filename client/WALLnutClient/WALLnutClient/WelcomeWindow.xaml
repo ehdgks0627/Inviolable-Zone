@@ -6,6 +6,7 @@
         xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:WALLnutClient"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="WALLnut" Height="500" Width="400">
     <Grid Background="#FF3C3C3C">
         <Button x:Name="btn_start" Content="start" Margin="20,350,20,20" RenderTransformOrigin="-0.045,-0.815" FontSize="60" FontFamily="Segoe UI Black" Foreground="White" Background="#FF616161" BorderBrush="{x:Null}" Click="btn_start_Click"/>

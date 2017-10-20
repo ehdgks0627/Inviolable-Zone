@@ -4,10 +4,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace WALLnutClient
 {
-    class FileNode
+    public class FileNode
     {
         public static Int64 LastUpdate;
         public FileNode Root;
@@ -143,5 +144,21 @@ namespace WALLnutClient
             }
             child.Clear();
         }
-     }
+
+        public override string ToString()
+        {
+            return filename;
+        }
+
+        public TreeViewItem GetTreeViewSource()
+        {
+            TreeViewItem result = new TreeViewItem();
+            foreach (string key in child.Keys)
+            {
+                result.Items.Add(child[key].GetTreeViewSource());
+            }
+            result.Header = filename;
+            return result;
+        }
+    }
 }
