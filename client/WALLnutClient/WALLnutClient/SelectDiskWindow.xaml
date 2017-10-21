@@ -10,7 +10,7 @@
         Title="WALLnut" Height="90" Width="400" ResizeMode="CanMinimize">
     <Grid Background="#FF3C3C3C">
         <ComboBox x:Name="cb_disk" HorizontalAlignment="Left" Width="231" Margin="21,15,0,10" SelectionChanged="cb_disk_SelectionChanged" BorderBrush="{x:Null}" Background="#FF616161" Foreground="White"/>
-        <Button x:Name="btn_ok" HorizontalAlignment="Left" Margin="303,15,0,10.5" Width="80" RenderTransformOrigin="-0.269,-0.454" Click="btn_ok_Click" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White"/>
+        <Button x:Name="btn_ok" HorizontalAlignment="Left" Margin="303,15,0,10.5" Width="80" RenderTransformOrigin="-0.269,-0.454" Click="btn_ok_Click" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White" Content=""/>
         <Button x:Name="btn_refresh" Margin="256,15,101,10" Click="btn_refresh_Click" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White">
             <Image x:Name="img_refresh"></Image>
         </Button>

@@ -80,7 +80,7 @@ namespace WALLnutClient
 
         private void cb_disk_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cb_disk.SelectedIndex.Equals(-1))
+            if (!cb_disk.SelectedIndex.Equals(-1))
             {
                 DiskInfo info = (DiskInfo)cb_disk.Items[cb_disk.SelectedIndex];
                 if (!info.isWALLNutDevice)

@@ -23,6 +23,7 @@ namespace WALLnutClient
         DiskInfo info = null;
         FileExplorer explorer = null;
         bool isFileExporerActivate = false;
+        bool realTimeSync = false;
         /* 
             TODO List
             디스크 용량 초과?
@@ -59,8 +60,8 @@ namespace WALLnutClient
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
             Debug.Assert(manager.WriteFile(@"\test\a", @"test.txt").Equals(false));
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
-            manager.WriteFolder(@"\test\a");
-            manager.WriteFile(@"\test\a\wow", @"test.txt");
+            Debug.Assert(manager.WriteFolder(@"\test\a").Equals(false));
+            Debug.Assert(manager.WriteFile(@"\test\a\wow", @"test.txt").Equals(false));
             Debug.Assert(manager.WriteFile(@"\test", @"test.txt").Equals(true));
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
             Debug.Assert(manager.ReadFile(@"\test", out read_data).Equals(true));
@@ -189,23 +190,23 @@ namespace WALLnutClient
 
         private void btn_setting_Click(object sender, RoutedEventArgs e)
         {
-
+            throw new NotImplementedException();
         }
 
+        #region [Function] WALLnut 탐색기 창이 닫을때 호출됩니다
         public void OnCloseFileExplorer()
         {
             isFileExporerActivate = false;
         }
+        #endregion
 
+        #region [Function] WALLnut 탐색기 창을 엽니다
         private void btn_filesystem_Click(object sender, RoutedEventArgs e)
         {
             if (!isFileExporerActivate)
             {
                 isFileExporerActivate = true;
                 explorer = new FileExplorer(manager.root);
-                //explorer.Width = explorer.Width;
-                //explorer.Height = explorer.Height;
-                //updte filesystem when changed
                 explorer.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 explorer.Closed += (object child_sender, EventArgs child_e) => OnCloseFileExplorer();
                 explorer.Show();
@@ -215,8 +216,8 @@ namespace WALLnutClient
                 explorer.Focus();
             }
         }
-
-        /*
+        #endregion
+        
         #region [Function] FileSystemSatcher 이벤트 핸들러
         protected void event_CreateFile(object fscreated, FileSystemEventArgs Eventocc)
         {
@@ -307,29 +308,37 @@ namespace WALLnutClient
         }
         #endregion
 
-        #region [Function] 동기화 버튼 핸들러
-        private void btn_sync_Click(object sender, RoutedEventArgs e)
+        #region [Function] 실시간 파일 동기화를 키고 끕니다
+        private void btn_onoff_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (!realTimeSync)
             {
-                fs = new FileSystemWatcher(tb_path.Text, "*.*");
+                try
+                {
+                    fs = new FileSystemWatcher(tb_path.Text, "*.*");
 
-                fs.Created += new FileSystemEventHandler(event_CreateFile);
-                fs.Changed += new FileSystemEventHandler(event_ChangeFile);
-                fs.Renamed += new RenamedEventHandler(event_RenameFile);
-                fs.Deleted += new FileSystemEventHandler(event_DeleteFile);
+                    fs.Created += new FileSystemEventHandler(event_CreateFile);
+                    fs.Changed += new FileSystemEventHandler(event_ChangeFile);
+                    fs.Renamed += new RenamedEventHandler(event_RenameFile);
+                    fs.Deleted += new FileSystemEventHandler(event_DeleteFile);
 
-                fs.EnableRaisingEvents = true;
-                fs.IncludeSubdirectories = true;
+                    fs.EnableRaisingEvents = true;
+                    fs.IncludeSubdirectories = true;
 
-                MessageBox.Show("동기화 시작!");
+                    realTimeSync = true;
+                    MessageBox.Show("동기화 시작!");
+                }
+                catch
+                {
+                    MessageBox.Show("올바른 경로가 아님...");
+                }
             }
-            catch
+            else
             {
-                MessageBox.Show("올바른 경로가 아님...");
+                fs.Dispose();
+                realTimeSync = false;
             }
         }
         #endregion
-        */
     }
 }

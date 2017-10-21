@@ -11,7 +11,7 @@ namespace WALLnutClient
     internal partial class DiskIOWrapper
     {
 
-        #region Constants used in unmanaged functions
+        #region API 상수들입니다
 
         public const uint FILE_BEGIN = 0x00000000;
         public const uint FILE_CURRENT = 0x00000001;
@@ -33,7 +33,7 @@ namespace WALLnutClient
 
         #endregion
 
-        #region Unamanged function declarations
+        #region [Function] 함수들입니다
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static unsafe extern SafeFileHandle CreateFile(
