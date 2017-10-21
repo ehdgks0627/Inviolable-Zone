@@ -31,9 +31,9 @@ namespace WALLnutClient
         #region [Funciton] test function
         public void TestCase(string drivename)
         {
-            Debug.Assert(DiskManager.FormatDisk(new DiskInfo { DeviceID = drivename }) == true);
+            Debug.Assert(DiskManager.FormatDisk(new DiskInfo { DeviceID = drivename }).Equals(true));
             manager = new DiskManager(drivename);
-            Debug.Assert(manager.isActive == true);
+            Debug.Assert(manager.isActive.Equals(true));
             Debug.Assert(manager.Path2Offset(@"a") == DiskManager.BLOCK_END);
             Debug.Assert(manager.Path2Offset(@"\a") == DiskManager.BLOCK_END);
             Debug.Assert(manager.Path2Offset(@"\") == 2);
@@ -54,66 +54,67 @@ namespace WALLnutClient
             }
             fs.Close();
 
-            Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
-            Debug.Assert(manager.WriteFile(@"\test", @"test.txt") == true);
+            Debug.Assert(manager.ReadFile(@"\test", out read_data).Equals(false));
+            Debug.Assert(manager.WriteFile(@"\test", @"test.txt").Equals(true));
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
-            Debug.Assert(manager.WriteFile(@"\test\a", @"test.txt") == false);
+            Debug.Assert(manager.WriteFile(@"\test\a", @"test.txt").Equals(false));
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
             manager.WriteFolder(@"\test\a");
             manager.WriteFile(@"\test\a\wow", @"test.txt");
-            Debug.Assert(manager.WriteFile(@"\test", @"test.txt") == true);
+            Debug.Assert(manager.WriteFile(@"\test", @"test.txt").Equals(true));
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
-            Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
+            Debug.Assert(manager.ReadFile(@"\test", out read_data).Equals(true));
             for (int i = 0; i < data.Length; i++)
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
 
-            Debug.Assert(manager.WriteFile(@"\테스트", @"test.txt") == true);
-            Debug.Assert(manager.ReadFile(@"\테스트", out read_data) == true);
+            Debug.Assert(manager.WriteFile(@"\테스트", @"test.txt").Equals(true));
+            Debug.Assert(manager.ReadFile(@"\테스트", out read_data).Equals(true));
             for (int i = 0; i < data.Length; i++)
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
-            //Debug.Assert(manager.DeleteFile(@"\테스트") == true);
+            //Debug.Assert(manager.DeleteFile(@"\테스트").Equals(true));
 
-            Debug.Assert(manager.DeleteFile(@"\test") == true);
-            Debug.Assert(manager.DeleteFile(@"\test") == false);
-            Debug.Assert(manager.ReadFile(@"\test", out read_data) == false);
-            Debug.Assert(manager.WriteFile(@"\test", @"test.txt") == true);
-            Debug.Assert(manager.ReadFile(@"\test", out read_data) == true);
+            Debug.Assert(manager.DeleteFile(@"\test").Equals(true));
+            Debug.Assert(manager.DeleteFile(@"\test").Equals(false));
+            Debug.Assert(manager.ReadFile(@"\test", out read_data).Equals(false));
+            Debug.Assert(manager.WriteFile(@"\test", @"test.txt").Equals(true));
+            Debug.Assert(manager.ReadFile(@"\test", out read_data).Equals(true));
             Debug.Assert(manager.Path2Offset(@"\test") == 3);
             for (int i = 0; i < data.Length; i++)
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
-            Debug.Assert(manager.DeleteFile(@"test") == false);
-            Debug.Assert(manager.DeleteFile(@"\test") == true);
-            Debug.Assert(manager.DeleteFile(@"\test") == false);
+            Debug.Assert(manager.DeleteFile(@"test").Equals(false));
+            Debug.Assert(manager.DeleteFile(@"\test").Equals(true));
+            Debug.Assert(manager.DeleteFile(@"\test").Equals(false));
 
-            Debug.Assert(manager.WriteFile(@"\asdf\test", @"test.txt") == false);
-            Debug.Assert(manager.WriteFolder(@"asdf\asdf") == false);
-            Debug.Assert(manager.WriteFolder(@"\") == false);
-            Debug.Assert(manager.WriteFolder(@"\\") == false);
-            Debug.Assert(manager.WriteFolder(@"\\a") == false);
-            Debug.Assert(manager.WriteFolder(@"\asdf\asdf") == false);
-            Debug.Assert(manager.WriteFolder(@"\asdf") == true);
-            Debug.Assert(manager.WriteFolder(@"\asdf") == true);
-            Debug.Assert(manager.DeleteFile(@"\asdf") == true);
-            Debug.Assert(manager.DeleteFile(@"\asdf") == false);
-            Debug.Assert(manager.WriteFolder(@"\asdf") == true);
-            Debug.Assert(manager.WriteFile(@"\asdf\test", @"test.txt") == true);
-            Debug.Assert(manager.WriteFolder(@"\asdf\test") == false);
-            Debug.Assert(manager.WriteFile(@"\asdf", @"test.txt") == false);
-            Debug.Assert(manager.WriteFile(@"\asdf\\", @"test.txt") == false);
-            Debug.Assert(manager.WriteFile(@"asdf\test", @"test.txt") == false);
+            Debug.Assert(manager.WriteFile(@"\asdf\test", @"test.txt").Equals(false));
+            Debug.Assert(manager.WriteFolder(@"asdf\asdf").Equals(false));
+            Debug.Assert(manager.WriteFolder(@"\").Equals(false));
+            Debug.Assert(manager.WriteFolder(@"\\").Equals(false));
+            Debug.Assert(manager.WriteFolder(@"\\\").Equals(false));
+            Debug.Assert(manager.WriteFolder(@"\\a").Equals(false));
+            Debug.Assert(manager.WriteFolder(@"\asdf\asdf").Equals(false));
+            Debug.Assert(manager.WriteFolder(@"\asdf").Equals(true));
+            Debug.Assert(manager.WriteFolder(@"\asdf").Equals(true));
+            Debug.Assert(manager.DeleteFile(@"\asdf").Equals(true));
+            Debug.Assert(manager.DeleteFile(@"\asdf").Equals(false));
+            Debug.Assert(manager.WriteFolder(@"\asdf").Equals(true));
+            Debug.Assert(manager.WriteFile(@"\asdf\test", @"test.txt").Equals(true));
+            Debug.Assert(manager.WriteFolder(@"\asdf\test").Equals(false));
+            Debug.Assert(manager.WriteFile(@"\asdf", @"test.txt").Equals(false));
+            Debug.Assert(manager.WriteFile(@"\asdf\\", @"test.txt").Equals(false));
+            Debug.Assert(manager.WriteFile(@"asdf\test", @"test.txt").Equals(false));
             Debug.Assert(manager.ReadFile(@"\asdf\test", out read_data));
             for (int i = 0; i < data.Length; i++)
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
-            //Debug.Assert(manager.DeleteFile(@"\asdf\test") == true);
-            //Debug.Assert(manager.DeleteFile(@"\asdf\test") == false);
+            //Debug.Assert(manager.DeleteFile(@"\asdf\test").Equals(true));
+            //Debug.Assert(manager.DeleteFile(@"\asdf\test").Equals(false));
 
             /*Debug.Assert(manager.GetAvailableBit(0x00) == 0);
             Debug.Assert(manager.GetAvailableBit(0x01) == 1);
@@ -122,39 +123,39 @@ namespace WALLnutClient
             Debug.Assert(manager.GetAvailableBit(0x80) == 0);
             Debug.Assert(manager.GetAvailableBit(0xFF) == 0xFF);
 
-            Debug.Assert(manager.SetBitMapBlock(1) == false);
-            Debug.Assert(manager.SetBitMapBlock(2) == false);
+            Debug.Assert(manager.SetBitMapBlock(1).Equals(false));
+            Debug.Assert(manager.SetBitMapBlock(2).Equals(false));
 
-            Debug.Assert(manager.SetBitMapBlock(4) == true);
-            Debug.Assert(manager.SetBitMapBlock(4) == false);
-            Debug.Assert(manager.UnSetBitMapBlock(4) == true);
-            Debug.Assert(manager.SetBitMapBlock(35) == true);
+            Debug.Assert(manager.SetBitMapBlock(4).Equals(true));
+            Debug.Assert(manager.SetBitMapBlock(4).Equals(false));
+            Debug.Assert(manager.UnSetBitMapBlock(4).Equals(true));
+            Debug.Assert(manager.SetBitMapBlock(35).Equals(true));
 
-            Debug.Assert(manager.SetBitMapBlock(4076) == true);
-            Debug.Assert(manager.SetBitMapBlock(4076) == false);
-            Debug.Assert(manager.UnSetBitMapBlock(4076) == true);
-            Debug.Assert(manager.SetBitMapBlock(4076) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076).Equals(true));
+            Debug.Assert(manager.SetBitMapBlock(4076).Equals(false));
+            Debug.Assert(manager.UnSetBitMapBlock(4076).Equals(true));
+            Debug.Assert(manager.SetBitMapBlock(4076).Equals(true));
 
-            Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == true);
-            Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == false);
-            Debug.Assert(manager.UnSetBitMapBlock(4076 * 8 - 1) == true);
-            Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1).Equals(true));
+            Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1).Equals(false));
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 8 - 1).Equals(true));
+            Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1).Equals(true));
             /*
-            Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
-            Debug.Assert(manager.SetBitMapBlock(4076 * 19) == false);
-            Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == true);
-            Debug.Assert(manager.UnSetBitMapBlock(4076 * 19) == false);
-            Debug.Assert(manager.SetBitMapBlock(4076 * 19) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076 * 19).Equals(true));
+            Debug.Assert(manager.SetBitMapBlock(4076 * 19).Equals(false));
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 19).Equals(true));
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 19).Equals(false));
+            Debug.Assert(manager.SetBitMapBlock(4076 * 19).Equals(true));
 
-            Debug.Assert(manager.SetBitMapBlock(4076 * 100) == true);
-            Debug.Assert(manager.SetBitMapBlock(4076 * 100) == false);
-            Debug.Assert(manager.UnSetBitMapBlock(4076 * 100) == true);
-            Debug.Assert(manager.UnSetBitMapBlock(4076 * 100) == false);
-            Debug.Assert(manager.SetBitMapBlock(4076 * 100) == true);
+            Debug.Assert(manager.SetBitMapBlock(4076 * 100).Equals(true));
+            Debug.Assert(manager.SetBitMapBlock(4076 * 100).Equals(false));
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 100).Equals(true));
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 100).Equals(false));
+            Debug.Assert(manager.SetBitMapBlock(4076 * 100).Equals(true));
             */
             //할당되지 않은 블록에 대한 UnSet
-            Debug.Assert(manager.UnSetBitMapBlock(4076 * 100 + 1) == false);
-            Debug.Assert(manager.UnSetBitMapBlock(4076 * 200) == false);
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 100 + 1).Equals(false));
+            Debug.Assert(manager.UnSetBitMapBlock(4076 * 200).Equals(false));
         }
         #endregion
 
@@ -188,14 +189,14 @@ namespace WALLnutClient
 
         private void btn_setting_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         public void OnCloseFileExplorer()
         {
             isFileExporerActivate = false;
         }
-        
+
         private void btn_filesystem_Click(object sender, RoutedEventArgs e)
         {
             if (!isFileExporerActivate)

@@ -33,7 +33,7 @@ namespace WALLnutClient
             child = new Dictionary<string, FileNode>();
             fixed (byte* ptr_buffer = buffer)
             {
-                DiskManager.ENTRY_FILE_STRUCTURE* ptr = (DiskManager.ENTRY_FILE_STRUCTURE * )ptr_buffer;
+                DiskManager.ENTRY_FILE_STRUCTURE* ptr = (DiskManager.ENTRY_FILE_STRUCTURE*)ptr_buffer;
                 filename = Marshal.PtrToStringUni((IntPtr)(ptr->filename));
                 fullname = null;
                 type = ptr->type;
@@ -41,9 +41,9 @@ namespace WALLnutClient
             }
         }
 
-        public FileNode FindNodeByFilename(string path, int deep, bool isparent=false)
+        public FileNode FindNodeByFilename(string path, int deep, bool isparent = false)
         {
-            if(path[0] != '\\')
+            if (!path[0].Equals('\\'))
             {
                 return null;
             }
@@ -51,19 +51,19 @@ namespace WALLnutClient
             {
                 path = path.Substring(1, path.Length - 1);
             }
-            if (path.Length != 0 && path[path.Length - 1] == '\\')
+            if (!path.Length.Equals(0) && path[path.Length - 1].Equals('\\'))
             {
                 path = path.Substring(0, path.Length - 1);
             }
             string[] paths = path.Split('\\');
-            if(paths[deep] == filename && paths.Length == (deep +1))
+            if (paths[deep].Equals(filename) && paths.Length.Equals(deep + 1))
             {
                 return this;
             }
             return this._FindNodeByFilename(paths, deep, isparent);
         }
 
-        private FileNode _FindNodeByFilename(string[] paths, int deep, bool isparent=false)
+        private FileNode _FindNodeByFilename(string[] paths, int deep, bool isparent = false)
         {
             FileNode c;
             try
@@ -74,11 +74,11 @@ namespace WALLnutClient
             {
                 return null;
             }
-            if(paths[deep] == c.filename && paths.Length == (deep + 1))
+            if (paths[deep].Equals(c.filename) && paths.Length.Equals(deep + 1))
             {
                 if (isparent)
                 {
-                    if(c.type == DiskManager.BLOCKTYPE.ENTRY_FOLDER)
+                    if (c.type.Equals(DiskManager.BLOCKTYPE.ENTRY_FOLDER))
                     {
                         return c;
                     }
@@ -106,7 +106,7 @@ namespace WALLnutClient
 
         public string FullPath()
         {
-            if(Root != null)
+            if (Object.ReferenceEquals(Root, null))
             {
                 return Root.FullPath() + "\\" + filename;
             }
@@ -129,7 +129,7 @@ namespace WALLnutClient
         public void DeleteNode(DiskManager manager)
         {
             this._DeleteNode(manager);
-            if (Root != null)
+            if (Object.ReferenceEquals(Root, null))
             {
                 Root.child.Remove(filename);
             }
