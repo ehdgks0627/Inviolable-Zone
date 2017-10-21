@@ -32,7 +32,7 @@ namespace WALLnutClient
         private void btn_ok_Click(object sender, RoutedEventArgs e)
         {
             DiskInfo info = null;
-            if (cb_disk.SelectedIndex == -1)
+            if (cb_disk.SelectedIndex.Equals(-1))
             {
                 MessageBox.Show("진행할 디스크를 선택해주세요!", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -46,11 +46,11 @@ namespace WALLnutClient
             }
             else
             {
-                if (MessageBoxResult.OK == MessageBox.Show(
+                if (MessageBoxResult.OK.Equals(MessageBox.Show(
                 "정말로 포맷하시겠습니까? 디스크 내 모든 데이터가 초기화됩니다!",
                 "주의",
                 MessageBoxButton.OKCancel,
-                MessageBoxImage.Warning))
+                MessageBoxImage.Warning)))
                 {
                     if (DiskManager.FormatDisk((DiskInfo)cb_disk.SelectedItem))
                     {
@@ -80,7 +80,7 @@ namespace WALLnutClient
 
         private void cb_disk_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cb_disk.SelectedIndex != -1)
+            if (cb_disk.SelectedIndex.Equals(-1))
             {
                 DiskInfo info = (DiskInfo)cb_disk.Items[cb_disk.SelectedIndex];
                 if (!info.isWALLNutDevice)
