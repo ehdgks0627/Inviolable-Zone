@@ -21,6 +21,7 @@ namespace WALLnutClient
         string filename { get; set; }
         string fullname { get; set; }
 
+        #region [Function] [생성자] 파일 노드의 정보를 셋팅합니다
         public unsafe FileNode(DiskManager.ENTRY_FILE_STRUCTURE _info, UInt64 _index)
         {
             int size = Marshal.SizeOf(_info);
@@ -40,10 +41,12 @@ namespace WALLnutClient
                 index = _index;
             }
         }
+        #endregion
 
+        #region [Function] 파일 이름을 기준으로 노드를 찾습니다
         public FileNode FindNodeByFilename(string path, int deep, bool isparent = false)
         {
-            if (!path[0].Equals('\\'))
+            if (path.Equals(string.Empty) || !path[0].Equals('\\'))
             {
                 return null;
             }
@@ -62,7 +65,9 @@ namespace WALLnutClient
             }
             return this._FindNodeByFilename(paths, deep, isparent);
         }
+        #endregion
 
+        #region [Function] 파일 이름을 찾는데 내부적으로 사용되는 함수입니다
         private FileNode _FindNodeByFilename(string[] paths, int deep, bool isparent = false)
         {
             FileNode c;
@@ -95,6 +100,8 @@ namespace WALLnutClient
             return c._FindNodeByFilename(paths, deep + 1, isparent);
         }
 
+        #endregion
+        #region [Function] 자식에 노드를 추가합니다
         public bool AppendChild(FileNode node)
         {
             child.Add(node.filename, node);
@@ -103,19 +110,23 @@ namespace WALLnutClient
             node.fullname = node.FullPath();
             return true;
         }
+        #endregion
 
+        #region [Function] 현재 노드의 절대 경로를 반환합니다
         public string FullPath()
         {
-            if (Object.ReferenceEquals(Root, null))
+            if (!Object.ReferenceEquals(Root, null))
             {
                 return Root.FullPath() + "\\" + filename;
             }
             else
             {
-                return "";
+                return filename;
             }
         }
+        #endregion
 
+        #region [Function] 기존에 있었던 노드를 새로운 정보로 업데이트 합니다
         public void UpdateInfo(DiskManager.ENTRY_FILE_STRUCTURE _info)
         {
             int size = Marshal.SizeOf(_info);
@@ -125,16 +136,20 @@ namespace WALLnutClient
             Marshal.Copy(tmp_ptr, buffer, 0, size);
             Marshal.FreeHGlobal(tmp_ptr);
         }
+        #endregion
 
+        #region [Function] 파일을 지웁니다
         public void DeleteNode(DiskManager manager)
         {
             this._DeleteNode(manager);
-            if (Object.ReferenceEquals(Root, null))
+            if (!Object.ReferenceEquals(Root, null))
             {
                 Root.child.Remove(filename);
             }
         }
+        #endregion
 
+        #region [Function] 파일을 지우는데 내부적으로 사용되는 함수입니다
         private void _DeleteNode(DiskManager manager)
         {
             manager._DeleteFile(fullname);
@@ -144,12 +159,14 @@ namespace WALLnutClient
             }
             child.Clear();
         }
+        #endregion
 
         public override string ToString()
         {
             return filename;
         }
 
+        #region [Function] 트리뷰를 볼 수 있도록 가공합니다
         public TreeViewItem GetTreeViewSource()
         {
             TreeViewItem result = new TreeViewItem();
@@ -160,5 +177,6 @@ namespace WALLnutClient
             result.Header = filename;
             return result;
         }
+        #endregion
     }
 }
