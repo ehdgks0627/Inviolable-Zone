@@ -29,23 +29,30 @@ namespace WALLnutClient
                                    "SELECT * FROM Win32_DiskDrive");
             foreach (ManagementObject queryObj in searcher.Get())
             {
-                DiskInfo diskinfo = new DiskInfo();
-                diskinfo.Caption = queryObj["Caption"].ToString();
-                diskinfo.DeviceID = queryObj["DeviceID"].ToString();
-                diskinfo.Model = queryObj["Model"].ToString();
-                diskinfo.Size = ulong.Parse(queryObj["Size"].ToString());
-
-                DiskManager.ReadBlock(ref buffer, 0, diskinfo.DeviceID);
-                diskinfo.isWALLNutDevice = true;
-                for (int i = 0; i < 8; i++)
+                try
                 {
-                    if (buffer[i] != DiskManager.SIGNATURE[i])
+                    DiskInfo diskinfo = new DiskInfo();
+                    diskinfo.Caption = queryObj["Caption"].ToString();
+                    diskinfo.DeviceID = queryObj["DeviceID"].ToString();
+                    diskinfo.Model = queryObj["Model"].ToString();
+                    diskinfo.Size = ulong.Parse(queryObj["Size"].ToString());
+
+                    DiskManager.ReadBlock(ref buffer, 0, diskinfo.DeviceID);
+                    diskinfo.isWALLNutDevice = true;
+                    for (int i = 0; i < 8; i++)
                     {
-                        diskinfo.isWALLNutDevice = false;
-                        break;
+                        if (buffer[i] != DiskManager.SIGNATURE[i])
+                        {
+                            diskinfo.isWALLNutDevice = false;
+                            break;
+                        }
                     }
+                    result.Add(diskinfo);
                 }
-                result.Add(diskinfo);
+                catch
+                {
+                    continue;
+                }
             }
             return result;
         }
