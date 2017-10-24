@@ -182,8 +182,7 @@ namespace WALLnutClient
                 }
             }
             #endregion
-            TestCase("\\\\.\\PHYSICALDRIVE3");
-            //manager = new DiskManager(info.DeviceID);
+            manager = new DiskManager(info.DeviceID);
             Double usage = (manager.getUsage() / info.Size);
             pb_diskusage.Value = usage;
         }
@@ -197,6 +196,22 @@ namespace WALLnutClient
         public void OnCloseFileExplorer()
         {
             isFileExporerActivate = false;
+        }
+        #endregion
+
+        #region [Function] 해당 경로가 폴더인지 확인합니다
+        public bool isFolder(string path)
+        {
+            FileAttributes attr = File.GetAttributes(path);
+
+            //detect whether its a directory or file
+            if ((attr & FileAttributes.Directory) == FileAttributes.Directory) {
+                return true;
+        }
+            else
+            { 
+                return false;
+        }
         }
         #endregion
 
@@ -221,64 +236,92 @@ namespace WALLnutClient
         #region [Function] FileSystemSatcher 이벤트 핸들러
         protected void event_CreateFile(object fscreated, FileSystemEventArgs Eventocc)
         {
-            try
+            bool folder = false;
+            if (realTimeSync)
             {
-                this.Dispatcher.Invoke((Action)(() =>
+                folder = isFolder(Eventocc.FullPath);
+                try
+               { 
+                    this.Dispatcher.Invoke((Action)(() =>
+                    {
+                        if (folder)
+                        {
+                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Created - " + Eventocc.Name);
+                        }
+                        else
+                        {
+                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "Folder Created - " + Eventocc.Name);
+                        }
+                    }));
+                    if (folder)
+                    {
+                        manager.WriteFolder(@"\" + Eventocc.Name);
+                    }
+                    else
+                    {
+                        manager.WriteFile(@"\" + Eventocc.Name, Eventocc.FullPath);
+                    }
+                }
+                catch
                 {
-                    lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Created - " + Eventocc.Name);
-                }));
-            }
-            catch
-            {
-
+                
+                }
             }
         }
 
         protected void event_ChangeFile(object fschanged, FileSystemEventArgs changeEvent)
         {
-            try
+            if (realTimeSync)
             {
-                fs.EnableRaisingEvents = false;
-                this.Dispatcher.Invoke((Action)(() =>
+                try
                 {
-                    lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Changed - " + changeEvent.Name);
-                }));
+                    fs.EnableRaisingEvents = false;
+                    this.Dispatcher.Invoke((Action)(() =>
+                    {
+                        lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Changed - " + changeEvent.Name);
+                    }));
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    fs.EnableRaisingEvents = true;
+                }
             }
-            catch
-            {
-            }
-            finally
-            {
-                fs.EnableRaisingEvents = true;
-            }
-
         }
 
         protected void event_RenameFile(object fschanged, RenamedEventArgs changeEvent)
         {
-            try
+            if (realTimeSync)
             {
-                this.Dispatcher.Invoke((Action)(() =>
+                try
                 {
-                    lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Renamed - " + changeEvent.Name + ", oldname : " + changeEvent.OldName);
-                }));
-            }
-            catch
-            {
+                    this.Dispatcher.Invoke((Action)(() =>
+                    {
+                        lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Renamed - " + changeEvent.Name + ", oldname : " + changeEvent.OldName);
+                    }));
+                }
+                catch
+                {
+                }
             }
         }
 
         protected void event_DeleteFile(object fschanged, FileSystemEventArgs changeEvent)
         {
-            try
+            if (realTimeSync)
             {
-                this.Dispatcher.Invoke((Action)(() =>
+                try
                 {
-                    lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Deleted - " + changeEvent.Name);
-                }));
-            }
-            catch
-            {
+                    this.Dispatcher.Invoke((Action)(() =>
+                    {
+                        lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Deleted - " + changeEvent.Name);
+                    }));
+                }
+                catch
+                {
+                }
             }
         }
         #endregion
@@ -326,6 +369,7 @@ namespace WALLnutClient
                     fs.IncludeSubdirectories = true;
 
                     realTimeSync = true;
+                    tb_path.IsEnabled = false;
                     MessageBox.Show("동기화 시작!");
                 }
                 catch
@@ -336,7 +380,9 @@ namespace WALLnutClient
             else
             {
                 fs.Dispose();
+                tb_path.IsEnabled = true;
                 realTimeSync = false;
+                MessageBox.Show("동기화 해제!");
             }
         }
         #endregion

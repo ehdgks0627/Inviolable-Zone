@@ -25,6 +25,6 @@
         <Label x:Name="lb_version_Copy" Content="디스크 사용량 : " Margin="580,25,212,414" Foreground="White"/>
         <ProgressBar x:Name="pb_diskusage" Margin="687,32,40,417" Height="Auto"/>
         <Label x:Name="lb_version_Copy1" Content="마지막 동기화 : PM 2:50" Margin="580,62,40,383.5" Foreground="White"/>
-        <TextBox x:Name="tb_path" HorizontalAlignment="Left" Height="23" Margin="580,95,0,0" TextWrapping="Wrap" Text="C:\WALLnut" VerticalAlignment="Top" Width="274"/>
+            <TextBox x:Name="tb_path" HorizontalAlignment="Left" Height="23" Margin="580,95,0,0" TextWrapping="Wrap" Text="C:\WALLnut" VerticalAlignment="Top" Width="274"/>
     </Grid>
 </Controls:MetroWindow>

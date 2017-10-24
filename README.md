@@ -1,4 +1,6 @@
 # wallnut usb security solution
+## 위키
+[회의록](https://github.com/ehdgks0627/WALLnut/wiki/회의록)
 ## Tools -> Nuget Package Manager -> Package Manage Console
 ```
 PM> Install-Package WindowsAPICodePack
