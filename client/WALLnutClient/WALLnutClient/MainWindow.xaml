@@ -20,11 +20,11 @@
             <Image x:Name="img_setting"></Image>
         </Button>
         <Button x:Name="button_Copy2" Margin="40,290,350,40" Background="#FF616161" BorderBrush="{x:Null}" Foreground="White"/>
-        <Label x:Name="lb_version" Content="Version: 2017-10-16" Margin="0,0,0,-0.5" Foreground="White" HorizontalAlignment="Right" Width="122" Height="26" VerticalAlignment="Bottom"/>
+        <Label x:Name="lb_version" Content="버전: 2017-10-16" Margin="0,0,0,-0.5" Foreground="White" HorizontalAlignment="Right" Width="122" Height="26" VerticalAlignment="Bottom"/>
         <ListView x:Name="lv_log" Margin="580,140,40,40"/>
-        <Label x:Name="lb_version_Copy" Content="Disk Usage : " Margin="580,25,240,414" Foreground="White"/>
-        <ProgressBar x:Name="pb_diskusage" Margin="660,32,40,417.5" Height="Auto"/>
-        <Label x:Name="lb_version_Copy1" Content="Last Sync Time : PM 2:50" Margin="580,62,40,383.5" Foreground="White"/>
-        <TextBox x:Name="tb_path" HorizontalAlignment="Left" Height="23" Margin="580,95,0,0" TextWrapping="Wrap" Text="C:\WALLnut" VerticalAlignment="Top" Width="274"/>
+        <Label x:Name="lb_version_Copy" Content="디스크 사용량 : " Margin="580,25,212,414" Foreground="White"/>
+        <ProgressBar x:Name="pb_diskusage" Margin="687,32,40,417" Height="Auto"/>
+        <Label x:Name="lb_version_Copy1" Content="마지막 동기화 : PM 2:50" Margin="580,62,40,383.5" Foreground="White"/>
+            <TextBox x:Name="tb_path" HorizontalAlignment="Left" Height="23" Margin="580,95,0,0" TextWrapping="Wrap" Text="C:\WALLnut" VerticalAlignment="Top" Width="274"/>
     </Grid>
 </Controls:MetroWindow>
