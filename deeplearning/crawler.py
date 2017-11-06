@@ -39,7 +39,10 @@ def machine(count_start, count_end, t):
         html = response.text
         root = BeautifulSoup(html, 'html.parser')
 
-        for article in root.find_all('h3', {'class': 'r'}):
+        articles = root.find_all('h3', {'class': 'r'})
+        if len(articles) == 0:
+            return
+        for article in articles:
             try:
                 link = "https://google.co.kr/url?q=" + article.find_all('a')[0]['href']
                 link = BeautifulSoup(requests.get(link, headers=headers).text, 'html.parser').find_all('div', {'class': '_jFe'})[0].find_all('a')[0]['href']
@@ -49,13 +52,20 @@ def machine(count_start, count_end, t):
             except:
                 continue
 
+def read_ext_files(filename):
+    with open(filename, "r") as f:
+        lists = f.read().split()
+    return lists
+
 def main() :
     if len(sys.argv) < 2:
-        print("[*] python3 Usage {} docx".format(sys.argv[0]))
-        print("[*] python3 Usage {} hwp".format(sys.argv[0]))
+        print("[*] python3 Usage {} ext_lists".format(sys.argv[0]))
         sys.exit()
     else:
-        machine(0, 1000, sys.argv[1])
+        lists = read_ext_files(sys.argv[1])
+        for l in lists:
+            print("[+] Downloading %s..."%(l))
+            machine(0, 1000, l)
 
 if __name__ == '__main__':
     main()
