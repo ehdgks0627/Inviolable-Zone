@@ -300,16 +300,17 @@ namespace WALLnutClient
         #endregion
 
         #region [Function] 블록타입에 맞는 블록중 사용 가능한 블록을 찾고 할당하여 오프셋 반환
-        public unsafe UInt64 AvailableBlock(BLOCKTYPE type)
+        public unsafe List<UInt64> AvailableBlock(BLOCKTYPE type, UInt64 size)
         {
             try
             {
                 byte[] buffer = new byte[BLOCK_SIZE];
                 bool work = true;
-                UInt64 finder = 0xFFFFFFFFFFFFFFFFL, new_block = 0;
+                UInt64 finder = 0xFFFFFFFFFFFFFFFFL, new_offset = 0, allocated_block = 0;
+                List<UInt64> new_block = new List<UInt64>();
                 if (!Enum.IsDefined(typeof(BLOCKTYPE), type))
                 {
-                    return STATE_ERROR;
+                    return null;
                 }
                 fixed (byte* ptr_buffer = &buffer[0])
                 {
@@ -329,35 +330,45 @@ namespace WALLnutClient
                                 {
                                     if (!data_ptr->data[i].Equals(0xFF))
                                     {
-                                        new_block += i * 8 + GetAvailableBit(data_ptr->data[i]);
-                                        work = false;
-                                        break;
+                                        new_block.Add(new_offset + i * 8 + GetAvailableBit(data_ptr->data[i]));
+                                        new_offset += i * 8 + GetAvailableBit(data_ptr->data[i]);
+                                        if (Convert.ToUInt64(new_block.Count) == size)
+                                        {
+                                            work = false;
+                                            break;
+                                        }
                                     }
                                 }
                                 if (work)
                                 {
                                     finder = data_ptr->next_file;
                                     ReadBlock(ref buffer, finder);
-                                    new_block += 0x0FEC * 8;
+                                    new_offset += 0x0FEC * 8;
                                 }
+
                             }
                             if (work)
                             {
                                 NewBitMapBlock();
-                                return AvailableBlock(type);
+
+                                new_block.AddRange(AvailableBlock(type, size - allocated_block));
+                                return new_block;
                             }
                             else
                             {
-                                ReadBlock(ref buffer, LAST_FILE);
-                                file_ptr->next_file = new_block;
-                                WriteBlock(buffer, LAST_FILE);
-                                SetBitMapBlock(new_block);
-                                ClearBuffer(ref buffer);
-                                file_ptr->type = BLOCKTYPE.ENTRY_FILE;
-                                file_ptr->prev_file = LAST_FILE;
-                                file_ptr->next_file = BLOCK_END;
-                                WriteBlock(buffer, new_block);
-                                LAST_FILE = new_block;
+                                foreach (UInt64 offset in new_block)
+                                {
+                                    ReadBlock(ref buffer, LAST_FILE);
+                                    file_ptr->next_file = offset;
+                                    WriteBlock(buffer, LAST_FILE);
+                                    SetBitMapBlock(offset);
+                                    ClearBuffer(ref buffer);
+                                    file_ptr->type = BLOCKTYPE.ENTRY_FILE;
+                                    file_ptr->prev_file = LAST_FILE;
+                                    file_ptr->next_file = BLOCK_END;
+                                    WriteBlock(buffer, offset);
+                                    LAST_FILE = offset;
+                                }
                                 return new_block;
                             }
                             break;
@@ -371,7 +382,7 @@ namespace WALLnutClient
                                 {
                                     if (!data_ptr->data[i].Equals(0xFF))
                                     {
-                                        new_block += i * 8 + GetAvailableBit(data_ptr->data[i]);
+                                        new_block.Add(new_offset + i * 8 + GetAvailableBit(data_ptr->data[i]));
                                         work = false;
                                         break;
                                     }
@@ -380,32 +391,37 @@ namespace WALLnutClient
                                 {
                                     finder = data_ptr->next_file;
                                     ReadBlock(ref buffer, finder);
-                                    new_block += 0x0FEC * 8;
+                                    new_offset += 0x0FEC * 8;
                                 }
                             }
                             if (work)
                             {
                                 NewBitMapBlock();
-                                return AvailableBlock(BLOCKTYPE.DATA);
+                                new_block.AddRange(AvailableBlock(BLOCKTYPE.DATA, size - allocated_block));
+                                return new_block;
                             }
                             else
                             {
-                                SetBitMapBlock(new_block);
-                                ClearBuffer(ref buffer);
-                                data_ptr->type = BLOCKTYPE.DATA;
-                                data_ptr->prev_file = BLOCK_END;
-                                data_ptr->next_file = BLOCK_END;
-                                WriteBlock(buffer, new_block);
+                                foreach (UInt64 offset in new_block)
+                                {
+                                    SetBitMapBlock(offset);
+                                    ClearBuffer(ref buffer);
+                                    data_ptr->type = BLOCKTYPE.DATA;
+                                    data_ptr->prev_file = BLOCK_END;
+                                    data_ptr->next_file = BLOCK_END;
+                                    WriteBlock(buffer, offset);
+                                }
+
                                 return new_block;
                             }
                             break;
                     }
                 }
-                return BLOCK_END;
+                return null;
             }
             catch
             {
-                return 0;
+                return null;
             }
         }
         #endregion
@@ -670,7 +686,7 @@ namespace WALLnutClient
                 }
                 else
                 {
-                    offset = AvailableBlock(BLOCKTYPE.ENTRY_FOLDER);
+                    offset = AvailableBlock(BLOCKTYPE.ENTRY_FOLDER, 1)[0];
                     ReadBlock(ref buffer, offset);
                     ustrcpy(file_ptr->filename, filename.Split('\\')[filename.Split('\\').Length - 1]);
                     file_ptr->filesize = 0;
@@ -720,17 +736,19 @@ namespace WALLnutClient
                     return false;
                 }
                 prev_LAST_FILE = LAST_FILE;
-                finder = AvailableBlock(BLOCKTYPE.ENTRY_FILE);
+                finder = AvailableBlock(BLOCKTYPE.ENTRY_FILE, 1)[0];
                 byte[] data = File.ReadAllBytes(targetfile);
                 long now = DateTime.Now.ToFileTimeUtc();
                 List<UInt64> block_list = new List<UInt64>();
                 ClearBuffer(ref buffer);
                 ReadBlock(ref buffer, finder);
                 file_ptr->filesize = (ulong)data.Length;
+                block_list = AvailableBlock(BLOCKTYPE.DATA, (file_ptr->filesize / 0x0FEC) + 1);
+                /*
                 for (uint i = 0; i <= (file_ptr->filesize / 0x0FEC); i++)
                 {
                     block_list.Add(AvailableBlock(BLOCKTYPE.DATA));
-                }
+                }*/
 
                 ustrcpy(file_ptr->filename, filename.Split('\\')[filename.Split('\\').Length - 1]);
                 file_ptr->time_create = now;
