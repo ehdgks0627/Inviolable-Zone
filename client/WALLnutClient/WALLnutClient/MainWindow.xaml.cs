@@ -182,7 +182,9 @@ namespace WALLnutClient
                 }
             }
             #endregion
-            manager = new DiskManager(info.DeviceID);
+
+            TestCase(@"\\.\PhysicalDrive1");
+            //manager = new DiskManager(info.DeviceID);
             Double usage = (manager.getUsage() / info.Size);
             pb_diskusage.Value = usage;
         }
