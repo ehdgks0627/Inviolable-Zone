@@ -5,5 +5,6 @@
 ```
 PM> Install-Package WindowsAPICodePack
 PM> Install-Package MahApps.Metro
+PM> Install-Package Mime -Version 2.3.5
 ```
 ![neuralnetworks](https://github.com/ehdgks0627/WALLnut/blob/release/neuralnetworks.png)
