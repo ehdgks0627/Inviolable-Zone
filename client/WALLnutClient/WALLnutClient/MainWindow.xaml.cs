@@ -12,6 +12,7 @@ using System.IO.Pipes;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using MahApps.Metro.Controls;
 using System.Windows.Media.Imaging;
+using HeyRed.Mime;
 
 namespace WALLnutClient
 {
@@ -24,6 +25,7 @@ namespace WALLnutClient
         FileExplorer explorer = null;
         bool isFileExporerActivate = false;
         bool realTimeSync = false;
+
         /* 
             TODO List
             디스크 용량 초과?
@@ -114,10 +116,10 @@ namespace WALLnutClient
             {
                 Debug.Assert(data[i] == read_data[i]);
             }
-            //Debug.Assert(manager.DeleteFile(@"\asdf\test").Equals(true));
-            //Debug.Assert(manager.DeleteFile(@"\asdf\test").Equals(false));
+            Debug.Assert(manager.DeleteFile(@"\asdf\test").Equals(true));
+            Debug.Assert(manager.DeleteFile(@"\asdf\test").Equals(false));
 
-            /*Debug.Assert(manager.GetAvailableBit(0x00) == 0);
+            Debug.Assert(manager.GetAvailableBit(0x00) == 0);
             Debug.Assert(manager.GetAvailableBit(0x01) == 1);
             Debug.Assert(manager.GetAvailableBit(0x03) == 2);
             Debug.Assert(manager.GetAvailableBit(0x07) == 3);
@@ -141,7 +143,7 @@ namespace WALLnutClient
             Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1).Equals(false));
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 8 - 1).Equals(true));
             Debug.Assert(manager.SetBitMapBlock(4076 * 8 - 1).Equals(true));
-            /*
+
             Debug.Assert(manager.SetBitMapBlock(4076 * 19).Equals(true));
             Debug.Assert(manager.SetBitMapBlock(4076 * 19).Equals(false));
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 19).Equals(true));
@@ -153,7 +155,7 @@ namespace WALLnutClient
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100).Equals(true));
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100).Equals(false));
             Debug.Assert(manager.SetBitMapBlock(4076 * 100).Equals(true));
-            */
+
             //할당되지 않은 블록에 대한 UnSet
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 100 + 1).Equals(false));
             Debug.Assert(manager.UnSetBitMapBlock(4076 * 200).Equals(false));
@@ -182,6 +184,8 @@ namespace WALLnutClient
                 }
             }
             #endregion
+
+            //TestCase(@"\\.\PhysicalDrive1");
             manager = new DiskManager(info.DeviceID);
             Double usage = (manager.getUsage() / info.Size);
             pb_diskusage.Value = usage;
@@ -199,19 +203,27 @@ namespace WALLnutClient
         }
         #endregion
 
+        #region [Function] Mime 타입의 파일 형식을 반환합니다
+        public string GetMime(string path)
+        {
+            return MimeGuesser.GuessMimeType(path);
+        }
+        #endregion
+
         #region [Function] 해당 경로가 폴더인지 확인합니다
         public bool isFolder(string path)
         {
             FileAttributes attr = File.GetAttributes(path);
 
             //detect whether its a directory or file
-            if ((attr & FileAttributes.Directory) == FileAttributes.Directory) {
+            if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+            {
                 return true;
-        }
+            }
             else
-            { 
+            {
                 return false;
-        }
+            }
         }
         #endregion
 
@@ -232,25 +244,27 @@ namespace WALLnutClient
             }
         }
         #endregion
-        
+
         #region [Function] FileSystemSatcher 이벤트 핸들러
         protected void event_CreateFile(object fscreated, FileSystemEventArgs Eventocc)
         {
             bool folder = false;
+            string mime = string.Empty;
             if (realTimeSync)
             {
                 folder = isFolder(Eventocc.FullPath);
+                mime = GetMime(Eventocc.FullPath);
                 try
-               { 
+                {
                     this.Dispatcher.Invoke((Action)(() =>
                     {
                         if (folder)
                         {
-                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Created - " + Eventocc.Name);
+                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "Folder Created - " + Eventocc.Name);
                         }
                         else
                         {
-                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "Folder Created - " + Eventocc.Name);
+                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Created - " + Eventocc.Name);
                         }
                     }));
                     if (folder)
@@ -264,22 +278,36 @@ namespace WALLnutClient
                 }
                 catch
                 {
-                
+
                 }
             }
         }
 
         protected void event_ChangeFile(object fschanged, FileSystemEventArgs changeEvent)
         {
+            bool folder = false;
+            string mime = string.Empty;
             if (realTimeSync)
             {
+                folder = isFolder(changeEvent.FullPath);
+                mime = GetMime(changeEvent.FullPath);
                 try
                 {
                     fs.EnableRaisingEvents = false;
-                    this.Dispatcher.Invoke((Action)(() =>
+                    if (folder)
                     {
-                        lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Changed - " + changeEvent.Name);
-                    }));
+                        this.Dispatcher.Invoke((Action)(() =>
+                        {
+                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "Folder Changed - " + changeEvent.Name);
+                        }));
+                    }
+                    else
+                    {
+                        this.Dispatcher.Invoke((Action)(() =>
+                        {
+                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Changed - " + changeEvent.Name);
+                        }));
+                    }
                 }
                 catch
                 {
@@ -293,14 +321,29 @@ namespace WALLnutClient
 
         protected void event_RenameFile(object fschanged, RenamedEventArgs changeEvent)
         {
+            bool folder = false;
+            string mime = string.Empty;
             if (realTimeSync)
             {
                 try
                 {
-                    this.Dispatcher.Invoke((Action)(() =>
+                    folder = isFolder(changeEvent.FullPath);
+                    mime = GetMime(changeEvent.FullPath);
+                    if (folder)
                     {
-                        lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Renamed - " + changeEvent.Name + ", oldname : " + changeEvent.OldName);
-                    }));
+                        this.Dispatcher.Invoke((Action)(() =>
+                        {
+                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "Folder Renamed - " + changeEvent.Name + ", oldname : " + changeEvent.OldName);
+                        }));
+                    }
+                    else
+                    {
+                        this.Dispatcher.Invoke((Action)(() =>
+                        {
+                            lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Renamed - " + changeEvent.Name + ", oldname : " + changeEvent.OldName);
+                        }));
+                    }
+                    manager.Rename(@"\" + changeEvent.OldName, @"\" + changeEvent.Name);
                 }
                 catch
                 {
@@ -316,8 +359,9 @@ namespace WALLnutClient
                 {
                     this.Dispatcher.Invoke((Action)(() =>
                     {
-                        lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Deleted - " + changeEvent.Name);
+                        lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "Deleted - " + changeEvent.Name);
                     }));
+                    manager.DeleteFile(@"\" + changeEvent.Name);
                 }
                 catch
                 {
@@ -367,6 +411,8 @@ namespace WALLnutClient
 
                     fs.EnableRaisingEvents = true;
                     fs.IncludeSubdirectories = true;
+                    fs.InternalBufferSize = 1024 * 64;
+                    fs.NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.Size | NotifyFilters.LastAccess | NotifyFilters.LastWrite;
 
                     realTimeSync = true;
                     tb_path.IsEnabled = false;

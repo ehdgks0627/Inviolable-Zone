@@ -1,10 +1,4 @@
 pdf
-zip
 png
 gif
-bmp
-mp3
-mp4
 pptx
-avi
-hwp

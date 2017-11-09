@@ -1,6 +1,6 @@
 # tensorflow-django
 
-## How to Use(Pyhton3.5 need)
+## How to Use(Python3.5 need)
 ```sh
 virtualenv venv
 (or virtualenv -p python3.5 venv)
