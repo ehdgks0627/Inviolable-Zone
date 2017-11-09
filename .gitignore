@@ -516,3 +516,5 @@ media
 
 deeplearning/sample
 deeplearning/data
+deeplearning/filesByType
+deeplearning/filesByLibmagic

@@ -7,8 +7,8 @@ import tensorflow as tf
 def search(dirname, y_label):
     try:
         filenames = os.listdir(dirname)
-        #        if y_label == INFECTED:
-            #filenames = filenames[:100]
+        if y_label == INFECTED:
+            filenames = filenames[:int(len(filenames)/5)]
         for filename in filenames:
             full_filename = os.path.join(dirname, filename)
             try:
@@ -79,13 +79,8 @@ for idx, input_dir in enumerate(h_dirs):
     x_h_datas += copy.deepcopy(x)
 '''
 for input_size in [400]:
-    for MAX_LAYER in range(3, 8):
-        tf.reset_default_graph()
+    for MAX_LAYER in [3]:
         Ls = []
-        X = tf.placeholder(tf.float32, [None, input_size])
-        Y = tf.placeholder(tf.float32, [None, output_size])
-
-        keep_prob = tf.placeholder(tf.float32)
         for idx, input_dir in enumerate(input_dirs):
             x = []
             y = []
@@ -93,68 +88,75 @@ for input_size in [400]:
             # search(input_dir, [0] * idx + [1] + [0] * (output_size - idx - 1))
             buck = int(len(x) * test_rate)
 
+            '''
             x_datas += copy.deepcopy(x[:buck])
             y_datas += copy.deepcopy(y[:buck])
             x_test_datas += copy.deepcopy(x[buck:])
             y_test_datas += copy.deepcopy(y[buck:])
-
-            #if idx < 2:
-            #    x_datas += copy.deepcopy(x)
-            #    y_datas += copy.deepcopy(y)
-            #else:
-            #    x_test_datas += copy.deepcopy(x)
-            #    y_test_datas += copy.deepcopy(y)
-
-        for layer_count in range(1, MAX_LAYER):
-            if layer_count == 1:
-                W = tf.get_variable("W%d"%(layer_count), shape=[input_size, net_size], initializer=tf.contrib.layers.xavier_initializer())
-                b = tf.Variable(tf.random_normal([net_size]))
-            elif layer_count == MAX_LAYER - 1:
-                W = tf.get_variable("W%d"%(layer_count), shape=[net_size, output_size], initializer=tf.contrib.layers.xavier_initializer())
-                b = tf.Variable(tf.random_normal([output_size]))
+            '''
+            if idx < 2:
+                x_datas += copy.deepcopy(x)
+                y_datas += copy.deepcopy(y)
             else:
-                W = tf.get_variable("W%d"%(layer_count), shape=[net_size, net_size], initializer=tf.contrib.layers.xavier_initializer())
-                b = tf.Variable(tf.random_normal([net_size]))
+                x_test_datas += copy.deepcopy(x)
+                y_test_datas += copy.deepcopy(y)
+        for net_size in range(1, 50, 5):
+            print(net_size)
+            tf.reset_default_graph()
+            X = tf.placeholder(tf.float32, [None, input_size])
+            Y = tf.placeholder(tf.float32, [None, output_size])
 
-            if layer_count == 1:
-                L = tf.nn.relu(tf.matmul(X, W) + b)
-            elif layer_count == MAX_LAYER - 1:
-                hypothesis = tf.sigmoid(tf.matmul(Ls[-1], W) + b)
-            else:
-                L = tf.nn.relu(tf.matmul(Ls[-1], W) + b)
-                L = tf.nn.dropout(Ls[-1], keep_prob=keep_prob)
-            Ls.append(L)
+            keep_prob = tf.placeholder(tf.float32)
+            for layer_count in range(1, MAX_LAYER):
+                if layer_count == 1:
+                    W = tf.get_variable("W%d"%(layer_count), shape=[input_size, net_size], initializer=tf.contrib.layers.xavier_initializer())
+                    b = tf.Variable(tf.random_normal([net_size]))
+                elif layer_count == MAX_LAYER - 1:
+                    W = tf.get_variable("W%d"%(layer_count), shape=[net_size, output_size], initializer=tf.contrib.layers.xavier_initializer())
+                    b = tf.Variable(tf.random_normal([output_size]))
+                else:
+                    W = tf.get_variable("W%d"%(layer_count), shape=[net_size, net_size], initializer=tf.contrib.layers.xavier_initializer())
+                    b = tf.Variable(tf.random_normal([net_size]))
 
-        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=hypothesis, labels=Y))
-        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
+                if layer_count == 1:
+                    L = tf.nn.relu(tf.matmul(X, W) + b)
+                elif layer_count == MAX_LAYER - 1:
+                    hypothesis = tf.sigmoid(tf.matmul(Ls[-1], W) + b)
+                else:
+                    L = tf.nn.relu(tf.matmul(Ls[-1], W) + b)
+                    L = tf.nn.dropout(Ls[-1], keep_prob=keep_prob)
+                Ls.append(L)
 
-        correct_prediction = tf.equal(tf.argmax(hypothesis, 1), tf.argmax(Y, 1))
-        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+            cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=hypothesis, labels=Y))
+            optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
-        cost_summary = tf.summary.scalar('cost', cost)
-        accuracy_summary = tf.summary.scalar('accuracy', accuracy)
-        merged = tf.summary.merge_all()
+            correct_prediction = tf.equal(tf.argmax(hypothesis, 1), tf.argmax(Y, 1))
+            accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-        for dropout_rate in [0.1, 0.3, 0.5, 0.7, 0.9]:
-            sess = tf.Session()
-            sess.run(tf.global_variables_initializer())
+            cost_summary = tf.summary.scalar('cost', cost)
+            accuracy_summary = tf.summary.scalar('accuracy', accuracy)
+            merged = tf.summary.merge_all()
 
-            writer = tf.summary.FileWriter('./log/layer(%d)-input(%d)-dropout(%s)'%(layer_count, input_size, dropout_rate), sess.graph)
+            for dropout_rate in [0.7]:
+                sess = tf.Session()
+                sess.run(tf.global_variables_initializer())
 
-            for epoch in range(epoch_size):
-                feed_dict = {X: x_datas, Y: y_datas, keep_prob: dropout_rate}
-                c, _, h, _y = sess.run([cost, optimizer, hypothesis, Y], feed_dict=feed_dict)
-                if epoch % 100 == 0:
-                    print('Epoch:', '%04d' % (epoch), 'cost =', '{:.9f}'.format(c))
-                    print('Accuracy:', sess.run(accuracy, feed_dict={X: x_test_datas, Y: y_test_datas, keep_prob: 1}))
-                    result = sess.run(merged, feed_dict={X: x_test_datas, Y: y_test_datas, keep_prob: 1})
-                    writer.add_summary(result, epoch)
+                writer = tf.summary.FileWriter('./log/layer(%d)-input(%d)-dropout(%s)'%(layer_count, input_size, dropout_rate), sess.graph)
 
-            print('Learning Finished!')
+                for epoch in range(epoch_size):
+                    feed_dict = {X: x_datas, Y: y_datas, keep_prob: dropout_rate}
+                    c, _, h, _y = sess.run([cost, optimizer, hypothesis, Y], feed_dict=feed_dict)
+                    if epoch % 100 == 0:
+                        print('Epoch:', '%04d' % (epoch), 'cost =', '{:.9f}'.format(c))
+                        print('Accuracy:', sess.run(accuracy, feed_dict={X: x_test_datas, Y: y_test_datas, keep_prob: 1}))
+                        result = sess.run(merged, feed_dict={X: x_test_datas, Y: y_test_datas, keep_prob: 1})
+                        writer.add_summary(result, epoch)
 
-            print('Prediction:', sess.run(correct_prediction, feed_dict={X: x_test_datas, Y: y_test_datas, keep_prob: 1}))
-            acc = sess.run([accuracy], feed_dict={X: x_test_datas, Y: y_test_datas, keep_prob: 1})
-            print('Accuracy:', acc)
+                print('Learning Finished!')
+
+                print('Prediction:', sess.run(correct_prediction, feed_dict={X: x_test_datas, Y: y_test_datas, keep_prob: 1}))
+                acc = sess.run([accuracy], feed_dict={X: x_test_datas, Y: y_test_datas, keep_prob: 1})
+                print('Accuracy:', acc)
 
     '''
     h = sess.run(hypothesis, feed_dict={X: x_h_datas})
