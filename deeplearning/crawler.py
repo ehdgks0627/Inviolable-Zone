@@ -51,7 +51,7 @@ def machine(t, download = 1000, n = 0):
     print("[Thread %5d] %s start" % (os.getpid(), t))
 
     for keyword in keywords:
-        pageIndex = 1
+        pageIndex = 5
         while n <= download:
             url = "https://www.google.co.kr/search?q={}%20filetype:{}&start={}".format(keyword, t, pageIndex*10)
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
@@ -95,11 +95,13 @@ def main() :
         proclist = []
         for l in lists:
             print("[+] Downloading %s..."%(l))
+            machine(l)
+            '''
             proc = Process(target=machine, args=(l, ))
             proc.start()
             proclist.append(proc)
         for proc in proclist:
-            proc.join()
+            proc.join()'''
 
 if __name__ == '__main__':
     main()
