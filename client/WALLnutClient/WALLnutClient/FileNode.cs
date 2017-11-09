@@ -19,7 +19,7 @@ namespace WALLnutClient
 
         public byte[] buffer;
         string filename { get; set; }
-        string fullname { get; set; }
+        //string fullname { get; set; }
 
         #region [Function] [생성자] 파일 노드의 정보를 셋팅합니다
         public unsafe FileNode(DiskManager.ENTRY_FILE_STRUCTURE _info, UInt64 _index)
@@ -36,7 +36,6 @@ namespace WALLnutClient
             {
                 DiskManager.ENTRY_FILE_STRUCTURE* ptr = (DiskManager.ENTRY_FILE_STRUCTURE*)ptr_buffer;
                 filename = Marshal.PtrToStringUni((IntPtr)(ptr->filename));
-                fullname = null;
                 type = ptr->type;
                 index = _index;
             }
@@ -101,13 +100,13 @@ namespace WALLnutClient
         }
 
         #endregion
+
         #region [Function] 자식에 노드를 추가합니다
         public bool AppendChild(FileNode node)
         {
             child.Add(node.filename, node);
             node.Root = this;
             node.RootIndex = this.index;
-            node.fullname = node.FullPath();
             return true;
         }
         #endregion
@@ -138,6 +137,13 @@ namespace WALLnutClient
         }
         #endregion
 
+        #region [Function] Rename 함수입니다
+        public void Rename(string newname)
+        {
+            filename = newname;
+        }
+        #endregion
+
         #region [Function] 파일을 지웁니다
         public void DeleteNode(DiskManager manager)
         {
@@ -152,7 +158,7 @@ namespace WALLnutClient
         #region [Function] 파일을 지우는데 내부적으로 사용되는 함수입니다
         private void _DeleteNode(DiskManager manager)
         {
-            manager._DeleteFile(fullname);
+            manager._DeleteFile(FullPath());
             foreach (string key in child.Keys)
             {
                 child[key]._DeleteNode(manager);
@@ -174,7 +180,14 @@ namespace WALLnutClient
             {
                 result.Items.Add(child[key].GetTreeViewSource());
             }
-            result.Header = filename;
+            if (Object.ReferenceEquals(Root, null))
+            {
+                result.Header = "RootFolder";
+            }
+            else
+            {
+                result.Header = filename;
+            }
             return result;
         }
         #endregion

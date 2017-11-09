@@ -149,12 +149,18 @@ namespace WALLnutClient
                         else
                         {
                             string root_path = string.Empty;
-                            while (!offset.Equals(ENTRY_FILE))
+                            if (offset.Equals(ENTRY_FILE))
                             {
-                                root_path = "\\" + FolderList[offset].filename + root_path;
-                                offset = FolderList[offset].parent;
+                                root_path = "\\";
                             }
-                            root_path += "\\" + Marshal.PtrToStringUni((IntPtr)(file_ptr->filename));
+                            else
+                            {
+                                while (!offset.Equals(ENTRY_FILE))
+                                {
+                                    root_path = "\\" + FolderList[offset].filename + root_path;
+                                    offset = FolderList[offset].parent;
+                                }
+                            }
                             FileNode parent = root.FindNodeByFilename(root_path, 0);
                             if (!Object.ReferenceEquals(parent, null))
                             {
@@ -744,11 +750,6 @@ namespace WALLnutClient
                 ReadBlock(ref buffer, finder);
                 file_ptr->filesize = (ulong)data.Length;
                 block_list = AvailableBlock(BLOCKTYPE.DATA, (file_ptr->filesize / 0x0FEC) + 1);
-                /*
-                for (uint i = 0; i <= (file_ptr->filesize / 0x0FEC); i++)
-                {
-                    block_list.Add(AvailableBlock(BLOCKTYPE.DATA));
-                }*/
 
                 ustrcpy(file_ptr->filename, filename.Split('\\')[filename.Split('\\').Length - 1]);
                 file_ptr->time_create = now;
@@ -804,6 +805,34 @@ namespace WALLnutClient
                     }
                     WriteBlock(buffer, block_list[i]);
                 }
+            }
+            return true;
+        }
+        #endregion
+
+        #region [Function] path를 기준으로 폴더 속성 업데이트
+        public unsafe bool Rename(string prevname, string newname)
+        {
+            string prevfilename = prevname.Split('\\')[newname.Split('\\').Length - 1];
+            string filename = newname.Split('\\')[newname.Split('\\').Length - 1];
+            FileNode target = root.FindNodeByFilename(prevname, 0);
+            UInt64 offset;
+            byte[] buffer;
+            if (Object.ReferenceEquals(target, null))
+            {
+                return false; //err
+            }
+            offset = target.index;
+            buffer = new byte[BLOCK_SIZE];
+            target.Rename(filename);
+            target.Root.child.Remove(prevfilename);
+            target.Root.child.Add(filename, target);
+            fixed (byte* ptr_buffer = &buffer[0])
+            {
+                ENTRY_FILE_STRUCTURE* file_ptr = (ENTRY_FILE_STRUCTURE*)ptr_buffer;
+                ReadBlock(ref buffer, offset);
+                ustrcpy(file_ptr->filename, filename + "\x00");
+                WriteBlock(buffer, offset);
             }
             return true;
         }
