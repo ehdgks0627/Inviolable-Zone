@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import hashlib
 from multiprocessing import Process
 
-keywords = ["example", "source", "data", "model", "backup", "news", "lecture"]
+keywords = ["news", "backup", "model", "lecture", "example", "source", "data"]
 
 def md5(fname):
     hash_md5 = hashlib.md5()
@@ -51,7 +51,7 @@ def machine(t, download = 1000, n = 0):
     print("[Thread %5d] %s start" % (os.getpid(), t))
 
     for keyword in keywords:
-        pageIndex = 5
+        pageIndex = 1
         while n <= download:
             url = "https://www.google.co.kr/search?q={}%20filetype:{}&start={}".format(keyword, t, pageIndex*10)
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',

@@ -1,4 +1,6 @@
+gif
+hwp
+mp3
 pdf
 png
-gif
-pptx
+docx
