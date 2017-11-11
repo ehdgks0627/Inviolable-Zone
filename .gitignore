@@ -519,3 +519,4 @@ media
 **/filesByType
 **/filesByLibmagic
 **/migrations
+**/.idea
