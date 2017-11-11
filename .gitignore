@@ -514,7 +514,8 @@ media
 
 # End of https://www.gitignore.io/api/macos,python,windows,pycharm,visualstudio
 
-deeplearning/sample
-deeplearning/data
-deeplearning/filesByType
-deeplearning/filesByLibmagic
+**/sample
+**/data
+**/filesByType
+**/filesByLibmagic
+**/migrations
