@@ -12,6 +12,7 @@ using System.IO.Pipes;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using MahApps.Metro.Controls;
 using System.Windows.Media.Imaging;
+using HeyRed.Mime;
 
 namespace WALLnutClient
 {
@@ -205,7 +206,7 @@ namespace WALLnutClient
         #region [Function] Mime 타입의 파일 형식을 반환합니다
         public string GetMime(string path)
         {
-            return " ";// MimeGuesser.GuessMimeType(path);
+            return MimeGuesser.GuessMimeType(path);
         }
         #endregion
 
