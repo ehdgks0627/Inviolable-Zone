@@ -22,6 +22,9 @@
 10. ```python manage.py runserver```
 http://localhost/v1/classification/test/
 
+### err
+1. ImportError: libjasper.so.1: cannot open shared object file: No such file or directory<br>
+```apt install graphicsmagick```
 ## API List
 
 | Purpose | url | Method | request | response |
