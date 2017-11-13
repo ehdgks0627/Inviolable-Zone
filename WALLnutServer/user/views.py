@@ -4,8 +4,9 @@ from api_key.urls import *
 from .models import *
 from user.models import *
 import random
+from django.views.decorators.csrf import csrf_exempt
 
-
+@csrf_exempt
 def Join(request):
     def CreateUser(name, api_key_instance):
         new_user = User.objects.create(name=name, access_token=GenerateToken(), api_key=api_key_instance)
@@ -14,7 +15,7 @@ def Join(request):
         return new_user
 
     def CreateAPIkey():
-        return APIkey.objects.create(serial="11111-22222-33333-44444-55553", paid=False, used=False)
+        return APIkey.objects.create(serial="11111-22222-33333-44444-55552", paid=False, used=False)
 
     def GenerateToken(length=32):
         return "".join(
