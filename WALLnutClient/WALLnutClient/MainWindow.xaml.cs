@@ -13,6 +13,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using MahApps.Metro.Controls;
 using System.Windows.Media.Imaging;
 using HeyRed.Mime;
+using Microsoft.Win32;
 
 namespace WALLnutClient
 {
@@ -164,6 +165,7 @@ namespace WALLnutClient
 
         public MainWindow(DiskInfo _info)
         {
+            this.Hide();
             InitializeComponent();
             info = _info;
             img_onoff.Source = new BitmapImage(new Uri(Properties.Resources.RESOURCES_PATH + "onoff.png", UriKind.RelativeOrAbsolute));
@@ -189,6 +191,17 @@ namespace WALLnutClient
             manager = new DiskManager(info.DeviceID);
             Double usage = (manager.getUsage() / info.Size);
             pb_diskusage.Value = usage;
+
+            RegistryKey reg = Registry.CurrentUser;
+            reg = reg.OpenSubKey("SOFTWARE\\WALLnut", true);
+
+            if (!Object.ReferenceEquals(reg, null) &&
+                !Object.ReferenceEquals(reg.GetValue("WALLnutFolderPath"), null) &&
+                !reg.GetValue("WALLnutFolderPath").ToString().Equals(string.Empty))
+            {
+                tb_path.Text = reg.GetValue("WALLnutFolderPath").ToString();
+            }
+            this.Show();
         }
 
         private void btn_setting_Click(object sender, RoutedEventArgs e)
@@ -300,6 +313,7 @@ namespace WALLnutClient
                         {
                             lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "Folder Changed - " + changeEvent.Name);
                         }));
+                        manager.WriteFolder(@"\" + changeEvent.Name);
                     }
                     else
                     {
@@ -307,6 +321,7 @@ namespace WALLnutClient
                         {
                             lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Changed - " + changeEvent.Name);
                         }));
+                        manager.WriteFile(@"\" + changeEvent.Name, changeEvent.FullPath);
                     }
                 }
                 catch
@@ -391,6 +406,10 @@ namespace WALLnutClient
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 tb_path.Text = dlg.FileName;
+
+                RegistryKey regKey = Registry.CurrentUser.CreateSubKey("SOFTWARE\\WALLnut", RegistryKeyPermissionCheck.ReadWriteSubTree);
+
+                regKey.SetValue("WALLnutFolderPath", dlg.FileName, RegistryValueKind.String);
             }
         }
         #endregion
