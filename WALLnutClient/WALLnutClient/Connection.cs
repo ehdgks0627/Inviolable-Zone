@@ -12,7 +12,7 @@ namespace WALLnutClient
     class Connection
     {
         public static readonly HttpClient client = new HttpClient();
-        static string access_token = string.Empty;
+        public static string access_token = string.Empty;
 
         static Connection()
         {

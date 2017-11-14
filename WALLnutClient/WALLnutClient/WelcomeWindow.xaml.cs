@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using System.Net.Http;
+using Newtonsoft.Json.Linq;
+using Microsoft.Win32;
 
 namespace WALLnutClient
 {
@@ -23,8 +25,23 @@ namespace WALLnutClient
     {
         public WelcomeWindow()
         {
+            this.Hide();
             InitializeComponent();
             img_logo.Source = new BitmapImage(new Uri(Properties.Resources.RESOURCES_PATH + "logo.png", UriKind.RelativeOrAbsolute));
+            RegistryKey reg = Registry.CurrentUser;
+            reg = reg.OpenSubKey("SOFTWARE\\WALLnut", true);
+            
+            if (!Object.ReferenceEquals(reg, null) && 
+                !Object.ReferenceEquals(reg.GetValue("access_token"), null) &&
+                !reg.GetValue("access_token").ToString().Equals(string.Empty))
+            {
+                Connection.access_token = reg.GetValue("access_token").ToString();
+                nextWindow();
+            }
+            else
+            {
+                this.Show();
+            }
         }
 
         private async void btn_start_Click(object sender, RoutedEventArgs e)
@@ -34,11 +51,27 @@ namespace WALLnutClient
                { "api_key", tb_apikey.Text }
             };
             Task<string> result = Connection.PostRequest("/v1/user/join/", body);
-            string r = await result;
-            MessageBox.Show(r);
-            SelectDiskWindow window = new SelectDiskWindow();
-            window.Show();
+            JObject response = JObject.Parse(await result);
+            
+            if(!Object.ReferenceEquals(response["err_msg"], null))
+            {
+                MessageBox.Show(response["err_msg"].ToString());
+                return;
+            }
+            Connection.access_token = response["access_token"].ToString();
+
+            RegistryKey regKey = Registry.CurrentUser.CreateSubKey("SOFTWARE\\WALLnut", RegistryKeyPermissionCheck.ReadWriteSubTree);
+            
+            regKey.SetValue("access_token", Connection.access_token, RegistryValueKind.String);
+
+            nextWindow();
+        }
+
+        public void nextWindow()
+        {
             this.Hide();
+            SelectDiskWindow window = new SelectDiskWindow();
+            window.checkWALLnutDriveExist();
         }
     }
 }

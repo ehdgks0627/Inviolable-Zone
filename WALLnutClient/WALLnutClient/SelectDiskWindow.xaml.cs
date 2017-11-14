@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 using System.Management;
+using Microsoft.Win32;
 
 namespace WALLnutClient
 {
@@ -21,8 +22,12 @@ namespace WALLnutClient
     /// </summary>
     public partial class SelectDiskWindow : MetroWindow
     {
+        public bool IsClosed { get; private set; }
+
+        List<DiskInfo> infos = new List<DiskInfo>();
         public SelectDiskWindow()
         {
+            this.Hide();
             InitializeComponent();
             UpdateDriveList();
             img_refresh.Source = new BitmapImage(new Uri(Properties.Resources.RESOURCES_PATH + "refresh.png", UriKind.RelativeOrAbsolute));
@@ -52,13 +57,14 @@ namespace WALLnutClient
                 MessageBoxButton.OKCancel,
                 MessageBoxImage.Warning)))
                 {
-                    if (DiskManager.FormatDisk((DiskInfo)cb_disk.SelectedItem))
+                    Int64 uuid = DiskManager.FormatDisk((DiskInfo)cb_disk.SelectedItem);
+                    if (!uuid.Equals(0))
                     {
+                        RegistryKey regKey = Registry.CurrentUser.CreateSubKey("SOFTWARE\\WALLnut", RegistryKeyPermissionCheck.ReadWriteSubTree);
+
+                        regKey.SetValue("WALLnutDriveUUID", uuid, RegistryValueKind.String);
                         MessageBox.Show("포맷 성공", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
-                        UpdateDriveList();
-                        MainWindow window = new MainWindow(info);
-                        window.Show();
-                        this.Close();
+                        nextWindow(info);
                     }
                 }
             }
@@ -68,9 +74,9 @@ namespace WALLnutClient
         #region [Function] Drive 목록 업데이트
         public void UpdateDriveList()
         {
-            List<DiskInfo> list = DiskInfo.GetDriveList();
+            infos = DiskInfo.GetDriveList();
             cb_disk.Items.Clear();
-            foreach (DiskInfo info in list)
+            foreach (DiskInfo info in infos)
             {
                 cb_disk.Items.Add(info);
             }
@@ -89,7 +95,7 @@ namespace WALLnutClient
                 }
                 else
                 {
-                    btn_ok.Content = "Go";
+                    btn_ok.Content = "Continue";
                 }
             }
         }
@@ -97,6 +103,40 @@ namespace WALLnutClient
         private void btn_refresh_Click(object sender, RoutedEventArgs e)
         {
             UpdateDriveList();
+        }
+
+        public void nextWindow(DiskInfo info)
+        {
+            MainWindow window = new MainWindow(info);
+            window.Show();
+            this.Close();
+        }
+
+        public void checkWALLnutDriveExist()
+        {
+            RegistryKey reg = Registry.CurrentUser;
+            reg = reg.OpenSubKey("SOFTWARE\\WALLnut", true);
+
+            if (!Object.ReferenceEquals(reg, null) &&
+                !Object.ReferenceEquals(reg.GetValue("WALLnutDriveUUID"), null) &&
+                !reg.GetValue("WALLnutDriveUUID").ToString().Equals(string.Empty))
+            {
+                Int64 uuid = Int64.Parse((reg.GetValue("WALLnutDriveUUID").ToString()));
+                if (!Object.ReferenceEquals(infos.Find(x => x.uuid.Equals(uuid)), null))
+                {
+                    nextWindow(infos.Find(x => x.uuid.Equals(uuid)));
+                }
+            }
+            if (!this.IsClosed)
+            {
+                this.Show();
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            IsClosed = true;
         }
     }
 }

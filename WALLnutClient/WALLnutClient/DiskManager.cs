@@ -22,6 +22,7 @@ namespace WALLnutClient
             public UInt64 last_bitmap;
             public UInt64 disk_size;
             public Int64 last_modify_time;
+            public Int64 uuid;
             public fixed byte end_signature[0x0008];
         }
         #endregion
@@ -941,15 +942,17 @@ namespace WALLnutClient
         #endregion
 
         #region [Funciton] 디스크를 인자로 받아 포맷합니다
-        public static bool FormatDisk(DiskInfo diskinfo)
+        public static Int64 FormatDisk(DiskInfo diskinfo)
         {
+            Random r = new Random();
+            Int64 uuid;
             unsafe
             {
                 SafeFileHandle handle = DiskIOWrapper.CreateFile(diskinfo.DeviceID, DiskIOWrapper.GENERIC_READ | DiskIOWrapper.GENERIC_WRITE, DiskIOWrapper.FILE_SHARE_READ, IntPtr.Zero, DiskIOWrapper.OPEN_EXISTING, 0, IntPtr.Zero);
                 if (handle.IsInvalid)
                 {
                     MessageBox.Show("관리자 권한이 필요합니다", "에러", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
+                    return 0x0;
                 }
                 byte[] buffer = new byte[BLOCK_SIZE];
                 uint[] read = new uint[1];
@@ -977,6 +980,12 @@ namespace WALLnutClient
                         header->last_file = 2;
                         header->last_bitmap = 1;
                         header->disk_size = diskinfo.Size;
+                        do
+                        {
+                            uuid = (Convert.ToInt64(r.Next(0, int.MaxValue)) << 32);
+                            uuid |= Convert.ToInt64(r.Next(0, int.MaxValue));
+                        } while (uuid == 0);
+                        header->uuid = uuid;
                         strcpy(header->end_signature, SIGNATURE);
                         DiskIOWrapper.SetFilePointerEx(handle, offset, out offset, DiskIOWrapper.FILE_BEGIN);
                         DiskIOWrapper.WriteFile(handle, ptr_buffer, BLOCK_SIZE, ptr_read, IntPtr.Zero);
@@ -1016,7 +1025,7 @@ namespace WALLnutClient
                 }
                 handle.Close();
             }
-            return true;
+            return uuid;
         }
         #endregion
 
