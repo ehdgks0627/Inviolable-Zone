@@ -30,6 +30,9 @@ namespace WALLnutClient
         /* 
             TODO List
             디스크 용량 초과?
+            시작 아이콘 등록
+            환경 설정에 시작 프로그램에 추가(레지스트리)
+            테스트 케이스 검사(카피하는거)
         */
 
         #region [Funciton] test function
@@ -219,7 +222,14 @@ namespace WALLnutClient
         #region [Function] Mime 타입의 파일 형식을 반환합니다
         public string GetMime(string path)
         {
-            return MimeGuesser.GuessMimeType(path);
+            try
+            {
+                return MimeGuesser.GuessMimeType(path);
+            }
+            catch
+            {
+                return "Unknown";
+            }
         }
         #endregion
 
@@ -266,7 +276,6 @@ namespace WALLnutClient
             if (realTimeSync)
             {
                 folder = isFolder(Eventocc.FullPath);
-                mime = GetMime(Eventocc.FullPath);
                 try
                 {
                     this.Dispatcher.Invoke((Action)(() =>
@@ -277,6 +286,7 @@ namespace WALLnutClient
                         }
                         else
                         {
+                            mime = GetMime(Eventocc.FullPath);
                             lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "File Created - " + Eventocc.Name);
                         }
                     }));
@@ -303,12 +313,12 @@ namespace WALLnutClient
             if (realTimeSync)
             {
                 folder = isFolder(changeEvent.FullPath);
-                mime = GetMime(changeEvent.FullPath);
                 try
                 {
                     fs.EnableRaisingEvents = false;
                     if (folder)
                     {
+                        mime = GetMime(changeEvent.FullPath);
                         this.Dispatcher.Invoke((Action)(() =>
                         {
                             lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "Folder Changed - " + changeEvent.Name);
@@ -343,9 +353,9 @@ namespace WALLnutClient
                 try
                 {
                     folder = isFolder(changeEvent.FullPath);
-                    mime = GetMime(changeEvent.FullPath);
                     if (folder)
                     {
+                        mime = GetMime(changeEvent.FullPath);
                         this.Dispatcher.Invoke((Action)(() =>
                         {
                             lv_log.Items.Add("[" + DateTime.Now.ToShortTimeString() + "]" + "Folder Renamed - " + changeEvent.Name + ", oldname : " + changeEvent.OldName);
