@@ -34,7 +34,7 @@ namespace WALLnutClient
         #region [Funciton] test function
         public void TestCase(string drivename)
         {
-            Debug.Assert(DiskManager.FormatDisk(new DiskInfo { DeviceID = drivename }).Equals(true));
+            Debug.Assert(!DiskManager.FormatDisk(new DiskInfo { DeviceID = drivename }).Equals(false));
             manager = new DiskManager(drivename);
             Debug.Assert(manager.isActive.Equals(true));
             Debug.Assert(manager.Path2Offset(@"a") == DiskManager.BLOCK_END);

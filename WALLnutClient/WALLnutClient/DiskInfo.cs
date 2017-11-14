@@ -13,6 +13,7 @@ namespace WALLnutClient
         public string Model { get; set; }
         public UInt64 Partitions { get; set; }
         public UInt64 Size { get; set; }
+        public Int64 uuid { get; set; }
 
         public override string ToString()
         {
@@ -20,13 +21,11 @@ namespace WALLnutClient
         }
 
         #region [Function] PhysicalDrive의 목록을 반환
-        public static List<DiskInfo> GetDriveList()
+        public unsafe static List<DiskInfo> GetDriveList()
         {
             List<DiskInfo> result = new List<DiskInfo>();
             byte[] buffer = new byte[DiskManager.BLOCK_SIZE];
-            ManagementObjectSearcher searcher =
-                                   new ManagementObjectSearcher("",
-                                   "SELECT * FROM Win32_DiskDrive");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("", "SELECT * FROM Win32_DiskDrive");
             foreach (ManagementObject queryObj in searcher.Get())
             {
                 try
@@ -36,7 +35,6 @@ namespace WALLnutClient
                     diskinfo.DeviceID = queryObj["DeviceID"].ToString();
                     diskinfo.Model = queryObj["Model"].ToString();
                     diskinfo.Size = ulong.Parse(queryObj["Size"].ToString());
-
                     DiskManager.ReadBlock(ref buffer, 0, diskinfo.DeviceID);
                     diskinfo.isWALLNutDevice = true;
                     for (int i = 0; i < 8; i++)
@@ -45,6 +43,14 @@ namespace WALLnutClient
                         {
                             diskinfo.isWALLNutDevice = false;
                             break;
+                        }
+                    }
+                    if (diskinfo.isWALLNutDevice)
+                    { 
+                        fixed (byte* ptr_buffer = &buffer[0])
+                        {
+                            DiskManager.DISK_HEADER_STRUCTURE* ptr = (DiskManager.DISK_HEADER_STRUCTURE*)ptr_buffer;
+                            diskinfo.uuid = ptr->uuid;
                         }
                     }
                     result.Add(diskinfo);

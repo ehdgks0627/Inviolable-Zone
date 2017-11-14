@@ -6,8 +6,11 @@ from user.models import *
 import random
 from django.views.decorators.csrf import csrf_exempt
 
+
 @csrf_exempt
 def Join(request):
+    token = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
     def CreateUser(name, api_key_instance):
         new_user = User.objects.create(name=name, access_token=GenerateToken(), api_key=api_key_instance)
         api_key_instance.used = True
@@ -17,7 +20,7 @@ def Join(request):
     def CreateAPIkey():
         while True:
             try:
-                serial = "-".join("".join([random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(5)]) for _ in range(5))
+                serial = "-".join("".join([random.choice(token) for _ in range(5)]) for _ in range(5))
                 api_key_instance = APIkey.objects.create(serial=serial, paid=False, used=False)
                 break
             except:
@@ -25,8 +28,7 @@ def Join(request):
         return api_key_instance
 
     def GenerateToken(length=32):
-        return "".join(
-            [random.choice("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") for _ in range(length)])
+        return "".join([random.choice(token) for _ in range(length)])
 
     api_key = request.POST.get("api_key", "")
     name = request.POST.get("name", "default name")
