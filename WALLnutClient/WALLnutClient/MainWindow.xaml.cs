@@ -33,6 +33,7 @@ namespace WALLnutClient
             시작 아이콘 등록
             환경 설정에 시작 프로그램에 추가(레지스트리)
             테스트 케이스 검사(카피하는거)
+            USB Eject Event 감지
         */
 
         #region [Funciton] test function
