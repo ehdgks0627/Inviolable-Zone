@@ -1,9 +1,9 @@
 # cntk-django-rest-api-server
 
 ## Usage
-1. Donwoad Anaconda3-4.1.1 version
-2. Install Conda
-3. Enter [Anaconda Archive](https://repo.continuum.io/archive/)
+1. Enter [Anaconda Archive](https://repo.continuum.io/archive/)
+2. Donwoad Anaconda3-4.1.1 version
+3. Install Conda
 4. Download CNTK2.2 [Windows](https://docs.microsoft.com/en-us/cognitive-toolkit/setup-windows-python?tabs=cntkpy22) or [Linux](https://docs.microsoft.com/en-us/cognitive-toolkit/setup-linux-python?tabs=cntkpy22) AND install with pip<br>
 ```pip install https://~~~```
 5. Enter WALLnutServer Folder
