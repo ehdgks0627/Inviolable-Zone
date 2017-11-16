@@ -27,13 +27,23 @@ def XORExample(request):
     return HttpResponse(
         str(val1) + " ^ " + str(val2) + " = " + ("1" if model.predict_proba(test_X)[0][0] > 0.5 else "0"))
 
+
 @csrf_exempt
 def checkFile(request):
     request_data = json.loads(request.body.decode())
 
     api_key = request_data.get("api_key", "")
-    filedata = request_data.get("data", [])
+    filedatas = request_data.get("data", [])
+    result = []
+
     if not api_key:
         return JsonResponse({"err_msg": "not a valid api-key"})
+
+    for data in filedatas:
+        fileid = data[0]
+        filetype = data[1]
+        filedata = data[2]
+        # select model
+        #model_to_predict
     aes128_key = User.objects.filter(api_key=api_key)[0].aes128_key
     return JsonResponse({"aes128_key": aes128_key})
