@@ -3,7 +3,10 @@ from django.http import HttpResponse, JsonResponse
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation
 from keras.optimizers import SGD
+from django.views.decorators.csrf import csrf_exempt
+from user.models import *
 import numpy as np
+import json
 
 
 def XORExample(request):
@@ -21,11 +24,16 @@ def XORExample(request):
     sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='mean_squared_error', optimizer=sgd, class_mode="binary")
     model.fit(X, y, nb_epoch=1000, batch_size=1)
-    return HttpResponse(str(val1) + " ^ " + str(val2) + " = " + ("1" if model.predict_proba(test_X)[0][0] > 0.5 else "0"))
+    return HttpResponse(
+        str(val1) + " ^ " + str(val2) + " = " + ("1" if model.predict_proba(test_X)[0][0] > 0.5 else "0"))
 
+@csrf_exempt
 def checkFile(request):
-    api_key = request.POST.get("api-key", "")
+    request_data = json.loads(request.body.decode())
+
+    api_key = request_data.get("api_key", "")
+    filedata = request_data.get("data", [])
     if not api_key:
         return JsonResponse({"err_msg": "not a valid api-key"})
-
-    return JsonResponse({"err_msg": "yet"})
+    aes128_key = User.objects.filter(api_key=api_key)[0].aes128_key
+    return JsonResponse({"aes128_key": aes128_key})
