@@ -50,21 +50,29 @@ namespace WALLnutClient
             {
                { "api_key", tb_apikey.Text }
             };
-            Task<string> result = Connection.PostRequest("/v1/user/join/", body);
-            JObject response = JObject.Parse(await result);
-            
-            if(!Object.ReferenceEquals(response["err_msg"], null))
+            Task<string> result_task = Connection.PostRequest("/v1/user/join/", body);
+            string result = await result_task;
+            if (result.Equals(""))
             {
-                MessageBox.Show(response["err_msg"].ToString());
                 return;
             }
-            Connection.access_token = response["access_token"].ToString();
+            else
+            {
+                JObject response = JObject.Parse(result);
 
-            RegistryKey regKey = Registry.CurrentUser.CreateSubKey("SOFTWARE\\WALLnut", RegistryKeyPermissionCheck.ReadWriteSubTree);
-            
-            regKey.SetValue("access_token", Connection.access_token, RegistryValueKind.String);
+                if (!Object.ReferenceEquals(response["err_msg"], null))
+                {
+                    MessageBox.Show(response["err_msg"].ToString());
+                    return;
+                }
+                Connection.access_token = response["access_token"].ToString();
 
-            nextWindow();
+                RegistryKey regKey = Registry.CurrentUser.CreateSubKey("SOFTWARE\\WALLnut", RegistryKeyPermissionCheck.ReadWriteSubTree);
+
+                regKey.SetValue("access_token", Connection.access_token, RegistryValueKind.String);
+
+                nextWindow();
+            }
         }
 
         public void nextWindow()
