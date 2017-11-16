@@ -12,7 +12,7 @@ def Join(request):
     token = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
     def CreateUser(name, api_key_instance):
-        new_user = User.objects.create(name=name, access_token=GenerateToken(), api_key=api_key_instance)
+        new_user = User.objects.create(name=name, access_token=GenerateToken(), aes128_key=GenerateToken(length=128), api_key=api_key_instance)
         api_key_instance.used = True
         api_key_instance.save(update_fields=['used'])
         return new_user

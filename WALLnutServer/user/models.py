@@ -1,12 +1,14 @@
 from django.db import models
 from api_key.models import APIkey
 
+
 # Create your models here.
 
 class User(models.Model):
     access_token = models.CharField(max_length=32, primary_key=True)
     name = models.CharField(max_length=128, blank=True)
     api_key = models.ForeignKey(to=APIkey, on_delete=models.SET_NULL, blank=False, null=True)
+    aes128_key = models.CharField(max_length=128, blank=False, null=False)
     create_time = models.DateField(blank=False, null=False, auto_now_add=True)
     last_access_time = models.DateTimeField(blank=False, null=False, auto_now=True)
 
