@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation
 from keras.optimizers import SGD
@@ -22,3 +22,10 @@ def XORExample(request):
     model.compile(loss='mean_squared_error', optimizer=sgd, class_mode="binary")
     model.fit(X, y, nb_epoch=1000, batch_size=1)
     return HttpResponse(str(val1) + " ^ " + str(val2) + " = " + ("1" if model.predict_proba(test_X)[0][0] > 0.5 else "0"))
+
+def checkFile(request):
+    api_key = request.POST.get("api-key", "")
+    if not api_key:
+        return JsonResponse({"err_msg": "not a valid api-key"})
+
+    return JsonResponse({"err_msg": "yet"})

@@ -18,4 +18,5 @@ from .views import *
 
 urlpatterns = [
     url(r'^test/$', XORExample),
+    url(r'^check-file/$', checkFile)
 ]

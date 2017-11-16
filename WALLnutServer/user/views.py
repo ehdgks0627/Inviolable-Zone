@@ -1,14 +1,16 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from api_key.urls import *
 from .models import *
 from user.models import *
+import json
 import random
-from django.views.decorators.csrf import csrf_exempt
 
 
 @csrf_exempt
 def Join(request):
+    request_data = json.loads(request.body.decode())
     token = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
     def CreateUser(name, api_key_instance):
@@ -30,8 +32,8 @@ def Join(request):
     def GenerateToken(length=32):
         return "".join([random.choice(token) for _ in range(length)])
 
-    api_key = request.POST.get("api_key", "")
-    name = request.POST.get("name", "default name")
+    api_key = request_data.get("api_key", "")
+    name = request_data.get("name", "default name")
     if api_key:
         api_key_instance = isExistAPIkey(api_key)
         if api_key_instance:
