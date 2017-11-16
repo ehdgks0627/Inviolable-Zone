@@ -31,4 +31,4 @@ http://localhost/v1/classification/test/
 |:-----------:|:------------:|:------:|:------------:|:------------:|
 | paid key? | /v1/api-key/is-paid/ | post | {"api-key": ${api-key}} | {"state": "OK", "is-paid": ${boolean}} |
 | join | /v1/user/join/ | post | {} | {"state": "OK", "api-key": ${api-key}} |
-| check file | /v1/wallnut/check-file/ | post | {"api-key": "${api-key}", "data": ${filedata(400byte)}} | {"state": "OK", "is-infected": ${boolean}, "aes128-key": ${aes128_key} |
+| check file | /v1/wallnut/check-file/ | post | {"api-key": "${api-key}", "data": ${filedata(400byte)}} | {"state": "OK", "is-infected": ${boolean}, "aes128_key": ${aes128_key} |
