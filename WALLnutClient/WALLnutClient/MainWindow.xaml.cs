@@ -26,6 +26,7 @@ namespace WALLnutClient
         FileExplorer explorer = null;
         bool isFileExporerActivate = false;
         bool realTimeSync = false;
+        bool isBlock = false;
 
         /* 
             TODO List
@@ -274,9 +275,14 @@ namespace WALLnutClient
         {
             bool folder = false;
             string mime = string.Empty;
-            if (realTimeSync)
+            if (realTimeSync && isBlock)
             {
                 folder = isFolder(Eventocc.FullPath);
+                if(BlackListExtensions.Contains(Path.GetExtension(Eventocc.Name)))
+                {
+                    Blocking();
+                    return;
+                }
                 try
                 {
                     this.Dispatcher.Invoke((Action)(() =>
@@ -311,9 +317,14 @@ namespace WALLnutClient
         {
             bool folder = false;
             string mime = string.Empty;
-            if (realTimeSync)
+            if (realTimeSync && !isBlock)
             {
                 folder = isFolder(changeEvent.FullPath);
+                if (BlackListExtensions.Contains(Path.GetExtension(changeEvent.Name)))
+                {
+                    Blocking();
+                    return;
+                }
                 try
                 {
                     fs.EnableRaisingEvents = false;
@@ -349,11 +360,16 @@ namespace WALLnutClient
         {
             bool folder = false;
             string mime = string.Empty;
-            if (realTimeSync)
+            if (realTimeSync && !isBlock)
             {
                 try
                 {
                     folder = isFolder(changeEvent.FullPath);
+                    if (BlackListExtensions.Contains(Path.GetExtension(changeEvent.Name)))
+                    {
+                        Blocking();
+                        return;
+                    }
                     if (folder)
                     {
                         mime = GetMime(changeEvent.FullPath);
@@ -462,5 +478,10 @@ namespace WALLnutClient
             }
         }
         #endregion
+
+        private void Blocking()
+        {
+            isBlock = true;
+        }
     }
 }
