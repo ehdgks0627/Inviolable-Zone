@@ -139,6 +139,7 @@
     <Compile Include="FileExplorer.xaml.cs">
       <DependentUpon>FileExplorer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FileFeature.cs" />
     <Compile Include="SelectDiskWindow.xaml.cs">
       <DependentUpon>SelectDiskWindow.xaml</DependentUpon>
     </Compile>
