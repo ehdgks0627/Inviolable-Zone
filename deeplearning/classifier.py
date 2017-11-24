@@ -10,22 +10,29 @@ def md5(fname):
     return hash_md5.hexdigest()
 
 def getMagic(fname):
-    return magic.from_file(fname, mime=True) + "\\"
+    return magic.from_file(fname, mime=True) + path_split
 
-inputDir  = "C:\\Users\\sprout\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache"
-outputDir = "C:\\Users\\sprout\\Desktop\\WALLnut\\deeplearning\\filesByLibmagic\\"
+inputDir  = "files/"
+outputDir = "c_files/"
+path_split = "/"
 
-for (path, dir, files) in os.walk(inputDir):
+for (path, dirs, files) in os.walk(inputDir):
+    count = len(files)
+    now = 0
     for file in files:
-        print(path + "\\" + file)
+        now += 1
         try:
-            fileMagic = getMagic(path + "\\" + file)
-            fileMD5 =  md5(path + "\\" + file)
+            fileMagic = getMagic(path + file).replace(path_split, "_")
+            fileMD5 =  md5(path + path_split + file)
             if not os.path.isdir(outputDir + fileMagic):
                 os.mkdir(outputDir + fileMagic)
-            os.rename(path + "\\" + file, outputDir + fileMagic + fileMD5)
-        except FileExistsError:
-            os.remove(path + "\\" + file)
-        except PermissionError:
-            print("PermissionError")
+            os.rename(path + file, outputDir + fileMagic + path_split + fileMD5)
+            if now % 10 == 0 or True:
+                print("(%d/%d) - %s - %s"%(now, count, file, fileMagic))
+
+        except OSError: # if 2, OSError 3, FileExistsError
+            print("err")
+            os.remove(path + file)
             pass
+
+#https://github.com/ahupp/python-magic
