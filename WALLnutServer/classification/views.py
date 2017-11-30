@@ -54,7 +54,6 @@ def checkFile(request):
     access_token = request_data.get("access_token", "")
     features = request_data.get("features", [])
     request_id = request_data.get("request_id", "")
-    result = []
 
     if not access_token or not isValidAccessToken(access_token):
         return JsonResponse({"err_msg": "not a valid access_token"})
@@ -72,6 +71,6 @@ def checkFile(request):
             continue
     aes128_key = User.objects.filter(access_token=access_token)[0].aes128_key
     if isInfected:
-        return JsonResponse({"aes128_key": aes128_key, "isInfected": isInfected, "request_id": request_id})
+        return JsonResponse({"isInfected": isInfected, "request_id": request_id})
     else:
         return JsonResponse({"aes128_key": aes128_key, "isInfected": isInfected, "request_id": request_id})
