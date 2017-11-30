@@ -5,23 +5,24 @@ from keras.layers.core import Dense, Activation
 from keras.optimizers import SGD
 from django.views.decorators.csrf import csrf_exempt
 from user.models import *
+from user.views import *
 import numpy as np
 import json
 
-CSHARP_TO_PY = {"application_msword_": "",
-                "application_pdf_": "",
-                "application_vnd.ms-powerpoint_": "",
-                "application_vnd.openxmlformats-officedocument.presentationml.presentation_": "",
-                "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_": "",
-                "application_vnd.openxmlformats-officedocument.wordprocessingml.document_": "",
-                "application_x-hwp_": "",
-                "application_zip_": "",
-                "image_gif_": "",
-                "image_jpeg_": "",
-                "image_png_": ""}
+CSHARP_TO_PY = {"a": "application_msword_",
+                "b": "application_pdf_",
+                "c": "application_vnd.ms-powerpoint_",
+                "d": "application_vnd.openxmlformats-officedocument.presentationml.presentation_",
+                "e": "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_",
+                "f": "application_vnd.openxmlformats-officedocument.wordprocessingml.document_",
+                "g": "application_x-hwp_",
+                "h": "application_zip_",
+                "i": "image_gif_",
+                "j": "image_jpeg_",
+                "k": "image_png_"}
 MODELS = {}
 
-for TYPE in CSHARP_TO_PY.keys():
+for TYPE in CSHARP_TO_PY.values():
     print("Loading Model - %s"%(TYPE))
     MODELS[TYPE] = load_model("models/%s.h5" % (TYPE))
     print("[+] Loading Model Done!")
@@ -50,24 +51,27 @@ def XORExample(request):
 def checkFile(request):
     request_data = json.loads(request.body.decode())
 
-    api_key = request_data.get("api_key", "")
-    filedatas = request_data.get("data", [])
+    access_token = request_data.get("access_token", "")
+    features = request_data.get("features", [])
+    request_id = request_data.get("request_id", "")
     result = []
 
-    if not api_key:
-        return JsonResponse({"err_msg": "not a valid api-key"})
+    if not access_token or not isValidAccessToken(access_token):
+        return JsonResponse({"err_msg": "not a valid access_token"})
 
     isInfected = False
 
-    for data in filedatas:
-        fileid = data[0]
-        filetype = data[1]
-        filedata = data[2]
-        if filetype in CSHARP_TO_PY.keys():
-            pass
-            # result = MODELS[CSHARP_TO_PY[filetype]].predict(filedata)
-            # model_to_predict
+    for feature in features:
+        ftype = feature[0]
+        fdata = np.asarray([feature[1]*10])
+        if ftype in CSHARP_TO_PY.keys():
+            result = MODELS[CSHARP_TO_PY[ftype]].predict_classes(fdata)
+            if result[0] == 1:
+                isInfected = True
         else:
             continue
-    aes128_key = User.objects.filter(api_key=api_key)[0].aes128_key
-    return JsonResponse({"aes128_key": aes128_key, "check": isInfected})
+    aes128_key = User.objects.filter(access_token=access_token)[0].aes128_key
+    if isInfected:
+        return JsonResponse({"aes128_key": aes128_key, "isInfected": isInfected, "request_id": request_id})
+    else:
+        return JsonResponse({"aes128_key": aes128_key, "isInfected": isInfected, "request_id": request_id})
