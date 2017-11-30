@@ -8,6 +8,9 @@ import json
 import random
 
 
+def isValidAccessToken(access_token):
+    return User.objects.filter(access_token=access_token)
+
 @csrf_exempt
 def Join(request):
     request_data = json.loads(request.body.decode())
