@@ -9,17 +9,17 @@ from user.views import *
 import numpy as np
 import json
 
-CSHARP_TO_PY = {"a": "application_msword_",
-                "b": "application_pdf_",
-                "c": "application_vnd.ms-powerpoint_",
-                "d": "application_vnd.openxmlformats-officedocument.presentationml.presentation_",
-                "e": "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_",
-                "f": "application_vnd.openxmlformats-officedocument.wordprocessingml.document_",
-                "g": "application_x-hwp_",
-                "h": "application_zip_",
-                "i": "image_gif_",
-                "j": "image_jpeg_",
-                "k": "image_png_"}
+CSHARP_TO_PY = {"application/msword": "application_msword_",
+                "application/pdf": "application_pdf_",
+                "application/vnd.ms-powerpoint": "application_vnd.ms-powerpoint_",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation": "application_vnd.openxmlformats-officedocument.presentationml.presentation_",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "application_vnd.openxmlformats-officedocument.wordprocessingml.document_",
+                "application/x-hwp": "application_x-hwp_",
+                "application/zip": "application_zip_",
+                "image/gif": "image_gif_",
+                "image/jpeg": "image_jpeg_",
+                "image/png": "image_png_"}
 MODELS = {}
 
 for TYPE in CSHARP_TO_PY.values():
