@@ -18,4 +18,5 @@ from .views import *
 
 urlpatterns = [
     url(r'^join/$', Join),
+    url(r'^request-decode-data/$', RequestDecodeData),
 ]

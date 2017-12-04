@@ -1,0 +1,696 @@
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+[02/Dec/2017 02:06:27] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 184
+[02/Dec/2017 09:04:12] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 184
+[02/Dec/2017 09:06:21] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 39
+[02/Dec/2017 09:06:45] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 39
+[02/Dec/2017 09:08:02] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[02/Dec/2017 23:02:29] "POST /v1/user/join/ HTTP/1.1" 200 34
+[02/Dec/2017 23:02:29] "POST /v1/user/join/ HTTP/1.1" 200 34
+[02/Dec/2017 23:02:35] "POST /v1/user/join/ HTTP/1.1" 200 52
+Not Found: /http:/www.baidu.com/cache/global/img/gs.gif
+[02/Dec/2017 23:31:20] "GET http://www.baidu.com/cache/global/img/gs.gif HTTP/1.1" 404 1727
+Not Found: /
+[03/Dec/2017 13:05:34] "GET / HTTP/1.1" 404 2259
+Not Found: /favicon.ico
+[03/Dec/2017 13:05:35] "GET /favicon.ico HTTP/1.1" 404 2310
+[03/Dec/2017 13:31:35] "POST /v1/user/join/ HTTP/1.1" 200 52
+Not Found: /http:/www.baidu.com/cache/global/img/gs.gif
+[03/Dec/2017 21:19:25] "GET http://www.baidu.com/cache/global/img/gs.gif HTTP/1.1" 404 1727
+[04/Dec/2017 00:05:10] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 184
+Performing system checks...
+
+Loading Model - application_vnd.ms-powerpoint_
+[+] Loading Model Done!
+Loading Model - image_jpeg_
+[+] Loading Model Done!
+Loading Model - application_x-hwp_
+[+] Loading Model Done!
+Loading Model - application_msword_
+[+] Loading Model Done!
+Loading Model - image_png_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.wordprocessingml.document_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_
+[+] Loading Model Done!
+Loading Model - image_gif_
+[+] Loading Model Done!
+Loading Model - application_pdf_
+[+] Loading Model Done!
+Loading Model - application_zip_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.presentationml.presentation_
+[+] Loading Model Done!
+System check identified no issues (0 silenced).
+December 02, 2017 - 02:06:22
+Django version 1.11.4, using settings 'WALLnutServer.settings'
+Starting development server at http://0.0.0.0:8001/
+Quit the server with CONTROL-C.
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Not Found: /
+[04/Dec/2017 03:39:15] "GET / HTTP/1.1" 404 2259
+Not Found: /command.php
+[04/Dec/2017 03:39:15] "POST /command.php HTTP/1.1" 404 2311
+Not Found: /system.ini
+[04/Dec/2017 03:39:15] "GET /system.ini?loginuse&loginpas HTTP/1.1" 404 2329
+Not Found: /upgrade_handle.php
+[04/Dec/2017 03:39:15] "GET /upgrade_handle.php?cmd=writeuploaddir&uploaddir=%27;echo+nuuo+123456;%27 HTTP/1.1" 404 2389
+Not Found: /board.cgi
+[04/Dec/2017 03:39:16] "GET /board.cgi?cmd=cat%20/etc/passwd HTTP/1.1" 404 2326
+Not Found: /hedwig.cgi
+[04/Dec/2017 03:39:16] "POST /hedwig.cgi HTTP/1.1" 404 2308
+Not Found: /apply.cgi
+[04/Dec/2017 03:39:16] "POST /apply.cgi HTTP/1.1" 404 2305
+Not Found: /setup.cgi
+[04/Dec/2017 03:39:16] "GET /setup.cgi?next_file=netgear.cfg&todo=syscmd&curpath=/&currentsetting.htm=1&cmd=echo+dgn+123456 HTTP/1.1" 404 2405
+Not Found: /cgi-bin/user/Config.cgi
+[04/Dec/2017 03:39:17] "GET /cgi-bin/user/Config.cgi?.cab&action=get&category=Account.* HTTP/1.1" 404 2389
+Not Found: /shell
+[04/Dec/2017 03:39:17] "GET /shell?echo+jaws+123456;cat+/proc/cpuinfo HTTP/1.1" 404 2327
+[04/Dec/2017 03:41:17] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 06:38:14] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 06:39:03] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 06:42:01] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 06:55:10] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 06:56:35] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 06:57:50] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 07:11:59] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 07:12:29] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 07:13:01] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 07:14:11] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:06:43] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:07:00] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:09:15] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:09:52] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:10:22] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:10:25] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:28:10] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:31:13] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:31:30] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:34:10] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:34:34] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:34:37] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:35:17] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:35:24] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:35:46] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:36:34] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:36:55] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 08:41:19] "POST /v1/user/join/ HTTP/1.1" 200 52
+[04/Dec/2017 09:11:36] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:11:45] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:11:54] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:12:09] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:12:15] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:13:10] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:14:35] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:14:58] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:15:18] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:16:04] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:17:01] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:18:14] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:20:50] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:23:54] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:24:17] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:26:52] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:27:25] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+Not Found: /
+[04/Dec/2017 09:28:15] "GET / HTTP/1.0" 404 2254
+[04/Dec/2017 09:28:57] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:31:19] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:32:29] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:33:45] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:34:24] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:36:46] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:37:09] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:39:33] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:40:41] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:41:56] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:44:03] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:44:09] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:44:15] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 09:53:08] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:19:01] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:19:04] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:20:00] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:20:26] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:22:54] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:24:21] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:25:10] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:26:26] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:26:56] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:28:32] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:29:34] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:29:43] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:29:46] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:29:49] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:29:52] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 10:30:40] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 11:28:17] "POST /v1/user/join/ HTTP/1.1" 200 52
+[04/Dec/2017 11:55:20] "POST /v1/user/join/ HTTP/1.1" 200 52
+[04/Dec/2017 11:56:21] "POST /v1/user/join/ HTTP/1.1" 200 52
+[04/Dec/2017 14:15:05] "POST /v1/user/join/ HTTP/1.1" 200 52
+[04/Dec/2017 14:17:51] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:18:00] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:18:15] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:18:18] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:20:06] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:23:48] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:24:38] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:25:11] "POST /v1/user/join/ HTTP/1.1" 200 52
+[04/Dec/2017 14:33:43] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:34:19] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:34:22] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:34:37] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:34:41] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:34:44] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:34:50] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:37:18] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:38:11] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:39:53] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:40:19] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:40:30] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:40:33] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:40:42] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:40:52] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:41:01] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:41:39] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:44:04] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:44:48] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:46:03] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:47:10] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:47:52] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:50:32] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:51:17] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:51:26] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:51:36] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:51:45] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:51:49] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:54:49] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 14:54:58] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 15:13:45] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 15:45:01] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 15:45:13] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 15:45:16] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+[04/Dec/2017 15:45:19] "POST /v1/wallnut/check-file/ HTTP/1.1" 200 186
+Performing system checks...
+
+Loading Model - image_gif_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.wordprocessingml.document_
+[+] Loading Model Done!
+Loading Model - application_pdf_
+[+] Loading Model Done!
+Loading Model - application_x-hwp_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.presentationml.presentation_
+[+] Loading Model Done!
+Loading Model - application_msword_
+[+] Loading Model Done!
+Loading Model - application_zip_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_
+[+] Loading Model Done!
+Loading Model - application_vnd.ms-powerpoint_
+[+] Loading Model Done!
+Loading Model - image_png_
+[+] Loading Model Done!
+Loading Model - image_jpeg_
+[+] Loading Model Done!
+System check identified no issues (0 silenced).
+December 04, 2017 - 00:06:29
+Django version 1.11.4, using settings 'WALLnutServer.settings'
+Starting development server at http://0.0.0.0:8001/
+Quit the server with CONTROL-C.
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Unhandled exception in thread started by <function check_errors.<locals>.wrapper at 0x7fee1c8eb840>
+Traceback (most recent call last):
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/autoreload.py", line 228, in wrapper
+    fn(*args, **kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/commands/runserver.py", line 125, in inner_run
+    self.check(display_num_errors=True)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 359, in check
+    include_deployment_checks=include_deployment_checks,
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 346, in _run_checks
+    return checks.run_checks(**kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/registry.py", line 81, in run_checks
+    new_errors = check(app_configs=app_configs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 16, in check_url_config
+    return check_resolver(resolver)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 26, in check_resolver
+    return check_method()
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 254, in check
+    for pattern in self.url_patterns:
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 405, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 398, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/WALLnutServer/urls.py", line 23, in <module>
+    url(r'^{}/wallnut/'.format(API_VERSION), include('classification.urls')),
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/conf/urls/__init__.py", line 50, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/urls.py", line 17, in <module>
+    from .views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/views.py", line 8, in <module>
+    from user.views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/user/views.py", line 59
+    
+    ^
+SyntaxError: unexpected EOF while parsing
+Performing system checks...
+
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Unhandled exception in thread started by <function check_errors.<locals>.wrapper at 0x7fb620ced840>
+Traceback (most recent call last):
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/autoreload.py", line 228, in wrapper
+    fn(*args, **kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/commands/runserver.py", line 125, in inner_run
+    self.check(display_num_errors=True)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 359, in check
+    include_deployment_checks=include_deployment_checks,
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 346, in _run_checks
+    return checks.run_checks(**kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/registry.py", line 81, in run_checks
+    new_errors = check(app_configs=app_configs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 16, in check_url_config
+    return check_resolver(resolver)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 26, in check_resolver
+    return check_method()
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 254, in check
+    for pattern in self.url_patterns:
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 405, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 398, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/WALLnutServer/urls.py", line 23, in <module>
+    url(r'^{}/wallnut/'.format(API_VERSION), include('classification.urls')),
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/conf/urls/__init__.py", line 50, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/urls.py", line 17, in <module>
+    from .views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/views.py", line 8, in <module>
+    from user.views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/user/views.py", line 63
+    
+    ^
+SyntaxError: unexpected EOF while parsing
+Performing system checks...
+
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Unhandled exception in thread started by <function check_errors.<locals>.wrapper at 0x7f9b27f71840>
+Traceback (most recent call last):
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/autoreload.py", line 228, in wrapper
+    fn(*args, **kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/commands/runserver.py", line 125, in inner_run
+    self.check(display_num_errors=True)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 359, in check
+    include_deployment_checks=include_deployment_checks,
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 346, in _run_checks
+    return checks.run_checks(**kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/registry.py", line 81, in run_checks
+    new_errors = check(app_configs=app_configs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 16, in check_url_config
+    return check_resolver(resolver)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 26, in check_resolver
+    return check_method()
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 254, in check
+    for pattern in self.url_patterns:
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 405, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 398, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/WALLnutServer/urls.py", line 23, in <module>
+    url(r'^{}/wallnut/'.format(API_VERSION), include('classification.urls')),
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/conf/urls/__init__.py", line 50, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/urls.py", line 17, in <module>
+    from .views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/views.py", line 8, in <module>
+    from user.views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/user/views.py", line 65
+    
+    ^
+SyntaxError: unexpected EOF while parsing
+Performing system checks...
+
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Unhandled exception in thread started by <function check_errors.<locals>.wrapper at 0x7f02a37a8840>
+Traceback (most recent call last):
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/autoreload.py", line 228, in wrapper
+    fn(*args, **kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/commands/runserver.py", line 125, in inner_run
+    self.check(display_num_errors=True)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 359, in check
+    include_deployment_checks=include_deployment_checks,
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 346, in _run_checks
+    return checks.run_checks(**kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/registry.py", line 81, in run_checks
+    new_errors = check(app_configs=app_configs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 16, in check_url_config
+    return check_resolver(resolver)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 26, in check_resolver
+    return check_method()
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 254, in check
+    for pattern in self.url_patterns:
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 405, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 398, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/WALLnutServer/urls.py", line 23, in <module>
+    url(r'^{}/wallnut/'.format(API_VERSION), include('classification.urls')),
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/conf/urls/__init__.py", line 50, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/urls.py", line 17, in <module>
+    from .views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/views.py", line 8, in <module>
+    from user.views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/user/views.py", line 65
+    
+    ^
+SyntaxError: unexpected EOF while parsing
+Performing system checks...
+
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Unhandled exception in thread started by <function check_errors.<locals>.wrapper at 0x7f2383a9f840>
+Traceback (most recent call last):
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/autoreload.py", line 228, in wrapper
+    fn(*args, **kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/commands/runserver.py", line 125, in inner_run
+    self.check(display_num_errors=True)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 359, in check
+    include_deployment_checks=include_deployment_checks,
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/management/base.py", line 346, in _run_checks
+    return checks.run_checks(**kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/registry.py", line 81, in run_checks
+    new_errors = check(app_configs=app_configs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 16, in check_url_config
+    return check_resolver(resolver)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/checks/urls.py", line 26, in check_resolver
+    return check_method()
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 254, in check
+    for pattern in self.url_patterns:
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 405, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/utils/functional.py", line 35, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/urls/resolvers.py", line 398, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/WALLnutServer/urls.py", line 23, in <module>
+    url(r'^{}/wallnut/'.format(API_VERSION), include('classification.urls')),
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/conf/urls/__init__.py", line 50, in include
+    urlconf_module = import_module(urlconf_module)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 985, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 968, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 957, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 673, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 697, in exec_module
+  File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/urls.py", line 17, in <module>
+    from .views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/classification/views.py", line 8, in <module>
+    from user.views import *
+  File "/home/sprout/projects/WALLnut/WALLnutServer/user/views.py", line 60
+    features = request_data.get("features", [])
+    ^
+IndentationError: unexpected indent
+Performing system checks...
+
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Performing system checks...
+
+Loading Model - application_vnd.openxmlformats-officedocument.wordprocessingml.document_
+[+] Loading Model Done!
+Loading Model - image_gif_
+[+] Loading Model Done!
+Loading Model - application_zip_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.presentationml.presentation_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_
+[+] Loading Model Done!
+Loading Model - application_pdf_
+[+] Loading Model Done!
+Loading Model - application_vnd.ms-powerpoint_
+[+] Loading Model Done!
+Loading Model - application_msword_
+[+] Loading Model Done!
+Loading Model - image_png_
+[+] Loading Model Done!
+Loading Model - application_x-hwp_
+[+] Loading Model Done!
+Loading Model - image_jpeg_
+[+] Loading Model Done!
+System check identified no issues (0 silenced).
+December 04, 2017 - 16:13:05
+Django version 1.11.4, using settings 'WALLnutServer.settings'
+Starting development server at http://0.0.0.0:8001/
+Quit the server with CONTROL-C.
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Performing system checks...
+
+Loading Model - application_vnd.ms-powerpoint_
+[+] Loading Model Done!
+Loading Model - application_msword_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_
+[+] Loading Model Done!
+Loading Model - application_x-hwp_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.presentationml.presentation_
+[+] Loading Model Done!
+Loading Model - application_pdf_
+[+] Loading Model Done!
+Loading Model - image_gif_
+[+] Loading Model Done!
+Loading Model - application_zip_
+[+] Loading Model Done!
+Loading Model - image_png_
+[+] Loading Model Done!
+Loading Model - image_jpeg_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.wordprocessingml.document_
+[+] Loading Model Done!
+System check identified no issues (0 silenced).
+December 04, 2017 - 16:14:07
+Django version 1.11.4, using settings 'WALLnutServer.settings'
+Starting development server at http://0.0.0.0:8001/
+Quit the server with CONTROL-C.
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Internal Server Error: /v1/user/request-decode-data/
+Traceback (most recent call last):
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/views/decorators/csrf.py", line 58, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "/home/sprout/projects/WALLnut/WALLnutServer/user/views.py", line 59, in RequestDecodeData
+    access_token = request_data.get("access_token", "")
+NameError: name 'request_data' is not defined
+[04/Dec/2017 16:15:48] "POST /v1/user/request-decode-data/ HTTP/1.1" 500 68374
+Performing system checks...
+
+Loading Model - image_gif_
+[+] Loading Model Done!
+Loading Model - application_msword_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.presentationml.presentation_
+[+] Loading Model Done!
+Loading Model - application_x-hwp_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_
+[+] Loading Model Done!
+Loading Model - application_vnd.ms-powerpoint_
+[+] Loading Model Done!
+Loading Model - application_pdf_
+[+] Loading Model Done!
+Loading Model - application_zip_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.wordprocessingml.document_
+[+] Loading Model Done!
+Loading Model - image_png_
+[+] Loading Model Done!
+Loading Model - image_jpeg_
+[+] Loading Model Done!
+System check identified no issues (0 silenced).
+December 04, 2017 - 16:14:33
+Django version 1.11.4, using settings 'WALLnutServer.settings'
+Starting development server at http://0.0.0.0:8001/
+Quit the server with CONTROL-C.
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+Internal Server Error: /v1/user/request-decode-data/
+Traceback (most recent call last):
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/django/views/decorators/csrf.py", line 58, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "/home/sprout/projects/WALLnut/WALLnutServer/user/views.py", line 67, in RequestDecodeData
+    aes128_key = User.objects.filter(access_token=access_token)[0].aec128_key
+AttributeError: 'User' object has no attribute 'aec128_key'
+[04/Dec/2017 16:16:12] "POST /v1/user/request-decode-data/ HTTP/1.1" 500 68500
+Performing system checks...
+
+Loading Model - application_vnd.ms-powerpoint_
+[+] Loading Model Done!
+Loading Model - image_jpeg_
+[+] Loading Model Done!
+Loading Model - image_gif_
+[+] Loading Model Done!
+Loading Model - application_msword_
+[+] Loading Model Done!
+Loading Model - application_x-hwp_
+[+] Loading Model Done!
+Loading Model - application_zip_
+[+] Loading Model Done!
+Loading Model - image_png_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.spreadsheetml.sheet_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.wordprocessingml.document_
+[+] Loading Model Done!
+Loading Model - application_pdf_
+[+] Loading Model Done!
+Loading Model - application_vnd.openxmlformats-officedocument.presentationml.presentation_
+[+] Loading Model Done!
+System check identified no issues (0 silenced).
+December 04, 2017 - 16:16:10
+Django version 1.11.4, using settings 'WALLnutServer.settings'
+Starting development server at http://0.0.0.0:8001/
+Quit the server with CONTROL-C.
+Selected CPU as the process wide default device.
+Using CNTK backend
+/home/sprout/anaconda3/envs/cntkpy/lib/python3.5/site-packages/keras/backend/cntk_backend.py:18: UserWarning: CNTK backend warning: GPU is not detected. CNTK's CPU version is not fully optimized,please run with GPU to get better performance.
+  'CNTK backend warning: GPU is not detected. '
+[04/Dec/2017 16:16:21] "POST /v1/user/request-decode-data/ HTTP/1.1" 200 146
+[04/Dec/2017 16:16:27] "POST /v1/user/request-decode-data/ HTTP/1.1" 200 39
+[04/Dec/2017 16:16:31] "POST /v1/user/request-decode-data/ HTTP/1.1" 200 146
