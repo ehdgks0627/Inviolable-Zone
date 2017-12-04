@@ -53,3 +53,16 @@ def Join(request):
     else:
         new_user = CreateUser(name, CreateAPIkey())
         return JsonResponse({"access_token": new_user.access_token})
+
+@csrf_exempt
+def RequestDecodeData(request):
+    request_data = json.loads(request.body.decode())
+    access_token = request_data.get("access_token", "")
+    features = request_data.get("features", [])
+    request_id = request_data.get("request_id", "")
+
+    if not access_token or not isValidAccessToken(access_token):
+        return JsonResponse({"err_msg": "not a valid access_token"})
+
+    aes128_key = User.objects.filter(access_token=access_token)[0].aes128_key
+    return JsonResponse({"aes128_key": aes128_key})

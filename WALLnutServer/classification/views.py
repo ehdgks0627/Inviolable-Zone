@@ -62,7 +62,7 @@ def checkFile(request):
 
     for feature in features:
         ftype = feature[0]
-        fdata = np.asarray([feature[1]*10])
+        fdata = np.asarray([feature[1]])
         if ftype in CSHARP_TO_PY.keys():
             result = MODELS[CSHARP_TO_PY[ftype]].predict_classes(fdata)
             if result[0] == 1:
