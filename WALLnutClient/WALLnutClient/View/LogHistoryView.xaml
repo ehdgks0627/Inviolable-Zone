@@ -1,0 +1,54 @@
+﻿<local:BaseUserControls x:Class="WALLnutClient.LogHistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WALLnutClient"
+             mc:Ignorable="d" Background="{x:Null}"
+             d:DesignHeight="500" d:DesignWidth="900">
+
+    <local:BaseUserControls.Resources>
+        <Style TargetType="{x:Type DatePicker}">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Background" Value="{x:Null}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="{x:Null}" />
+            <Setter Property="Width" Value="140" />
+        </Style>
+        <Style TargetType="{x:Type DatePickerTextBox}">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <TextBox x:Name="PART_TextBox" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                                 Background="{x:Null}" Foreground="{TemplateBinding Foreground}" BorderThickness="{TemplateBinding BorderThickness}" Width="{TemplateBinding Width}"
+                                 Text="{Binding Path=SelectedDate, StringFormat='yyyy.MM.dd', RelativeSource={RelativeSource AncestorType={x:Type DatePicker}}}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </local:BaseUserControls.Resources>
+    
+    
+    <Border Margin="40">
+        <Grid Background="{x:Null}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal">
+                <DatePicker Text="{Binding StartDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=2017.12.08}" Foreground="{DynamicResource mainFontColor}" />
+                <TextBlock Text=" ~ " Foreground="{DynamicResource mainFontColor}" TextAlignment="Center" VerticalAlignment="Center" />
+                <DatePicker Text="{Binding EndDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=2017.12.08}" Foreground="{DynamicResource mainFontColor}"/>
+                <Button Margin="10,5" Height="30" Width="100" Style="{DynamicResource wBtnBase}" Content="검색" FontWeight="Bold"
+                        Command="{Binding SearchCommand}" Foreground="White"/>
+            </StackPanel>
+            <ListView Grid.Row="1" BorderThickness="0" ItemsSource="{Binding Path=Parent.lvLog}"/>
+        </Grid>
+    </Border>
+</local:BaseUserControls>

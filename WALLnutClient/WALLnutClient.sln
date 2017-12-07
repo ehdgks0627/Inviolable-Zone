@@ -1,22 +1,37 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WALLnutClient", "WALLnutClient\WALLnutClient.csproj", "{0E7F598B-C8AD-49D0-8795-1D1123FC3FCC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dll", "Dll", "{9FEE62EA-F8E1-4311-9F2D-6A38C1E4095E}"
+	ProjectSection(SolutionItems) = preProject
+		Dll\Graphs.xaml = Dll\Graphs.xaml
+		Dll\GravityApps.Mandelkow.MetroCharts.dll = Dll\GravityApps.Mandelkow.MetroCharts.dll
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0E7F598B-C8AD-49D0-8795-1D1123FC3FCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0E7F598B-C8AD-49D0-8795-1D1123FC3FCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E7F598B-C8AD-49D0-8795-1D1123FC3FCC}.Debug|x64.ActiveCfg = Debug|x64
+		{0E7F598B-C8AD-49D0-8795-1D1123FC3FCC}.Debug|x64.Build.0 = Debug|x64
 		{0E7F598B-C8AD-49D0-8795-1D1123FC3FCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E7F598B-C8AD-49D0-8795-1D1123FC3FCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E7F598B-C8AD-49D0-8795-1D1123FC3FCC}.Release|x64.ActiveCfg = Release|x64
+		{0E7F598B-C8AD-49D0-8795-1D1123FC3FCC}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {622FE184-86EF-440A-948E-C44920DAF8DA}
 	EndGlobalSection
 EndGlobal
