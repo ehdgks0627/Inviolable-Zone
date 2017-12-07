@@ -1,0 +1,80 @@
+﻿<Window x:Class="WALLnutClient.SelectDiskWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:local="clr-namespace:WALLnutClient"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen" 
+        WindowStyle="None" AllowsTransparency="True" ResizeMode="NoResize"
+        Background="{x:Null}" SnapsToDevicePixels="True" UseLayoutRounding="True"
+        Title="WALLnut" Height="90" Width="500">
+
+    <Window.Resources>
+        
+        <Style TargetType="{x:Type Button}" x:Key="WelcomeBtnBase" BasedOn="{StaticResource wBtnBase}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" SnapsToDevicePixels="True" CornerRadius="4" BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
+                            <Border x:Name="border_inner" BorderThickness="1" CornerRadius="3" BorderBrush="{TemplateBinding BorderBrush}">
+                                <Image x:Name="xClose" Width="32" Height="32" Source="/Resources/refresh.png" Stretch="Fill" />
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="{DynamicResource btnBorderOver}"/>
+                                <Setter Property="BorderBrush" TargetName="border_inner" Value="{DynamicResource btnBorderInOver}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" TargetName="border" Value="{DynamicResource btnBorderPressed}"/>
+                                <Setter Property="BorderBrush" TargetName="border_inner" Value="{DynamicResource btnBorderInPressed}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" TargetName="border" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="WelcomeBtnFormat" BasedOn="{StaticResource wBtnBase}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+    </Window.Resources>
+
+
+    <Border BorderBrush="White" CornerRadius="4">
+        <Grid Background="{DynamicResource frameBackgroundColor}" MouseLeftButtonDown="Header_PreviewMouseLeftButtonDown">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+
+            <Border BorderBrush="White" BorderThickness="0,0,0,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid>
+                    <TextBlock Margin="10,0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="18" FontWeight="Bold" Foreground="White"
+                               Text="WALLnut" />
+                    <Button Margin="5,0" BorderThickness="0" HorizontalAlignment="Right" Style="{StaticResource xBtnClose}"
+                            Command="{Binding Path=CloseCommand}"/>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <ComboBox Margin="5,10" Style="{StaticResource DiskSelectBox}" ItemsSource="{Binding DiskInfoCollection}" SelectedItem="{Binding Path=CurrentItem, Mode=TwoWay}"/>
+                <Button Grid.Column="1" Width="40" Height="40" Style="{StaticResource WelcomeBtnBase}" Command="{Binding RefreshCommand}"/>
+                <Button Grid.Column="2" Margin="10" Width="90" Content="{Binding Action, FallbackValue=Format}" Style="{DynamicResource WelcomeBtnFormat}" Command="{Binding NextCommand}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
